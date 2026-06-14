@@ -1,5 +1,3 @@
-import React from "react";
-
 import Pacientes from "./pages/Pacientes";
 export default function PacienteModal({
   aberto,

@@ -4,12 +4,8 @@
 // Versão: 1.0.0.0
 
 // #imports
-import React from "react";
-
 import { Routes, Route } from "react-router-dom";
-
 import Sidebar from "./components/Sidebar";
-
 import { useState } from "react";
 
 //Import das telas
