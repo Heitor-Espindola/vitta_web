@@ -1,5 +1,15 @@
-import React, { useState } from "react";
+import React, {
+  useState,
+  useEffect
+} from "react";
 import PacienteModal from "../components/modal/PacienteModal";
+
+import {
+  getPacientes,
+  createPaciente,
+  updatePaciente,
+  deletePaciente
+} from "../services/api";
 
 export default function Pacientes() {
 
@@ -10,76 +20,66 @@ export default function Pacientes() {
 
   const [search, setSearch] = useState("");
 
-  const [pacientes, setPacientes] = useState([
-    {
-      nome: "João Silva",
-      cpf: "123.456.789-00",
-      nascimento: "12/05/2010"
-    }
-  ]);
+  const [pacientes, setPacientes] = useState([]);
+
+  useEffect(() => {
+    carregarPacientes();
+  }, []);
+
+  async function carregarPacientes() {
+    const dados = await getPacientes();
+    setPacientes(dados);
+  }
 
   function abrirModalNovo() {
+    console.log("Novo paciente");
+
     setPacienteEditando(null);
     setModalAberto(true);
   }
 
-  function abrirModalEditar(paciente, index) {
-    setPacienteEditando({
-      ...paciente,
-      index
-    });
-
+  function abrirModalEditar(paciente) {
+    setPacienteEditando(paciente);
     setModalAberto(true);
   }
 
-  function salvarPaciente(paciente) {
-
-    if (pacienteEditando !== null) {
-
-      const lista = [...pacientes];
-
-      lista[pacienteEditando.index] = paciente;
-
-      setPacientes(lista);
-
-    } else {
-
-      setPacientes([
-        ...pacientes,
+  async function salvarPaciente(paciente) {
+    if (pacienteEditando) {
+      await updatePaciente(
+        pacienteEditando.id,
         paciente
-      ]);
-
+      );
+    } else {
+      await createPaciente(paciente);
     }
+
+    await carregarPacientes();
 
     setModalAberto(false);
     setPacienteEditando(null);
   }
 
-  function excluirPaciente(index) {
-
+  async function excluirPaciente(id) {
     if (!confirm("Deseja excluir este paciente?"))
       return;
 
-    const lista =
-      pacientes.filter((_, i) => i !== index);
-
-    setPacientes(lista);
+    await deletePaciente(id);
+    await carregarPacientes();
   }
 
   const pacientesFiltrados =
-  pacientes.filter((p) => {
-    const termo =
-      search.toLowerCase();
-    return (
-      p.nome
-        .toLowerCase()
-        .includes(termo)
-
-      ||
-      p.cpf
-        .toLowerCase()
-        .includes(termo)
-    );
+    pacientes.filter((p) => {
+      const termo =
+        search.toLowerCase();
+      return (
+        p.nome
+          .toLowerCase()
+          .includes(termo)
+        ||
+        p.cpf
+          .toLowerCase()
+          .includes(termo)
+      );
   });
 
   return (
@@ -161,9 +161,9 @@ export default function Pacientes() {
                 </td>
               </tr>
             ) : (
-              pacientesFiltrados.map((p, index) => (
+              pacientesFiltrados.map((p) => (
                 <tr
-                  key={index}
+                  key={p.id}
                   className="border-t"
                 >
                   <td className="p-4">
@@ -181,7 +181,7 @@ export default function Pacientes() {
                   <td className="p-4">
                     <button
                       onClick={() =>
-                        abrirModalEditar(p, index)
+                        abrirModalEditar(p)
                       }
                       className="text-blue-600 mr-3"
                     >
@@ -189,7 +189,7 @@ export default function Pacientes() {
                     </button>
                     <button
                       onClick={() =>
-                        excluirPaciente(index)
+                        excluirPaciente(p.id)
                       }
                       className="text-red-600"
                     >

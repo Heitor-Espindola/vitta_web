@@ -29,6 +29,14 @@ export default function PacienteModal({
   }
 
   useEffect(() => {
+    
+    if (!aberto) {
+      setNome("");
+      setCpf("");
+      setNascimento("");
+      return;
+    }
+  
     if (pacienteInicial) {
       setNome(pacienteInicial.nome || "");
       setCpf(pacienteInicial.cpf || "");
@@ -38,7 +46,8 @@ export default function PacienteModal({
       setCpf("");
       setNascimento("");
     }
-  }, [pacienteInicial]);
+  
+  }, [pacienteInicial, aberto]);
 
   if (!aberto) return null;
 

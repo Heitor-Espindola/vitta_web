@@ -1,11 +1,11 @@
-# Instruções para rodar a beta do Vitta web
+# Instruções para rodar a beta do Vitta Web
 
 * **Clone o repositório**
 
-* **Instalação:** rode `npm install` no powershell do vscode
+* **Instalação:** rode `npm install` no terminal do vscode
 
-* **Frontend:** rode `npm run dev` no powershell do vscode 
+* **Frontend:** rode `npm run dev` no terminal 1 do vscode e deixe-o aberto
 
-* **Ideia de Backend:** rode `npm run server` no powershell do vscode 
+* **JSON Server:** rode `npm run server` no terminal 2 do vscode e deixe-o aberto
 
-* **Pronto:** Teste a versão beta (1.0.4.2) do Vitta Web
+* **Pronto:** Teste a versão beta (1.0.4.2) do [Vitta Web](http://localhost:5173)
