@@ -1,3 +1,13 @@
 {
-  "pacientes": []
+  "usuarios": [
+    {
+      "id": 1,
+      "email": "admin@vitta.com",
+      "senha": "123456"
+    }
+  ],
+  "pacientes": [],
+  "vacinas": [],
+  "aplicacoes": [],
+  "carteiras": []
 }
