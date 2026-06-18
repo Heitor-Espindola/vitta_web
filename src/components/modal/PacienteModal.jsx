@@ -53,7 +53,6 @@ export default function PacienteModal({
 
   function handleSalvar() {
 
-  // Campos obrigatórios
   if (
     !nome.trim() ||
     !cpf.trim() ||
@@ -63,7 +62,6 @@ export default function PacienteModal({
     return;
   }
 
-  // CPF precisa ter 11 números
   const cpfNumeros =
     cpf.replace(/\D/g, "");
 
@@ -72,7 +70,6 @@ export default function PacienteModal({
     return;
   }
 
-  // Data futura
   const hoje = new Date();
 
   const dataNascimento =
@@ -81,7 +78,7 @@ export default function PacienteModal({
   const ano =
     dataNascimento.getFullYear();
 
-  if (ano < 1900 || ano > hoje.getFullYear()) {
+  if (ano < 1908 || ano > hoje.getFullYear()) {
     alert("Ano inválido.");
     return;
   }
@@ -91,7 +88,6 @@ export default function PacienteModal({
     return;
   }
 
-  // Idade máxima
   const idade =
     hoje.getFullYear() -
     dataNascimento.getFullYear();

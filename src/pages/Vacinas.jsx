@@ -4,6 +4,8 @@ import React, {
 } from "react";
 import VacinaModal from "../components/modal/VacinaModal";
 
+import { validarValidade } from "../utils/validations";
+
 import {
   getVacinas,
   createVacina,
@@ -44,6 +46,11 @@ export default function Vacinas() {
   }
 
   async function salvarVacina(Vacina) {
+    if (!validarValidade(Vacina.validade)) {
+      alert("A validade deve ser hoje ou uma data futura.");
+      return;
+    }
+
     if (VacinaEditando) {
       await updateVacina(
         VacinaEditando.id,
@@ -100,7 +107,7 @@ export default function Vacinas() {
         </h1>
 
         <p className="text-slate-500">
-          Gerencie os Vacinas cadastrados
+          Gerencie as vacinas cadastradas
         </p>
       </div>
 
@@ -130,7 +137,7 @@ export default function Vacinas() {
             rounded-lg
           "
         >
-          + Novo Vacina
+          + Nova Vacina
         </button>
       </div>
 
@@ -138,55 +145,47 @@ export default function Vacinas() {
         <table className="w-full">
           <thead className="bg-slate-100">
             <tr>
-              <th>Nome</th>
-
-              <th>Fabricante</th>
-
-              <th>Lote</th>
-
-              <th>Validade</th>
-
-              <th>Qtde.</th>
-
-              <th>Status</th>
-
-              <th>Ações</th>
+              <th className="p-4 text-left">Nome</th>
+              <th className="p-4 text-left">Fabricante</th>
+              <th className="p-4 text-left">Lote</th>
+              <th className="p-4 text-left">Validade</th>
+              <th className="p-4 text-center">Qtde.</th>
+              <th className="p-4 text-center">Status</th>
+              <th className="p-4 text-center">Ações</th>
             </tr>
           </thead>
 
           <tbody>
-            {VacinasFiltrados.length === 0 ? (
+            {vacinasFiltradas.length === 0 ? (
               <tr>
                 <td
-                  colSpan="4"
-                  className="
-                    text-center
-                    p-6
-                    text-slate-500
-                  "
+                  colSpan="7"
+                  className="text-center p-6 text-slate-500"
                 >
-                  Nenhuma Vacina encontrado.
+                  Nenhuma vacina encontrada.
                 </td>
               </tr>
             ) : (
-              VacinasFiltradas.map((v) => (
+              vacinasFiltradas.map((v) => (
                 <tr
                   key={v.id}
                   className="border-t"
                 >
-                  <td>{v.nome}</td>
+                  <td className="p-4">{v.nome}</td>
 
-                  <td>{v.fabricante}</td>
-
-                  <td>{v.lote}</td>
-
-                  <td>{v.validade}</td>
-
-                  <td>{v.qtde}</td>
-
-                  <td>{v.status}</td>
-
-                  <td className="p-4">
+                  <td className="p-4">{v.fabricante}</td>
+                  
+                  <td className="p-4">{v.lote}</td>
+                  
+                  <td className="p-4">{v.validade}</td>
+                  
+                  <td className="p-4 text-center">{v.qtde}</td>
+                  
+                  <td className="p-4 text-center">
+                      {v.status}
+                  </td>
+                  
+                  <td className="p-4 text-center">
                     <button
                       onClick={() =>
                         abrirModalEditar(v)

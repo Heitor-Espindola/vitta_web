@@ -4,6 +4,9 @@ import React, {
 } from "react";
 import PacienteModal from "../components/modal/PacienteModal";
 
+import { validarCPF } from "../utils/validations";
+import { validarNascimento } from "../utils/validations";
+
 import {
   getPacientes,
   createPaciente,
@@ -44,12 +47,32 @@ export default function Pacientes() {
   }
 
   async function salvarPaciente(paciente) {
+    if (!validarCPF(paciente.cpf)) {
+      alert("CPF inválido.");
+      return;
+    }
+
+    if (!validarNascimento(paciente.nascimento)) {
+      alert("Data de nascimento inválida.");
+      return;
+    }
+
     if (pacienteEditando) {
       await updatePaciente(
         pacienteEditando.id,
         paciente
       );
     } else {
+      const cpfExiste = pacientes.some(
+      (p) =>
+        p.cpf === paciente.cpf &&
+        p.id !== paciente.id
+      );
+
+      if (cpfExiste) {
+        alert("Já existe um paciente com este CPF.");
+        return;
+      }
       await createPaciente(paciente);
     }
 

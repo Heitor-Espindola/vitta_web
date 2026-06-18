@@ -34,3 +34,41 @@ export async function deletePaciente(id) {
     method: "DELETE"
   });
 }
+
+
+
+
+export async function getVacinas() {
+  const res = await fetch(`${API_URL}/vacinas`);
+  return res.json();
+}
+
+export async function createVacina(data) {
+  const res = await fetch(`${API_URL}/vacinas`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  return res.json();
+}
+
+export async function updateVacina(id, data) {
+  const res = await fetch(`${API_URL}/vacinas/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  return res.json();
+}
+
+export async function deleteVacina(id) {
+  await fetch(`${API_URL}/vacinas/${id}`, {
+    method: "DELETE"
+  });
+}

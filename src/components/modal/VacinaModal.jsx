@@ -103,9 +103,9 @@ export default function VacinaModal({
           <input
             type="date"
             value={validade}
-            onChange={(e) =>
-              setValidade(e.target.value)
-            }
+            min={new Date().toISOString().split("T")[0]}
+            max="9999-12-31"
+            onChange={(e) => setValidade(e.target.value)}
             className="w-full border rounded-lg px-3 py-2"
           />
 
