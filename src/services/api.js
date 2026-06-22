@@ -72,3 +72,41 @@ export async function deleteVacina(id) {
     method: "DELETE"
   });
 }
+
+
+
+
+export async function getAplicacoes() {
+  const res = await fetch(`${API_URL}/aplicacoes`);
+  return res.json();
+}
+
+export async function createAplicacao(data) {
+  const res = await fetch(`${API_URL}/aplicacoes`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  return res.json();
+}
+
+export async function updateAplicacao(id, data) {
+  const res = await fetch(`${API_URL}/aplicacoes/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+
+  return res.json();
+}
+
+export async function deleteAplicacao(id) {
+  await fetch(`${API_URL}/aplicacoes/${id}`, {
+    method: "DELETE"
+  });
+}

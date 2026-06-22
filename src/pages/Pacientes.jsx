@@ -1,18 +1,11 @@
-import React, {
-  useState,
-  useEffect
-} from "react";
+import React, { useState, useEffect } from "react";
 import PacienteModal from "../components/modal/PacienteModal";
 
 import { validarCPF } from "../utils/validations";
 import { validarNascimento } from "../utils/validations";
+import { sanitizeName } from "../utils/validations";
 
-import {
-  getPacientes,
-  createPaciente,
-  updatePaciente,
-  deletePaciente
-} from "../services/api";
+import { getPacientes, createPaciente, updatePaciente, deletePaciente } from "../services/api";
 
 export default function Pacientes() {
 
@@ -57,7 +50,22 @@ export default function Pacientes() {
       return;
     }
 
+    if (sanitizeName(paciente.nome).length < 3) {
+      alert("Nome muito curto.");
+      return;
+    }
+
     if (pacienteEditando) {
+      const cpfExiste = pacientes.some(
+      (p) =>
+        p.cpf === paciente.cpf &&
+        p.id !== (pacienteEditando?.id || paciente.id)
+      );
+
+      if (cpfExiste) {
+        alert("Já existe um paciente com este CPF.");
+        return;
+      }
       await updatePaciente(
         pacienteEditando.id,
         paciente
@@ -66,7 +74,7 @@ export default function Pacientes() {
       const cpfExiste = pacientes.some(
       (p) =>
         p.cpf === paciente.cpf &&
-        p.id !== paciente.id
+        p.id !== (pacienteEditando?.id || paciente.id)
       );
 
       if (cpfExiste) {
@@ -105,6 +113,17 @@ export default function Pacientes() {
       );
   });
 
+  function formatarCPF(valor) {
+    valor = valor.replace(/\D/g, "");
+    valor = valor.slice(0, 11);
+        
+    valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+    valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+    valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        
+    return valor;
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -121,9 +140,17 @@ export default function Pacientes() {
         <input
           type="text"
           value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
+          onChange={(e) => {
+            const value = e.target.value;
+
+            const soNumeros = value.replace(/\D/g, "");
+
+            if (soNumeros.length > 0) {
+              setSearch(formatarCPF(value));
+            } else {
+              setSearch(value);
+            }
+          }}
           placeholder="Pesquisar paciente..."
           className="
             border border-slate-300

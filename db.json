@@ -2,63 +2,13 @@
   "usuarios": [
     {
       "id": "1",
+      "nome": "Admin",
       "email": "admin@vitta.com",
-      "senha": "123456"
+      "senha": "qwertyuiop"
     }
   ],
-  "pacientes": [
-    {
-      "nome": "Heitor testi",
-      "cpf": "507.493.878-31",
-      "nascimento": "2009-09-21",
-      "id": "xIecWyDSwyI"
-    },
-    {
-      "nome": "Tati",
-      "cpf": "063.006.556-01",
-      "nascimento": "1986-06-17",
-      "id": "m9SJY11RxJo"
-    }
-  ],
-  "vacinas": [
-    {
-      "nome": "x",
-      "fabricante": "asdasd",
-      "lote": "asdasd",
-      "validade": "2002-03-12",
-      "qtde": "1313",
-      "status": "Disponível",
-      "id": "lPFIalq_Bg0"
-    },
-    {
-      "nome": "asdasd",
-      "fabricante": "asdasd",
-      "lote": "12312",
-      "validade": "2025-02-11",
-      "qtde": "11",
-      "status": "Disponível",
-      "id": "7ydLGhg2Qcc"
-    },
-    {
-      "nome": "alalla",
-      "fabricante": "3f3qysf",
-      "lote": "ab3wedfv23",
-      "validade": "2020-03-12",
-      "qtde": "0",
-      "status": "Baixo Estoque",
-      "id": "d_7ucOvo1bc"
-    },
-    {
-      "nome": "cvcv",
-      "fabricante": "gjjg",
-      "lote": "iris",
-      "validade": "2027-05-02",
-      "qtde": "0",
-      "status": "Esgotada",
-      "id": "pz7VspAdabw"
-    }
-  ],
+  "pacientes": [],
+  "vacinas": [],
   "aplicacoes": [],
-  "carteiras": [],
-  "$schema": "./node_modules/json-server/schema.json"
+  "carteiras": []
 }

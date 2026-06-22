@@ -81,3 +81,49 @@ function converterData(data) {
 
         return validade >= hoje;
     }
+
+
+// Nomes
+export function sanitizeName(nome) {
+  const palavrasMinusculas = [
+    "da",
+    "de",
+    "do",
+    "das",
+    "dos",
+    "e"
+  ];
+
+  return nome
+    .replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s'-]/g, "")
+
+    .replace(/\s{2,}/g, " ")
+
+    .replace(/-{2,}/g, "-")
+
+    .replace(/'{2,}/g, "'")
+
+    .slice(0, 51)
+
+    .toLowerCase()
+
+    .split(" ")
+    
+    .map((palavra, index) => {
+      if (
+        index > 0 &&
+        palavrasMinusculas.includes(palavra)
+      ) {
+        return palavra;
+      }
+
+      return palavra
+        .split("-")
+        .map(parte =>
+          parte.charAt(0).toUpperCase() +
+          parte.slice(1)
+        )
+        .join("-");
+    })
+    .join(" ");
+}

@@ -2,6 +2,7 @@
   "name": "vitta-web",
   "private": true,
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "server": "json-server db.json --port 3001",

@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
+import { sanitizeName } from "../../utils/validations";
 
-export default function PacienteModal({
-  aberto,
-  fechar,
-  onSalvar,
-  pacienteInicial
-}) {
+export default function PacienteModal({ aberto, fechar, onSalvar, pacienteInicial }) {
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [nascimento, setNascimento] = useState("");
@@ -98,7 +94,7 @@ export default function PacienteModal({
   }
 
   onSalvar({
-    nome,
+    nome: sanitizeName(nome).trim(),
     cpf,
     nascimento
   });
@@ -115,8 +111,8 @@ export default function PacienteModal({
           <input
             placeholder="Nome"
             value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            maxLength={100}
+            maxLength={51}
+            onChange={(e) => setNome(sanitizeName(e.target.value))}
             className="w-full border rounded-lg px-3 py-2"
           />
 
