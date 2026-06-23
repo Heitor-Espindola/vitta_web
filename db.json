@@ -7,8 +7,186 @@
       "senha": "qwertyuiop"
     }
   ],
-  "pacientes": [],
-  "vacinas": [],
-  "aplicacoes": [],
-  "carteiras": []
+  "pacientes": [
+    {
+      "nome": "Ana Pereira",
+      "cpf": "503.483.021-34",
+      "nascimento": "1986-01-24",
+      "id": "wgi5a0wox5"
+    },
+    {
+      "nome": "Maria Pereira",
+      "cpf": "475.775.412-49",
+      "nascimento": "1997-08-27",
+      "id": "ewgpkrkwly"
+    },
+    {
+      "nome": "Ana Henrique",
+      "cpf": "321.317.288-08",
+      "nascimento": "1988-10-20",
+      "id": "wfb973pybe"
+    },
+    {
+      "nome": "Lucas Pereira",
+      "cpf": "654.043.214-31",
+      "nascimento": "1986-07-22",
+      "id": "0p16nouspg"
+    },
+    {
+      "nome": "João Santos",
+      "cpf": "317.738.564-56",
+      "nascimento": "1984-09-24",
+      "id": "msgynyyexb"
+    }
+  ],
+  "vacinas": [
+    {
+      "nome": "Influenza",
+      "fabricante": "Butantan",
+      "lote": "L-49181",
+      "validade": "2032-05-13",
+      "qtde": "66",
+      "status": "Disponível",
+      "id": "gdnh69hpvs"
+    },
+    {
+      "nome": "BCG",
+      "fabricante": "Butantan",
+      "lote": "L-26628",
+      "validade": "2028-10-24",
+      "qtde": "166",
+      "status": "Disponível",
+      "id": "xu9hk6vn23"
+    },
+    {
+      "nome": "Hepatite B",
+      "fabricante": "FAP",
+      "lote": "L-80227",
+      "validade": "2030-02-05",
+      "qtde": "0",
+      "status": "Esgotada",
+      "id": "drk2tv4gwh"
+    },
+    {
+      "nome": "BCG",
+      "fabricante": "MSD",
+      "lote": "L-115",
+      "validade": "2034-05-20",
+      "qtde": "14",
+      "status": "Baixo Estoque",
+      "id": "x5gedj0o2l"
+    },
+    {
+      "nome": "Febre Amarela",
+      "fabricante": "FAP",
+      "lote": "L-50719",
+      "validade": "2032-11-22",
+      "qtde": "17",
+      "status": "Disponível",
+      "id": "zjr7hnziu9"
+    }
+  ],
+  "aplicacoes": [
+    {
+      "pacienteId": "msgynyyexb",
+      "vacinaId": "zjr7hnziu9",
+      "dose": "1ª Dose",
+      "data": "2025-06-18",
+      "profissional": "Admin",
+      "status": "Aplicada",
+      "id": "ltz7ho5vju"
+    },
+    {
+      "pacienteId": "msgynyyexb",
+      "vacinaId": "xu9hk6vn23",
+      "dose": "1ª Dose",
+      "data": "2026-12-22",
+      "profissional": "Admin",
+      "status": "Agendada",
+      "id": "1fgban5bs0"
+    },
+    {
+      "pacienteId": "msgynyyexb",
+      "vacinaId": "zjr7hnziu9",
+      "dose": "1ª Dose",
+      "data": "2023-04-10",
+      "profissional": "Admin",
+      "status": "Agendada",
+      "id": "aaxbpo9t3f"
+    },
+    {
+      "pacienteId": "0p16nouspg",
+      "vacinaId": "gdnh69hpvs",
+      "dose": "3ª Dose",
+      "data": "2025-11-24",
+      "profissional": "Admin",
+      "status": "Aplicada",
+      "id": "6hucdavgyi"
+    },
+    {
+      "pacienteId": "wgi5a0wox5",
+      "vacinaId": "zjr7hnziu9",
+      "dose": "1ª Dose",
+      "data": "2026-02-22",
+      "profissional": "Admin",
+      "status": "Aplicada",
+      "id": "10lcgyf1qw"
+    },
+    {
+      "pacienteId": "ewgpkrkwly",
+      "vacinaId": "drk2tv4gwh",
+      "dose": "1ª Dose",
+      "data": "2024-12-27",
+      "profissional": "Admin",
+      "status": "Agendada",
+      "id": "1e03sclo7j"
+    },
+    {
+      "pacienteId": "msgynyyexb",
+      "vacinaId": "zjr7hnziu9",
+      "dose": "1ª Dose",
+      "data": "2025-07-07",
+      "profissional": "Admin",
+      "status": "Cancelada",
+      "id": "s758x0qzj5"
+    },
+    {
+      "pacienteId": "0p16nouspg",
+      "vacinaId": "gdnh69hpvs",
+      "dose": "3ª Dose",
+      "data": "2023-03-15",
+      "profissional": "Admin",
+      "status": "Cancelada",
+      "id": "yf9deu3zdk"
+    },
+    {
+      "pacienteId": "ewgpkrkwly",
+      "vacinaId": "zjr7hnziu9",
+      "dose": "1ª Dose",
+      "data": "2024-02-20",
+      "profissional": "Admin",
+      "status": "Aplicada",
+      "id": "8ptqh3oj86"
+    },
+    {
+      "pacienteId": "msgynyyexb",
+      "vacinaId": "zjr7hnziu9",
+      "dose": "1ª Dose",
+      "data": "2024-01-18",
+      "profissional": "Admin",
+      "status": "Aplicada",
+      "id": "stc0e4n9vy"
+    },
+    {
+      "pacienteId": "ewgpkrkwly",
+      "vacinaId": "drk2tv4gwh",
+      "dose": "Dose Única",
+      "data": "2026-07-05",
+      "profissional": "Admin",
+      "status": "Cancelada",
+      "id": "kSqo2xMSQQI"
+    }
+  ],
+  "carteiras": [],
+  "$schema": "./node_modules/json-server/schema.json"
 }

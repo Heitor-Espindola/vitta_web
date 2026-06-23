@@ -6,9 +6,7 @@ import {
   ClipboardList,
   CreditCard,
   FileText,
-  Settings,
-  Heart,
-  Menu
+  Settings
 } from "lucide-react";
 
 const navItems = [

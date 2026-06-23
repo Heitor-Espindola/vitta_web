@@ -1,8 +1,3 @@
-// #Últimas Alterações: 
-// Autor: Heitor Esp
-// Data: 14/06
-// Versão: 1.0.0.0
-
 // #imports
 import { Routes, Route } from "react-router-dom";
 import Sidebar from "./components/Sidebar";

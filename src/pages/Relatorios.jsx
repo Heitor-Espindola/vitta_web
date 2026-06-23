@@ -30,7 +30,6 @@ export default function Relatorios() {
     setLoading(false);
   }
 
-  // 📦 Cards principais
   const totalPacientes = pacientes.length;
   const totalVacinas = vacinas.length;
   const totalAplicacoes = aplicacoes.length;
@@ -39,7 +38,6 @@ export default function Relatorios() {
     (v) => v.status === "Esgotada"
   ).length;
 
-  // 📅 Últimos 14 dias
   function getUltimos14Dias() {
     const hoje = new Date();
     const dias = [];
@@ -63,7 +61,6 @@ export default function Relatorios() {
 
   const aplicacoesPorDia = getUltimos14Dias();
 
-  // 💉 Por vacina
   function getAplicacoesPorVacina() {
     const resultado = {};
 
@@ -87,7 +84,6 @@ export default function Relatorios() {
 
   const porVacina = getAplicacoesPorVacina();
 
-  // 📌 Status
   function getStatus() {
     const status = {
       Agendada: 0,
@@ -120,7 +116,6 @@ export default function Relatorios() {
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
       <div>
         <h1 className="text-3xl font-bold text-slate-800">
           Relatórios
@@ -130,7 +125,6 @@ export default function Relatorios() {
         </p>
       </div>
 
-      {/* CARDS */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card label="Pacientes" value={totalPacientes} />
         <Card label="Vacinas" value={totalVacinas} />
@@ -138,7 +132,6 @@ export default function Relatorios() {
         <Card label="Vacinas Esgotadas" value={vacinasEsgotadas} />
       </div>
 
-      {/* 14 DIAS */}
       <Section title="Aplicações (últimos 14 dias)">
         <div className="space-y-2">
           {aplicacoesPorDia.map((d, i) => (
@@ -153,7 +146,6 @@ export default function Relatorios() {
         </div>
       </Section>
 
-      {/* VACINAS */}
       <Section title="Aplicações por Vacina">
         <div className="space-y-2">
           {porVacina.map((v, i) => (
@@ -168,7 +160,6 @@ export default function Relatorios() {
         </div>
       </Section>
 
-      {/* STATUS */}
       <Section title="Status das Aplicações">
         <div className="space-y-2">
           {porStatus.map((s, i) => (
@@ -185,10 +176,6 @@ export default function Relatorios() {
     </div>
   );
 }
-
-/* =========================
-   COMPONENTES AUXILIARES
-========================= */
 
 function Card({ label, value }) {
   return (
