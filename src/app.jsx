@@ -1,9 +1,10 @@
-// #imports
 import { Routes, Route } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
 import { useState } from "react";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AppLayout from "./layout/AppLayout";
 
-//Import das telas
+// Import das telas
+import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Pacientes from "./pages/Pacientes";
 import Vacinas from "./pages/Vacinas";
@@ -13,80 +14,22 @@ import Relatorios from "./pages/Relatorios";
 import Config from "./pages/Config";
 
 
-//function App() {
-//  const [collapsed, setCollapsed] = useState(false);
-//
-//  return (
-//    <div className="flex">
-//      <Sidebar
-//        collapsed={collapsed}
-//        setCollapsed={setCollapsed}
-//      />
-//
-//      <main className="flex-1 p-6">
-//        Conteúdo
-//      </main>
-//    </div>
-//  );
-//}
-
 function App() {
-
-  const [collapsed, setCollapsed] = useState(false);
-
   return (
-    <div className="flex">
-
-      <Sidebar
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
-      />
-
-      <main className="flex-1 p-6">
-
-        <Routes>
-
-          <Route
-            path="/"
-            element={<Dashboard />}
-          />
-
-          <Route
-            path="/pacientes"
-            element={<Pacientes />}
-          />
-
-          <Route
-            path="/vacinas"
-            element={<Vacinas />}
-          />
-
-          <Route
-            path="/aplicacoes"
-            element={<Aplicacoes />}
-          />
-
-          <Route
-            path="/carteiras"
-            element={<Carteiras />}
-          />
-
-          <Route
-            path="/relatorios"
-            element={<Relatorios />}
-          />
-
-          <Route
-            path="/config"
-            element={<Config />}
-          />
-
-        </Routes>
-
-      </main>
-
-    </div>
+    <Routes>
+      <Route path="/"element={<Login />}/>
+      <Route element={ <ProtectedRoute> <AppLayout /> </ProtectedRoute> } >
+        <Route path="/home" element={<Dashboard />} />
+        <Route path="/pacientes" element={<Pacientes />} />
+        <Route path="/vacinas" element={<Vacinas />} />
+        <Route path="/aplicacoes" element={<Aplicacoes />} />
+        <Route path="/carteiras" element={<Carteiras />} />
+        <Route path="/relatorios" element={<Relatorios />} />
+        <Route path="/config" element={<Config />} />
+      </Route>
+    </Routes>
   );
 }
+
 
 export default App;

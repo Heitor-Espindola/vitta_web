@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import Sidebar from "src/components/Sidebar";
+import Sidebar from "../components/Sidebar";
 
 export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -8,7 +8,7 @@ export default function AppLayout() {
   return (
     <div className="flex">
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed}/>
-      <main className="flex-1 bg-gray-50 min-h-screen">
+      <main className="flex-1 bg-gray-50 min-h-screen p-6">
         <Outlet />
       </main>
     </div>

@@ -1,38 +1,48 @@
+import { db } from "./firebase";
+
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc
+} from "firebase/firestore";
+
 const API_URL = "http://localhost:3001";
 
 export async function getPacientes() {
-  const res = await fetch(`${API_URL}/pacientes`);
-  return res.json();
+  const snapshot = await getDocs(
+    collection(db, "children")
+  );
+
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
 }
 
 export async function createPaciente(data) {
-  const res = await fetch(`${API_URL}/pacientes`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-
-  return res.json();
+  await addDoc(
+    collection(db, "pacientes"),
+    data
+  );
 }
 
 export async function updatePaciente(id, data) {
-  const res = await fetch(`${API_URL}/pacientes/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
+  const ref = doc(
+    db,
+    "pacientes",
+    id
+  );
 
-  return res.json();
+  await updateDoc(ref, data);
 }
 
 export async function deletePaciente(id) {
-  await fetch(`${API_URL}/pacientes/${id}`, {
-    method: "DELETE"
-  });
+  await deleteDoc(
+    doc(db, "pacientes", id)
+  );
 }
 
 
@@ -110,3 +120,13 @@ export async function deleteAplicacao(id) {
     method: "DELETE"
   });
 }
+
+
+
+
+export async function getUsuarios() {
+  const res = await fetch(`${API_URL}/usuarios`);
+
+  return res.json();
+}
+

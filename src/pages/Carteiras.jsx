@@ -26,19 +26,23 @@ export default function Carteiras() {
       getAplicacoes()
     ]);
 
+    console.log("Pacientes:", p);
+
     setPacientes(p);
     setVacinas(v);
     setAplicacoes(a);
   }
 
   const pacientesFiltrados = pacientes.filter((p) =>
-    p.nome.toLowerCase().includes(search.toLowerCase())
+    (p.nome || "")
+      .toLowerCase()
+      .includes(search.toLowerCase())
   );
 
   const carteiraPaciente = pacienteSelecionado
     ? aplicacoes.filter(
-        (a) => a.pacienteId === pacienteSelecionado.id
-      )
+      (a) => a.pacienteId === pacienteSelecionado.id
+    )
     : [];
 
   return (

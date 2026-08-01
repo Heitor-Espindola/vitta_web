@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/" },
+  { label: "Dashboard", icon: LayoutDashboard, path: "/home" },
   { label: "Pacientes", icon: Users, path: "/pacientes" },
   { label: "Vacinas", icon: Syringe, path: "/vacinas" },
   { label: "Aplicações", icon: ClipboardList, path: "/aplicacoes" },
@@ -75,10 +75,9 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                 px-3 py-3 rounded-lg mb-2
                 transition-all
 
-                ${
-                  active
-                    ? "bg-blue-600"
-                    : "hover:bg-slate-800"
+                ${active
+                  ? "bg-blue-600"
+                  : "hover:bg-slate-800"
                 }
               `}
             >

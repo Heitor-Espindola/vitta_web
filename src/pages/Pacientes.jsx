@@ -17,11 +17,17 @@ export default function Pacientes() {
   const [search, setSearch] = useState("");
 
   const [pacientes, setPacientes] = useState([]);
-
+  
   useEffect(() => {
-    carregarPacientes();
+    async function teste() {
+      const dados = await getPacientes();
+    
+      console.log(dados);
+    }
+  
+    teste();
   }, []);
-
+  
   async function carregarPacientes() {
     const dados = await getPacientes();
     setPacientes(dados);
