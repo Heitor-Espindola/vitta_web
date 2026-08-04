@@ -1,9 +1,9 @@
 import { Routes, Route } from "react-router-dom";
-import { useState } from "react";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AppLayout from "./layout/AppLayout";
 
 // Import das telas
+import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Pacientes from "./pages/Pacientes";
@@ -17,7 +17,8 @@ import Config from "./pages/Config";
 function App() {
   return (
     <Routes>
-      <Route path="/"element={<Login />}/>
+      <Route path="/"element={<Welcome />}/>
+      <Route path="/login"element={<Login />}/>
       <Route element={ <ProtectedRoute> <AppLayout /> </ProtectedRoute> } >
         <Route path="/home" element={<Dashboard />} />
         <Route path="/pacientes" element={<Pacientes />} />

@@ -13,7 +13,7 @@ const API_URL = "http://localhost:3001";
 
 export async function getPacientes() {
   const snapshot = await getDocs(
-    collection(db, "children")
+    collection(db, "users")
   );
 
   return snapshot.docs.map(doc => ({
