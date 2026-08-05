@@ -1,23 +1,34 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+import isotipo from "../assets/isotipo.png";
 import isologo from "../assets/isologo.png";
-import isologo from "../assets/isotipo.png";
+
+import {
+    Users,
+    Syringe,
+    FileText,
+    ShieldCheck,
+} from "lucide-react";
 
 const funcionalidades = [
     {
+        img: <Users />,
         titulo: "Gestão de Pacientes",
         descricao: "Cadastro completo de pacientes, histórico e acompanhamento da vacinação."
     },
     {
+        img: <Syringe />,
         titulo: "Controle de Vacinas",
         descricao: "Gerencie lotes, estoque, validade e disponibilidade das vacinas."
     },
     {
+        img: <FileText />,
         titulo: "Aplicações e Relatórios",
         descricao: "Registre aplicações e acompanhe indicadores da unidade de saúde."
     },
     {
+        img: <ShieldCheck />,
         titulo: "Segurança",
         descricao: "Autenticação via Firebase e armazenamento seguro das informações."
     }
@@ -44,8 +55,12 @@ export default function Welcome() {
         >
 
             <header className="flex items-center justify-between px-8 py-5">
-                <div className= "flex items-center gap-3">
-                    <img src={isologo} alt="Vitta" className="w-12 h-12"/>
+                <div className="flex items-center gap-3">
+                    <img
+                        src={isologo}
+                        alt="Vitta"
+                        className="w-12 h-12"
+                    />
 
                     <div>
                         <h1 className="text-2xl font-bold text-slate-800">
@@ -66,6 +81,11 @@ export default function Welcome() {
             <main className="flex-1 flex items-center justify-center px-8">
                 <div className="max-w-6xl w-full">
                     <div className="text-center max-w-3xl mx-auto">
+                        <img
+                            src={isotipo}
+                            alt="Vitta"
+                            className="w-24 h-24 ml-auto mr-auto mb-6"
+                        />
                         <span className="inline-block px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold mb-6">
                             Sistema de Gestão de Vacinação
                         </span>
@@ -87,7 +107,7 @@ export default function Welcome() {
                         {funcionalidades.map((item) => (
                             <div key={item.titulo} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-lg transition">
                                 <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mb-5">
-                                    <img src={isologo} alt="" className="w-7 h-7"/>
+                                    {item.img}
                                 </div>
 
                                 <h3 className="text-lg font-semibold text-slate-800 mb-3">

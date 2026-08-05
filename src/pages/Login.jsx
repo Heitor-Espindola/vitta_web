@@ -3,7 +3,7 @@ import { auth, db } from "../services/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-
+import isotipo from "../assets/isotipo.png";
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -42,11 +42,17 @@ export default function Login({ onLogin }) {
 
       const usuario = {
         uid,
+        role: docSnap.data().role,
+        professionalStatus: docSnap.data().professionalStatus,
+        healthProfessional: docSnap.data().healthProfessional,
         ...docSnap.data()
       };
 
-      if (usuario.role !== "health_professional") {
+      if (usuario.healthProfessional !== true) {
         alert("Esta conta não possui acesso ao sistema web.");
+        return;
+      } else if (usuario.professionalStatus !== "approved") {
+        alert("Sua solicitação de cadastro ainda não foi aprovada.");
         return;
       }
 
@@ -101,20 +107,16 @@ export default function Login({ onLogin }) {
         <div className="text-center mb-8">
           <div
             className="
-              w-14
-              h-14
-              bg-blue-600
+              w-18
+              h-18
               rounded-2xl
               flex
               items-center
               justify-center
               mx-auto
-              mb-4
             "
           >
-            <span className="text-white text-2xl">
-              ♥
-            </span>
+            <img src={isotipo} alt="Vitta"/>
           </div>
 
           <h1
