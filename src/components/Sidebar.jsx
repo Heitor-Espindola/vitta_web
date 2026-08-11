@@ -9,6 +9,9 @@ import {
   Settings
 } from "lucide-react";
 
+import isotipo from "../assets/isotipo.png";
+import isologo from "../assets/isologo.png";
+
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/home" },
   { label: "Pacientes", icon: Users, path: "/pacientes" },
@@ -19,22 +22,35 @@ const navItems = [
   { label: "Configurações", icon: Settings, path: "/config" }
 ];
 
-import isotipo from "../assets/isotipo.png";
-import isologo from "../assets/isologo.png";
-
 export default function Sidebar({ collapsed, setCollapsed }) {
   const location = useLocation();
 
   return (
     <aside
-      className={`relative h-screen bg-slate-900 text-white transition-all duration-300
-      ${collapsed ? "w-20" : "w-64"}`}
+      className={`
+        fixed
+        top-0
+        left-0
+        z-50
+        h-screen
+        bg-slate-900
+        text-white
+        transition-all
+        duration-300
+        ${collapsed ? "w-20" : "w-64"}
+      `}
     >
       {/* Cabeçalho */}
       <div className="h-20 flex items-center justify-center border-b border-slate-700">
         <div
           onClick={() => setCollapsed(!collapsed)}
-          className="cursor-pointer flex items-center justify-center w-full"
+          className="
+            cursor-pointer
+            flex
+            items-center
+            justify-center
+            w-full
+          "
         >
           {collapsed ? (
             <img
@@ -49,15 +65,17 @@ export default function Sidebar({ collapsed, setCollapsed }) {
                 alt="Menu"
                 className="w-12 h-12 object-contain"
               />
+
               <img
                 src={isologo}
                 alt="Vitta"
-                className="h-16  object-contain"
+                className="h-16 object-contain"
               />
             </div>
           )}
         </div>
       </div>
+
       {/* Menu */}
       <nav className="p-3">
         {navItems.map((item) => {
@@ -71,13 +89,19 @@ export default function Sidebar({ collapsed, setCollapsed }) {
               key={item.path}
               to={item.path}
               className={`
-                flex items-center gap-3
-                px-3 py-3 rounded-lg mb-2
+                flex
+                items-center
+                gap-3
+                px-3
+                py-3
+                rounded-lg
+                mb-2
                 transition-all
 
-                ${active
-                  ? "bg-blue-600"
-                  : "hover:bg-slate-800"
+                ${
+                  active
+                    ? "bg-blue-600"
+                    : "hover:bg-slate-800"
                 }
               `}
             >
