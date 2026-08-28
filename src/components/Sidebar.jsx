@@ -1,111 +1,106 @@
-import { Link, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
+  BarChart3,
+  BookOpenCheck,
+  ChevronLeft,
+  ClipboardPlus,
   LayoutDashboard,
-  Users,
+  Settings,
+  ShieldCheck,
   Syringe,
-  ClipboardList,
-  CreditCard,
-  FileText,
-  Settings
+  UsersRound,
+  X,
 } from "lucide-react";
+import isologo from "../assets/isologo.png";
+import isotipo from "../assets/isotipo.png";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/" },
-  { label: "Pacientes", icon: Users, path: "/pacientes" },
+  { label: "Pacientes", icon: UsersRound, path: "/pacientes" },
+  { label: "Carteiras", icon: BookOpenCheck, path: "/carteiras" },
+  { label: "Aplicações", icon: ClipboardPlus, path: "/aplicacoes" },
   { label: "Vacinas", icon: Syringe, path: "/vacinas" },
-  { label: "Aplicações", icon: ClipboardList, path: "/aplicacoes" },
-  { label: "Carteiras", icon: CreditCard, path: "/carteiras" },
-  { label: "Relatórios", icon: FileText, path: "/relatorios" },
-  { label: "Configurações", icon: Settings, path: "/config" }
+  { label: "Relatórios", icon: BarChart3, path: "/relatorios" },
+  { label: "Configurações", icon: Settings, path: "/config" },
 ];
 
-import isotipo from "../assets/isotipo.png";
-import isologo from "../assets/isologo.png";
-
-export default function Sidebar({ collapsed, setCollapsed }) {
-  const location = useLocation();
-
+export default function Sidebar({ collapsed, mobileOpen, onCollapse, onClose }) {
   return (
-    <aside
-      className={`relative h-screen bg-slate-900 text-white transition-all duration-300
-      ${collapsed ? "w-20" : "w-64"}`}
-    >
-      {/* Cabeçalho */}
-      <div className="h-20 flex items-center justify-center border-b border-slate-700">
-        <div
-          onClick={() => setCollapsed(!collapsed)}
-          className="cursor-pointer flex items-center justify-center w-full"
-        >
-          {collapsed ? (
-            <img
-              src={isotipo}
-              alt="Menu"
-              className="w-12 h-12 object-contain"
-            />
-          ) : (
-            <div className="flex items-center gap-3">
-              <img
-                src={isotipo}
-                alt="Menu"
-                className="w-12 h-12 object-contain"
-              />
-              <img
-                src={isologo}
-                alt="Vitta"
-                className="h-16  object-contain"
-              />
-            </div>
-          )}
+    <>
+      {mobileOpen ? (
+        <button
+          className="sidebar-backdrop"
+          onClick={onClose}
+          aria-label="Fechar menu"
+          type="button"
+        />
+      ) : null}
+      <aside
+        className={`sidebar ${collapsed ? "sidebar--collapsed" : ""} ${
+          mobileOpen ? "sidebar--mobile-open" : ""
+        }`}
+      >
+        <div className="sidebar__brand">
+          <img className="sidebar__symbol" src={isotipo} alt="" />
+          {!collapsed ? (
+            <img className="sidebar__wordmark" src={isologo} alt="Vitta" />
+          ) : null}
+          <button
+            className="sidebar__mobile-close"
+            onClick={onClose}
+            aria-label="Fechar menu"
+            type="button"
+          >
+            <X size={20} />
+          </button>
         </div>
-      </div>
-      {/* Menu */}
-      <nav className="p-3">
-        {navItems.map((item) => {
-          const Icon = item.icon;
 
-          const active =
-            location.pathname === item.path;
-
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`
-                flex items-center gap-3
-                px-3 py-3 rounded-lg mb-2
-                transition-all
-
-                ${
-                  active
-                    ? "bg-blue-600"
-                    : "hover:bg-slate-800"
-                }
-              `}
-            >
-              <Icon size={20} />
-
-              {!collapsed && (
-                <span>{item.label}</span>
-              )}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Rodapé */}
-      {!collapsed && (
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="bg-slate-800 rounded-lg p-3 text-center text-xs">
-            <p className="font-bold text-white text-2xl">
-              Vitta
-            </p>
-
-            <p className="text-slate-400 text-sm">
-              Sincronizando saúde com a vida
-            </p>
+        {!collapsed ? (
+          <div className="sidebar__workspace">
+            <span>Vitta Profissional</span>
+            <small>Atendimento seguro</small>
           </div>
+        ) : null}
+
+        <nav className="sidebar__nav" aria-label="Navegação principal">
+          {navItems.map(({ label, icon: Icon, path }) => (
+            <NavLink
+              key={path}
+              to={path}
+              end={path === "/"}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
+              }
+              title={collapsed ? label : undefined}
+            >
+              <Icon size={20} aria-hidden="true" />
+              {!collapsed ? <span>{label}</span> : null}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="sidebar__footer">
+          {!collapsed ? (
+            <div className="sidebar__security">
+              <ShieldCheck size={18} aria-hidden="true" />
+              <div>
+                <strong>Dados protegidos</strong>
+                <span>Acesso conforme o atendimento</span>
+              </div>
+            </div>
+          ) : null}
+          <button
+            className="sidebar__collapse"
+            onClick={onCollapse}
+            type="button"
+            aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
+          >
+            <ChevronLeft size={18} />
+            {!collapsed ? <span>Recolher menu</span> : null}
+          </button>
         </div>
-      )}
-    </aside>
+      </aside>
+    </>
   );
 }

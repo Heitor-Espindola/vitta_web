@@ -1,11 +1,54 @@
-# Instruções para rodar a beta do Vitta Web
+# Vitta Web
 
-* **Clone o repositório**
+Painel profissional do ecossistema Vitta. O projeto usa React 19, Vite,
+Firebase Authentication, Cloud Firestore, Tailwind CSS 4 e CSS responsivo
+próprio.
 
-* **Instalação:** baixe o [node v24.16.0](https://nodejs.org/dist/v24.16.0/node-v24.16.0-x64.msi) e rode `npm install` no terminal do vscode
+## Ambiente
 
-* **Frontend:** rode `npm run dev` no terminal 1 do vscode e deixe-o aberto
+O painel usa exclusivamente o Firebase `vitta-5ec1e`. A configuração pública
+do Firebase Web fica centralizada em `src/config/firebase.js` e pode ser
+sobrescrita pelas variáveis documentadas em `.env.example`.
 
-* **JSON Server:** rode `npm run server` no terminal 2 do vscode e deixe-o aberto
+```powershell
+Copy-Item .env.example .env.local
+npm install
+npm run dev
+```
 
-* **Pronto:** Teste a versão beta (1.0.4.2) do [Vitta Web](http://localhost:5173)
+Firebase Web API keys identificam o projeto e não substituem as Firestore
+Rules. Autorização de dados é sempre validada no servidor pelas Rules.
+
+## Conta profissional
+
+O login resolve `auth_links/{authUid}.personId`, com fallback legado para o
+próprio UID, e abre o painel somente quando o perfil em `users/{personId}` tem:
+
+- `roles` contendo `health_professional` ou `admin`;
+- `accountStatus` igual a `active`.
+
+## Atendimento
+
+O fluxo principal é:
+
+```text
+login → CPF exato → paciente → carteira → registrar aplicação
+```
+
+Novas aplicações usam `patientId`, nunca `patientUid`. `professionalUid` vem
+sempre de `auth.currentUser.uid`; não existe campo manual para esse valor.
+
+As Rules e os índices oficiais ficam no projeto Vitta Mobile. Consulte
+`docs/VITTA_WEB_MOBILE_INTEGRATION.md` naquele repositório.
+
+## Validação
+
+```powershell
+npm run lint
+npm test
+npm run build
+```
+
+`db.json` e `npm run demo:legacy` foram mantidos apenas como material histórico
+da antiga beta. O build normal e todo código em `src` usam Firebase real; os
+mocks não são misturados com dados de produção.

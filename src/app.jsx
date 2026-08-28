@@ -1,92 +1,34 @@
-// #imports
-import { Routes, Route } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
-import { useState } from "react";
-
-//Import das telas
-import Dashboard from "./pages/Dashboard";
-import Pacientes from "./pages/Pacientes";
-import Vacinas from "./pages/Vacinas";
+import { Route, Routes } from "react-router-dom";
+import ProfessionalRoute from "./components/ProfessionalRoute";
+import AppLayout from "./layout/AppLayout";
 import Aplicacoes from "./pages/Aplicacoes";
 import Carteiras from "./pages/Carteiras";
-import Relatorios from "./pages/Relatorios";
 import Config from "./pages/Config";
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
+import PacienteDetalhe from "./pages/PacienteDetalhe";
+import Pacientes from "./pages/Pacientes";
+import Relatorios from "./pages/Relatorios";
+import Vacinas from "./pages/Vacinas";
 
-
-//function App() {
-//  const [collapsed, setCollapsed] = useState(false);
-//
-//  return (
-//    <div className="flex">
-//      <Sidebar
-//        collapsed={collapsed}
-//        setCollapsed={setCollapsed}
-//      />
-//
-//      <main className="flex-1 p-6">
-//        Conteúdo
-//      </main>
-//    </div>
-//  );
-//}
-
-function App() {
-
-  const [collapsed, setCollapsed] = useState(false);
-
+export default function App() {
   return (
-    <div className="flex">
-
-      <Sidebar
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
-      />
-
-      <main className="flex-1 p-6">
-
-        <Routes>
-
-          <Route
-            path="/"
-            element={<Dashboard />}
-          />
-
-          <Route
-            path="/pacientes"
-            element={<Pacientes />}
-          />
-
-          <Route
-            path="/vacinas"
-            element={<Vacinas />}
-          />
-
-          <Route
-            path="/aplicacoes"
-            element={<Aplicacoes />}
-          />
-
-          <Route
-            path="/carteiras"
-            element={<Carteiras />}
-          />
-
-          <Route
-            path="/relatorios"
-            element={<Relatorios />}
-          />
-
-          <Route
-            path="/config"
-            element={<Config />}
-          />
-
-        </Routes>
-
-      </main>
-
-    </div>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route element={<ProfessionalRoute />}>
+        <Route element={<AppLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="pacientes" element={<Pacientes />} />
+          <Route path="pacientes/:personId" element={<PacienteDetalhe />} />
+          <Route path="carteiras" element={<Carteiras />} />
+          <Route path="aplicacoes" element={<Aplicacoes />} />
+          <Route path="vacinas" element={<Vacinas />} />
+          <Route path="relatorios" element={<Relatorios />} />
+          <Route path="config" element={<Config />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Route>
+    </Routes>
   );
 }
-
-export default App;

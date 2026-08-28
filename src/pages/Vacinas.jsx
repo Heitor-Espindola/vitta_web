@@ -1,225 +1,96 @@
-import React, {
-  useState,
-  useEffect
-} from "react";
-import VacinaModal from "../components/modal/VacinaModal";
-
-import { validarValidade } from "../utils/validations";
-
-import {
-  getVacinas,
-  createVacina,
-  updateVacina,
-  deleteVacina
-} from "../services/api";
+import { BookOpen, Search, ShieldCheck, Syringe } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { PageHeader, SkeletonRows, StatePanel, StatusBadge } from "../components/ui";
+import { watchVaccines } from "../services/vaccineService";
+import { friendlyFirebaseError } from "../utils/firebaseErrors";
 
 export default function Vacinas() {
-
-  const [modalAberto, setModalAberto] = useState(false);
-
-  const [VacinaEditando, setVacinaEditando] =
-    useState(null);
-
+  const [vaccines, setVaccines] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("active");
 
-  const [Vacinas, setVacinas] = useState([]);
+  useEffect(
+    () =>
+      watchVaccines(
+        (data) => {
+          setVaccines(data);
+          setLoading(false);
+        },
+        (snapshotError) => {
+          setError(friendlyFirebaseError(snapshotError));
+          setLoading(false);
+        },
+      ),
+    [],
+  );
 
-  useEffect(() => {
-    carregarVacinas();
-  }, []);
-
-  async function carregarVacinas() {
-    const dados = await getVacinas();
-    setVacinas(dados);
-  }
-
-  function abrirModalNovo() {
-    console.log("Novo Vacina");
-
-    setVacinaEditando(null);
-    setModalAberto(true);
-  }
-
-  function abrirModalEditar(Vacina) {
-    setVacinaEditando(Vacina);
-    setModalAberto(true);
-  }
-
-  async function salvarVacina(Vacina) {
-    if (!validarValidade(Vacina.validade)) {
-      alert("A validade deve ser hoje ou uma data futura.");
-      return;
-    }
-
-    if (VacinaEditando) {
-      await updateVacina(
-        VacinaEditando.id,
-        Vacina
-      );
-    } else {
-      await createVacina(Vacina);
-    }
-
-    await carregarVacinas();
-
-    setModalAberto(false);
-    setVacinaEditando(null);
-  }
-
-  async function excluirVacina(id) {
-    if (!confirm("Deseja excluir este Vacina?"))
-      return;
-
-    await deleteVacina(id);
-    await carregarVacinas();
-  }
-
-  const vacinasFiltradas =
-    Vacinas.filter((v) => {
-
-      const termo =
-        search.toLowerCase();
-
-      return (
-        v.nome
-          .toLowerCase()
-          .includes(termo)
-
-        ||
-
-        v.fabricante
-          .toLowerCase()
-          .includes(termo)
-
-        ||
-
-        v.lote
-          .toLowerCase()
-          .includes(termo)
-      );
+  const filtered = useMemo(() => {
+    const term = search.trim().toLocaleLowerCase("pt-BR");
+    return vaccines.filter((vaccine) => {
+      const matchesFilter = filter === "all" || vaccine.active === (filter === "active");
+      const matchesSearch = !term || [vaccine.name, vaccine.shortName, vaccine.description, vaccine.recommendedAge, ...vaccine.prevents]
+        .filter(Boolean)
+        .some((value) => String(value).toLocaleLowerCase("pt-BR").includes(term));
+      return matchesFilter && matchesSearch;
     });
+  }, [vaccines, search, filter]);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-800">
-          Vacinas
-        </h1>
-
-        <p className="text-slate-500">
-          Gerencie as vacinas cadastradas
-        </p>
-      </div>
-
-      <div className="flex justify-between items-center">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
-          placeholder="Pesquisar Vacina..."
-          className="
-            border border-slate-300
-            rounded-lg
-            px-4 py-2
-            w-80
-          "
-        />
-
-        <button
-          onClick={abrirModalNovo}
-          className="
-            bg-blue-600
-            hover:bg-blue-700
-            text-white
-            px-4 py-2
-            rounded-lg
-          "
-        >
-          + Nova Vacina
-        </button>
-      </div>
-
-      <div className="bg-white rounded-xl shadow overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-slate-100">
-            <tr>
-              <th className="p-4 text-left">Nome</th>
-              <th className="p-4 text-left">Fabricante</th>
-              <th className="p-4 text-left">Lote</th>
-              <th className="p-4 text-left">Validade</th>
-              <th className="p-4 text-center">Qtde.</th>
-              <th className="p-4 text-center">Status</th>
-              <th className="p-4 text-center">Ações</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {vacinasFiltradas.length === 0 ? (
-              <tr>
-                <td
-                  colSpan="7"
-                  className="text-center p-6 text-slate-500"
-                >
-                  Nenhuma vacina encontrada.
-                </td>
-              </tr>
-            ) : (
-              vacinasFiltradas.map((v) => (
-                <tr
-                  key={v.id}
-                  className="border-t"
-                >
-                  <td className="p-4">{v.nome}</td>
-
-                  <td className="p-4">{v.fabricante}</td>
-                  
-                  <td className="p-4">{v.lote}</td>
-                  
-                  <td className="p-4">{v.validade}</td>
-                  
-                  <td className="p-4 text-center">{v.qtde}</td>
-                  
-                  <td className="p-4 text-center">
-                      {v.status}
-                  </td>
-                  
-                  <td className="p-4 text-center">
-                    <button
-                      onClick={() =>
-                        abrirModalEditar(v)
-                      }
-                      className="text-blue-600 mr-3"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() =>
-                        excluirVacina(v.id)
-                      }
-                      className="text-red-600"
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <VacinaModal
-        aberto={modalAberto}
-        fechar={() => {
-          setModalAberto(false);
-          setVacinaEditando(null);
-        }}
-        onSalvar={salvarVacina}
-        vacinaInicial={VacinaEditando}
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Catálogo oficial"
+        title="Vacinas"
+        description="Consulte as vacinas e informações educativas usadas pelo aplicativo Vitta."
       />
 
+      <section className="content-card">
+        <div className="toolbar toolbar--wrap">
+          <div className="input-with-icon toolbar__search">
+            <Search size={18} />
+            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar vacina ou doença prevenida" />
+          </div>
+          <div className="segmented-control" aria-label="Filtrar vacinas">
+            <button className={filter === "active" ? "active" : ""} onClick={() => setFilter("active")} type="button">Ativas</button>
+            <button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")} type="button">Todas</button>
+            <button className={filter === "inactive" ? "active" : ""} onClick={() => setFilter("inactive")} type="button">Inativas</button>
+          </div>
+        </div>
+
+        {error ? <div className="inline-alert inline-alert--error">{error}</div> : null}
+        {loading ? (
+          <SkeletonRows rows={6} />
+        ) : filtered.length === 0 ? (
+          <StatePanel title="Nenhuma vacina encontrada" description="Ajuste a busca ou o filtro selecionado." />
+        ) : (
+          <div className="vaccine-grid">
+            {filtered.map((vaccine) => (
+              <article className="vaccine-card" key={vaccine.id}>
+                <header>
+                  <span className="vaccine-card__icon"><Syringe /></span>
+                  <StatusBadge status={vaccine.active ? "active" : "inactive"}>{vaccine.active ? "Ativa" : "Inativa"}</StatusBadge>
+                </header>
+                <h2>{vaccine.name}</h2>
+                <p>{vaccine.description || "Descrição educativa ainda não informada."}</p>
+                <dl>
+                  <div><dt>Público</dt><dd>{vaccine.recommendedAge || vaccine.targetGroups.join(", ") || "Conforme calendário"}</dd></div>
+                  <div><dt>Doses</dt><dd>{vaccine.doseCount ?? "Conforme esquema"}</dd></div>
+                  <div><dt>Previne</dt><dd>{vaccine.prevents.slice(0, 2).join(", ") || "Consulte a fonte oficial"}</dd></div>
+                </dl>
+                <footer>
+                  <BookOpen size={15} /> {vaccine.sourceName || "Fonte oficial não informada"}
+                </footer>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <div className="content-card info-banner">
+        <ShieldCheck />
+        <div><strong>Catálogo somente leitura</strong><p>A gestão administrativa de vacinas permanece bloqueada pelas Rules nesta etapa. O painel não exibe ações que falhariam.</p></div>
+      </div>
     </div>
   );
 }

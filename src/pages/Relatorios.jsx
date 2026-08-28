@@ -1,202 +1,66 @@
-import React, { useEffect, useState } from "react";
-import {
-  getPacientes,
-  getVacinas,
-  getAplicacoes
-} from "../services/api";
+import { BarChart3, CalendarDays, Syringe, UsersRound } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { PageHeader, SkeletonRows, StatCard, StatePanel } from "../components/ui";
+import { useAuth } from "../context/AuthContext";
+import { watchProfessionalRecords } from "../services/vaccinationService";
+import { asDate } from "../utils/dates";
+import { friendlyFirebaseError } from "../utils/firebaseErrors";
 
 export default function Relatorios() {
-  const [pacientes, setPacientes] = useState([]);
-  const [vacinas, setVacinas] = useState([]);
-  const [aplicacoes, setAplicacoes] = useState([]);
-
+  const { firebaseUser } = useAuth();
+  const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    carregarDados();
-  }, []);
+  useEffect(
+    () =>
+      watchProfessionalRecords(
+        firebaseUser.uid,
+        (data) => { setRecords(data); setLoading(false); },
+        (snapshotError) => { setError(friendlyFirebaseError(snapshotError)); setLoading(false); },
+      ),
+    [firebaseUser.uid],
+  );
 
-  async function carregarDados() {
-    const [p, v, a] = await Promise.all([
-      getPacientes(),
-      getVacinas(),
-      getAplicacoes()
-    ]);
-
-    setPacientes(p);
-    setVacinas(v);
-    setAplicacoes(a);
-
-    setLoading(false);
-  }
-
-  const totalPacientes = pacientes.length;
-  const totalVacinas = vacinas.length;
-  const totalAplicacoes = aplicacoes.length;
-
-  const vacinasEsgotadas = vacinas.filter(
-    (v) => v.status === "Esgotada"
-  ).length;
-
-  function getUltimos14Dias() {
-    const hoje = new Date();
-    const dias = [];
-
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(hoje.getDate() - i);
-
-      const chave = d.toLocaleDateString("pt-BR");
-
-      const total = aplicacoes.filter(
-        (a) =>
-          new Date(a.data).toLocaleDateString("pt-BR") === chave
-      ).length;
-
-      dias.push({ dia: chave, total });
-    }
-
-    return dias;
-  }
-
-  const aplicacoesPorDia = getUltimos14Dias();
-
-  function getAplicacoesPorVacina() {
-    const resultado = {};
-
-    aplicacoes.forEach((a) => {
-      const vacina = vacinas.find(
-        (v) => v.id === a.vacinaId
-      );
-
-      const nome = vacina?.nome || "Desconhecida";
-
-      resultado[nome] = (resultado[nome] || 0) + 1;
-    });
-
-    return Object.entries(resultado).map(
-      ([vacina, total]) => ({
-        vacina,
-        total
-      })
-    );
-  }
-
-  const porVacina = getAplicacoesPorVacina();
-
-  function getStatus() {
-    const status = {
-      Agendada: 0,
-      Aplicada: 0,
-      Cancelada: 0
+  const report = useMemo(() => {
+    const now = new Date();
+    const last30 = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
+    const recent = records.filter((record) => (asDate(record.appliedAt) || new Date(0)) >= last30);
+    const counts = new Map();
+    recent.forEach((record) => counts.set(record.vaccineName, (counts.get(record.vaccineName) || 0) + 1));
+    const topVaccines = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+    return {
+      recent,
+      patients: new Set(recent.map((record) => record.patientId)).size,
+      topVaccines,
+      max: topVaccines[0]?.[1] || 1,
     };
-
-    aplicacoes.forEach((a) => {
-      status[a.status] =
-        (status[a.status] || 0) + 1;
-    });
-
-    return Object.entries(status).map(
-      ([status, total]) => ({
-        status,
-        total
-      })
-    );
-  }
-
-  const porStatus = getStatus();
-
-  if (loading) {
-    return (
-      <div className="text-slate-500">
-        Carregando relatórios...
-      </div>
-    );
-  }
+  }, [records]);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-800">
-          Relatórios
-        </h1>
-        <p className="text-slate-500">
-          Análises e estatísticas do sistema de vacinação
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card label="Pacientes" value={totalPacientes} />
-        <Card label="Vacinas" value={totalVacinas} />
-        <Card label="Aplicações" value={totalAplicacoes} />
-        <Card label="Vacinas Esgotadas" value={vacinasEsgotadas} />
-      </div>
-
-      <Section title="Aplicações (últimos 14 dias)">
-        <div className="space-y-2">
-          {aplicacoesPorDia.map((d, i) => (
-            <div
-              key={i}
-              className="flex justify-between border-b py-1"
-            >
-              <span>{d.dia}</span>
-              <span>{d.total}</span>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section title="Aplicações por Vacina">
-        <div className="space-y-2">
-          {porVacina.map((v, i) => (
-            <div
-              key={i}
-              className="flex justify-between border-b py-1"
-            >
-              <span>{v.vacina}</span>
-              <span>{v.total}</span>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section title="Status das Aplicações">
-        <div className="space-y-2">
-          {porStatus.map((s, i) => (
-            <div
-              key={i}
-              className="flex justify-between border-b py-1"
-            >
-              <span>{s.status}</span>
-              <span>{s.total}</span>
-            </div>
-          ))}
-        </div>
-      </Section>
-    </div>
-  );
-}
-
-function Card({ label, value }) {
-  return (
-    <div className="bg-white rounded-xl shadow p-4">
-      <p className="text-slate-500 text-sm">
-        {label}
-      </p>
-      <p className="text-2xl font-bold text-slate-800">
-        {value}
-      </p>
-    </div>
-  );
-}
-
-function Section({ title, children }) {
-  return (
-    <div className="bg-white rounded-xl shadow p-4">
-      <h2 className="text-lg font-bold mb-3 text-slate-800">
-        {title}
-      </h2>
-      {children}
+    <div className="page-stack">
+      <PageHeader eyebrow="Dados reais" title="Relatórios" description="Resumo dos registros realizados pela sua conta nos últimos 30 dias." />
+      {error ? <div className="inline-alert inline-alert--error">{error}</div> : null}
+      <section className="stats-grid stats-grid--three">
+        <StatCard icon={Syringe} label="Aplicações no período" value={loading ? "—" : report.recent.length} helper="Últimos 30 dias" />
+        <StatCard icon={UsersRound} label="Pacientes atendidos" value={loading ? "—" : report.patients} helper="Contagem única no período" tone="indigo" />
+        <StatCard icon={CalendarDays} label="Média por dia" value={loading ? "—" : (report.recent.length / 30).toFixed(1)} helper="Somente seus registros" tone="green" />
+      </section>
+      <section className="content-card report-card">
+        <header className="card-header"><div><span className="eyebrow">Distribuição</span><h2>Vacinas mais aplicadas</h2></div><BarChart3 /></header>
+        {loading ? <SkeletonRows rows={5} /> : report.topVaccines.length === 0 ? (
+          <StatePanel title="Sem dados no período" description="As métricas aparecerão após o registro de aplicações." />
+        ) : (
+          <div className="bar-chart">
+            {report.topVaccines.map(([name, count]) => (
+              <div className="bar-chart__row" key={name}>
+                <span>{name}</span><div><i style={{ width: `${(count / report.max) * 100}%` }} /></div><strong>{count}</strong>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+      <p className="report-disclaimer">Este relatório não representa a produção global da unidade; ele inclui apenas aplicações auditadas pelo seu UID profissional.</p>
     </div>
   );
 }
