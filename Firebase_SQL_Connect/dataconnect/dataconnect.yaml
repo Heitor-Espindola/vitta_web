@@ -1,0 +1,13 @@
+specVersion: "v1"
+serviceId: "vitta-5ec1e-service"
+location: "southamerica-east1"
+schemas:
+  - source: "./schema"
+    datasource:
+      postgresql:
+        database: "vitta-5ec1e-database"
+        cloudSql:
+          instanceId: "vitta-5ec1e-instance"
+          # schemaValidation: "STRICT"     # STRICT mode makes Postgres schema match Data Connect exactly.
+          # schemaValidation: "COMPATIBLE" # COMPATIBLE mode makes Postgres schema compatible with Data Connect.
+connectorDirs: ["./example"]
