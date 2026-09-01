@@ -6,13 +6,3 @@ dist
 .env.*.local
 !.env.example
 coverage
-
-.dataconnect/
-**/dataconnect/.dataconnect/
-
-**/*-debug.log
-**/pglite-debug.log
-**/dataconnect-debug.log
-
-.env
-.env.local
