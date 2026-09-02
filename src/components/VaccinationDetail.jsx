@@ -1,5 +1,9 @@
 import { formatDate, formatDateTime } from "../utils/dates";
-import { statusLabels, vaccinationStatus } from "../utils/vaccination";
+import {
+  statusLabels,
+  vaccinationRecordCapabilities,
+  vaccinationStatus,
+} from "../utils/vaccination";
 import { StatusBadge } from "./ui";
 
 export default function VaccinationDetail({ record }) {
@@ -9,17 +13,24 @@ export default function VaccinationDetail({ record }) {
     ["Vacina", record.vaccineName],
     ["Dose", record.doseLabel],
     ["Data da aplicação", formatDate(record.appliedAt)],
-    ["Próxima dose", formatDate(record.nextDoseAt, "Não prevista")],
-    ["Lote", record.lot || "Não informado"],
-    ["Fabricante", record.manufacturer || "Não informado"],
-    ["Unidade", record.facilityName || "Não informada"],
-    ["Origem", record.source === "professional_panel" ? "Painel profissional" : "Registro legado"],
-  ];
+    record.nextDoseAt
+      ? ["Próxima dose", formatDate(record.nextDoseAt)]
+      : null,
+    record.lot ? ["Lote", record.lot] : null,
+    record.manufacturer ? ["Fabricante", record.manufacturer] : null,
+    record.facilityName ? ["Unidade", record.facilityName] : null,
+    record.source === "professional_panel"
+      ? ["Origem", "Registrado pelo Portal Vitta"]
+      : null,
+  ].filter(Boolean);
+  const readOnly =
+    !vaccinationRecordCapabilities.canUpdate &&
+    !vaccinationRecordCapabilities.canDelete;
   return (
     <div className="record-detail">
       <div className="record-detail__status">
         <StatusBadge status={status}>{statusLabels[status]}</StatusBadge>
-        <span>Registro somente leitura</span>
+        {readOnly ? <span>Registro somente leitura</span> : null}
       </div>
       <dl>
         {fields.map(([label, value]) => (
@@ -35,9 +46,12 @@ export default function VaccinationDetail({ record }) {
           <p>{record.notes}</p>
         </div>
       ) : null}
-      <p className="record-detail__audit">
-        Registrado em {formatDateTime(record.createdAt)} pelo profissional autenticado.
-      </p>
+      {record.createdAt ? (
+        <p className="record-detail__audit">
+          Registrado em {formatDateTime(record.createdAt)} pelo profissional
+          autenticado.
+        </p>
+      ) : null}
     </div>
   );
 }

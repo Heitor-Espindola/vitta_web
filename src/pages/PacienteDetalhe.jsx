@@ -1,9 +1,9 @@
 import {
   ArrowLeft,
   CalendarClock,
-  CheckCircle2,
   ClipboardPlus,
   History,
+  Search,
   Syringe,
   UserRound,
 } from "lucide-react";
@@ -19,11 +19,18 @@ import {
   StatCard,
   StatusBadge,
 } from "../components/ui";
-import { getAuthorizedPatient } from "../services/patientService";
+import {
+  getAuthorizedPatient,
+  isPatientAccessExpired,
+  patientAccessErrorMessage,
+} from "../services/patientService";
 import { watchPatientRecords } from "../services/vaccinationService";
 import { ageFromBirthDate, formatDate } from "../utils/dates";
-import { friendlyFirebaseError } from "../utils/firebaseErrors";
-import { statusLabels, vaccinationStatus } from "../utils/vaccination";
+import {
+  derivePatientRecordSummary,
+  statusLabels,
+  vaccinationStatus,
+} from "../utils/vaccination";
 
 export default function PacienteDetalhe() {
   const { personId } = useParams();
@@ -33,19 +40,25 @@ export default function PacienteDetalhe() {
   const [patientLoading, setPatientLoading] = useState(!patient);
   const [recordsLoading, setRecordsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [accessExpired, setAccessExpired] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     let active = true;
     if (!patient) {
       getAuthorizedPatient(personId)
         .then((result) => {
-          if (active) setPatient(result);
+          if (active) {
+            setPatient(result);
+            setError("");
+          }
         })
         .catch((loadError) => {
-          if (active) setError(friendlyFirebaseError(loadError, loadError.message));
+          if (active) {
+            setAccessExpired(isPatientAccessExpired(loadError));
+            setError(patientAccessErrorMessage(loadError));
+          }
         })
         .finally(() => {
           if (active) setPatientLoading(false);
@@ -61,31 +74,37 @@ export default function PacienteDetalhe() {
       personId,
       (data) => {
         setRecords(data);
+        setError("");
+        setAccessExpired(false);
         setRecordsLoading(false);
       },
       (snapshotError) => {
-        setError(
-          friendlyFirebaseError(
-            snapshotError,
-            "O acesso ao histórico expirou. Localize o paciente novamente.",
-          ),
-        );
+        setAccessExpired(isPatientAccessExpired(snapshotError));
+        setError(patientAccessErrorMessage(snapshotError));
+        setFormOpen(false);
         setRecordsLoading(false);
       },
     );
     return unsubscribe;
   }, [personId]);
 
-  const nextRecords = useMemo(
-    () =>
-      records
-        .filter((record) => vaccinationStatus(record) !== "applied")
-        .sort((a, b) => a.nextDoseAt?.toMillis?.() - b.nextDoseAt?.toMillis?.()),
+  const summary = useMemo(
+    () => derivePatientRecordSummary(records),
     [records],
   );
-  const lastRecord = records[0] || null;
+  const patientDescription = useMemo(() => {
+    const details = [patient?.maskedCpf].filter(Boolean);
+    if (patient?.birthDate) {
+      details.push(formatDate(patient.birthDate));
+      const age = ageFromBirthDate(patient.birthDate);
+      if (age !== null) details.push(`${age} anos`);
+    }
+    return details.join(" • ");
+  }, [patient]);
 
-  if (patientLoading) return <LoadingPanel label="Abrindo carteira do paciente..." />;
+  if (patientLoading) {
+    return <LoadingPanel label="Abrindo carteira do paciente..." />;
+  }
   if (!patient) {
     return (
       <StatePanel
@@ -109,24 +128,62 @@ export default function PacienteDetalhe() {
       <PageHeader
         eyebrow="Carteira do paciente"
         title={patient.name}
-        description={`${patient.maskedCpf} • ${formatDate(patient.birthDate)}${
-          ageFromBirthDate(patient.birthDate) !== null
-            ? ` • ${ageFromBirthDate(patient.birthDate)} anos`
-            : ""
-        }`}
+        description={patientDescription}
         actions={
-          <button className="button button--primary" type="button" onClick={() => setFormOpen(true)}>
-            <ClipboardPlus size={18} /> Registrar aplicação
-          </button>
+          accessExpired ? (
+            <Link className="button button--primary" to="/pacientes">
+              <Search size={18} /> Localizar novamente
+            </Link>
+          ) : (
+            <button
+              className="button button--primary"
+              type="button"
+              onClick={() => setFormOpen(true)}
+            >
+              <ClipboardPlus size={18} /> Registrar aplicação
+            </button>
+          )
         }
       />
 
-      {error ? <div className="inline-alert inline-alert--error">{error}</div> : null}
+      {error ? (
+        <div
+          className="inline-alert inline-alert--error operational-alert"
+          role="alert"
+        >
+          <span>{error}</span>
+          {accessExpired ? (
+            <Link
+              className="button button--secondary button--small"
+              to="/pacientes"
+            >
+              Localizar paciente
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
 
       <section className="stats-grid stats-grid--three">
-        <StatCard icon={Syringe} label="Total de aplicações" value={recordsLoading ? "—" : records.length} helper="Histórico desta carteira" />
-        <StatCard icon={History} label="Última aplicação" value={lastRecord ? formatDate(lastRecord.appliedAt) : "—"} helper={lastRecord?.vaccineName || "Sem registros"} tone="indigo" />
-        <StatCard icon={CalendarClock} label="Próximas ou atrasadas" value={recordsLoading ? "—" : nextRecords.length} helper="Status calculado, não gravado" tone="green" />
+        <StatCard
+          icon={Syringe}
+          label="Aplicações"
+          value={recordsLoading ? "—" : summary.total}
+          helper="Registros desta carteira"
+        />
+        <StatCard
+          icon={History}
+          label="Última aplicação"
+          value={summary.lastRecord ? formatDate(summary.lastRecord.appliedAt) : "—"}
+          helper={summary.lastRecord?.vaccineName || "Sem registros"}
+          tone="indigo"
+        />
+        <StatCard
+          icon={CalendarClock}
+          label="Próxima dose"
+          value={summary.nextRecord ? formatDate(summary.nextRecord.nextDoseAt) : "—"}
+          helper={summary.nextRecord?.vaccineName || "Nenhuma dose prevista"}
+          tone="green"
+        />
       </section>
 
       <section className="patient-layout">
@@ -136,36 +193,76 @@ export default function PacienteDetalhe() {
               <span className="eyebrow">Carteira</span>
               <h2>Histórico de aplicações</h2>
             </div>
-            <span className="live-indicator"><i /> Tempo real</span>
+            <span className="live-indicator">
+              <i /> Tempo real
+            </span>
           </header>
           {recordsLoading ? (
             <LoadingPanel label="Sincronizando histórico..." />
-          ) : records.length === 0 ? (
+          ) : summary.total === 0 ? (
             <StatePanel
-              title="Carteira ainda sem aplicações"
-              description="Registre a primeira vacina aplicada durante este atendimento."
+              title="Nenhuma aplicação registrada"
+              description="Quando uma vacina for registrada, ela aparecerá no histórico desta carteira."
               action={
-                <button className="button button--primary" onClick={() => setFormOpen(true)}>
-                  <ClipboardPlus size={17} /> Registrar aplicação
-                </button>
+                !accessExpired ? (
+                  <button
+                    className="button button--primary"
+                    type="button"
+                    onClick={() => setFormOpen(true)}
+                  >
+                    <ClipboardPlus size={17} /> Registrar primeira aplicação
+                  </button>
+                ) : null
               }
             />
           ) : (
             <div className="table-wrap">
               <table className="data-table data-table--clickable">
                 <thead>
-                  <tr><th>Vacina</th><th>Dose</th><th>Aplicação</th><th>Próxima dose</th><th>Status</th></tr>
+                  <tr>
+                    <th>Vacina</th>
+                    <th>Dose</th>
+                    <th>Aplicação</th>
+                    <th>Próxima dose</th>
+                    <th>Status</th>
+                  </tr>
                 </thead>
                 <tbody>
-                  {records.map((record) => {
+                  {summary.orderedRecords.map((record) => {
                     const status = vaccinationStatus(record);
                     return (
-                      <tr key={record.id} onClick={() => setSelectedRecord(record)} tabIndex={0} onKeyDown={(event) => event.key === "Enter" && setSelectedRecord(record)}>
-                        <td><strong>{record.vaccineName}</strong><small>{record.manufacturer || "Fabricante não informado"}</small></td>
+                      <tr
+                        key={record.id}
+                        onClick={() => setSelectedRecord(record)}
+                        tabIndex={0}
+                        aria-label={`Ver detalhes de ${record.vaccineName}`}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            setSelectedRecord(record);
+                          }
+                        }}
+                      >
+                        <td>
+                          <strong>{record.vaccineName}</strong>
+                          {record.manufacturer ? (
+                            <small>{record.manufacturer}</small>
+                          ) : null}
+                          {record.lot ? <small>Lote: {record.lot}</small> : null}
+                          {record.facilityName ? (
+                            <small>Unidade: {record.facilityName}</small>
+                          ) : null}
+                        </td>
                         <td>{record.doseLabel}</td>
                         <td>{formatDate(record.appliedAt)}</td>
-                        <td>{formatDate(record.nextDoseAt, "Não prevista")}</td>
-                        <td><StatusBadge status={status}>{statusLabels[status]}</StatusBadge></td>
+                        <td>
+                          {record.nextDoseAt ? formatDate(record.nextDoseAt) : null}
+                        </td>
+                        <td>
+                          <StatusBadge status={status}>
+                            {statusLabels[status]}
+                          </StatusBadge>
+                        </td>
                       </tr>
                     );
                   })}
@@ -176,46 +273,55 @@ export default function PacienteDetalhe() {
         </article>
 
         <aside className="content-card patient-summary-panel">
-          <div className="patient-summary-panel__avatar"><UserRound /></div>
+          <div className="patient-summary-panel__avatar">
+            <UserRound />
+          </div>
           <h2>{patient.name}</h2>
           <span>{patient.maskedCpf}</span>
           <dl>
-            <div><dt>Situação</dt><dd><StatusBadge status="active">Cadastro ativo</StatusBadge></dd></div>
-            <div><dt>Nascimento</dt><dd>{formatDate(patient.birthDate)}</dd></div>
-            <div><dt>Carteira</dt><dd>{records.length ? "Com registros" : "Sem registros"}</dd></div>
+            {patient.accountStatus === "active" ? (
+              <div>
+                <dt>Situação</dt>
+                <dd>
+                  <StatusBadge status="active">Cadastro ativo</StatusBadge>
+                </dd>
+              </div>
+            ) : null}
+            {patient.birthDate ? (
+              <div>
+                <dt>Nascimento</dt>
+                <dd>{formatDate(patient.birthDate)}</dd>
+              </div>
+            ) : null}
+            <div>
+              <dt>Aplicações</dt>
+              <dd>{recordsLoading ? "—" : summary.total}</dd>
+            </div>
           </dl>
-          <div className="privacy-note">Dados técnicos de identidade não são exibidos ao profissional.</div>
         </aside>
       </section>
 
-      <Modal open={formOpen} onClose={() => setFormOpen(false)} title="Registrar aplicação" description="Os dados serão enviados ao histórico oficial do paciente." wide>
+      <Modal
+        open={formOpen && !accessExpired}
+        onClose={() => setFormOpen(false)}
+        title="Registrar aplicação"
+        description="Preencha os dados da vacina aplicada ao paciente."
+        wide
+      >
         <VaccinationForm
           patient={patient}
           onCancel={() => setFormOpen(false)}
-          onSaved={(result) => {
-            setFormOpen(false);
-            setSuccess(result);
-          }}
+          onSaved={() => setFormOpen(false)}
         />
       </Modal>
 
-      <Modal open={Boolean(selectedRecord)} onClose={() => setSelectedRecord(null)} title="Detalhes da aplicação" description="Registro oficial e somente leitura.">
+      <Modal
+        open={Boolean(selectedRecord)}
+        onClose={() => setSelectedRecord(null)}
+        title="Detalhes da aplicação"
+        description="Registro oficial e somente leitura."
+      >
         <VaccinationDetail record={selectedRecord} />
-      </Modal>
-
-      <Modal open={Boolean(success)} onClose={() => setSuccess(null)} title="Aplicação registrada com sucesso" description="A carteira foi atualizada em tempo real.">
-        {success ? (
-          <div className="success-summary">
-            <div className="state-icon state-icon--success"><CheckCircle2 /></div>
-            <dl>
-              <div><dt>Paciente</dt><dd>{patient.name}</dd></div>
-              <div><dt>Vacina</dt><dd>{success.vaccineName}</dd></div>
-              <div><dt>Dose</dt><dd>{success.doseLabel}</dd></div>
-              <div><dt>Data</dt><dd>{formatDate(`${success.appliedDate}T12:00:00`)}</dd></div>
-            </dl>
-            <button className="button button--primary" onClick={() => setSuccess(null)}>Voltar à carteira</button>
-          </div>
-        ) : null}
       </Modal>
     </div>
   );

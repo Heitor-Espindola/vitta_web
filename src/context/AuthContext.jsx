@@ -10,18 +10,20 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth, firebaseReady } from "../services/firebase";
 import {
   loginWithEmail,
-  logout,
+  logout as logoutSession,
   requestPasswordReset,
   resolveProfessional,
 } from "../services/authService";
+import { AuthStatus } from "../utils/professionalAuth";
 
 const AuthContext = createContext(null);
 
 const initialState = {
-  status: "loading",
+  status: AuthStatus.loading,
   firebaseUser: null,
   profile: null,
   reason: null,
+  reasonCode: null,
 };
 
 export function AuthProvider({ children }) {
@@ -29,20 +31,32 @@ export function AuthProvider({ children }) {
 
   const refreshProfile = useCallback(async (firebaseUser = auth.currentUser) => {
     if (!firebaseUser) {
-      setState({ ...initialState, status: "notAuthenticated" });
+      setState({ ...initialState, status: AuthStatus.unauthenticated });
       return;
     }
-    setState((current) => ({ ...current, status: "loading" }));
+    setState({
+      ...initialState,
+      status: AuthStatus.loading,
+      firebaseUser,
+    });
     try {
       setState(await resolveProfessional(firebaseUser));
-    } catch (error) {
+    } catch {
       setState({
-        status: "error",
+        ...initialState,
+        status: AuthStatus.error,
         firebaseUser,
-        profile: null,
-        reason: "Não foi possível validar o perfil profissional.",
-        error,
+        reason: "Não foi possível validar seu acesso neste momento.",
       });
+    }
+  }, []);
+
+  const endSession = useCallback(async () => {
+    setState({ ...initialState, status: AuthStatus.loading });
+    try {
+      await logoutSession();
+    } finally {
+      setState({ ...initialState, status: AuthStatus.unauthenticated });
     }
   }, []);
 
@@ -54,14 +68,13 @@ export function AuthProvider({ children }) {
         if (!active) return;
         unsubscribe = onAuthStateChanged(auth, refreshProfile);
       })
-      .catch((error) => {
+      .catch(() => {
         if (!active) return;
         setState({
-          status: "error",
-          firebaseUser: null,
-          profile: null,
-          reason: "Não foi possível inicializar a sessão.",
-          error,
+          ...initialState,
+          status: AuthStatus.error,
+          reason:
+            "Não foi possível conectar ao Vitta. Verifique sua internet.",
         });
       });
     return () => {
@@ -74,12 +87,12 @@ export function AuthProvider({ children }) {
     () => ({
       ...state,
       login: loginWithEmail,
-      logout,
+      logout: endSession,
       requestPasswordReset,
       refreshProfile,
       isAdmin: state.profile?.roles?.includes("admin") === true,
     }),
-    [state, refreshProfile],
+    [state, refreshProfile, endSession],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -60,7 +60,12 @@ export default function Aplicacoes() {
         <div className="toolbar">
           <div className="input-with-icon toolbar__search">
             <Search size={18} />
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar por vacina, dose, lote ou unidade" />
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Buscar por vacina, dose, lote ou unidade"
+              aria-label="Buscar nas minhas aplicações"
+            />
           </div>
           <span className="toolbar__count">{filtered.length} registro(s)</span>
         </div>
@@ -77,17 +82,19 @@ export default function Aplicacoes() {
         ) : (
           <div className="table-wrap">
             <table className="data-table">
-              <thead><tr><th>Vacina</th><th>Dose</th><th>Data</th><th>Unidade</th><th>Lote</th><th>Status</th><th><span className="sr-only">Ações</span></th></tr></thead>
+              <thead><tr><th>Vacina</th><th>Dose</th><th>Data</th><th>Unidade</th><th>Status</th><th><span className="sr-only">Ações</span></th></tr></thead>
               <tbody>
                 {filtered.map((record) => {
                   const status = vaccinationStatus(record);
                   return (
                     <tr key={record.id}>
-                      <td><strong>{record.vaccineName}</strong><small>{record.manufacturer || "Fabricante não informado"}</small></td>
+                      <td>
+                        <strong>{record.vaccineName}</strong>
+                        {record.manufacturer ? <small>{record.manufacturer}</small> : null}
+                      </td>
                       <td>{record.doseLabel}</td>
                       <td>{formatDate(record.appliedAt)}</td>
-                      <td>{record.facilityName || "Não informada"}</td>
-                      <td>{record.lot || "—"}</td>
+                      <td>{record.facilityName || null}</td>
                       <td><StatusBadge status={status}>{statusLabels[status]}</StatusBadge></td>
                       <td><button className="icon-button" type="button" onClick={() => setSelectedRecord(record)} aria-label={`Ver ${record.vaccineName}`}><Eye size={18} /></button></td>
                     </tr>

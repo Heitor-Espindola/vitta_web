@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import ProfessionalRoute from "./components/ProfessionalRoute";
 import AppLayout from "./layout/AppLayout";
 import Aplicacoes from "./pages/Aplicacoes";
@@ -19,6 +19,7 @@ export default function App() {
       <Route element={<ProfessionalRoute />}>
         <Route element={<AppLayout />}>
           <Route index element={<Dashboard />} />
+          <Route path="dashboard" element={<Navigate to="/" replace />} />
           <Route path="pacientes" element={<Pacientes />} />
           <Route path="pacientes/:personId" element={<PacienteDetalhe />} />
           <Route path="carteiras" element={<Carteiras />} />
