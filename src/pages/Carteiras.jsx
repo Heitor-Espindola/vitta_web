@@ -12,7 +12,7 @@ export default function Carteiras() {
       <PageHeader
         eyebrow="Carteira digital"
         title="Carteiras de vacinação"
-        description="Acesse uma carteira por meio de um atendimento validado pelo CPF."
+        description="Busque uma carteira pelo CPF ou retome o atendimento desta sessão."
         actions={
           recentPatientId ? (
             <button
@@ -34,10 +34,10 @@ export default function Carteiras() {
       <div className="content-card info-banner">
         <BookOpenCheck />
         <div>
-          <strong>Uma fonte de verdade</strong>
+          <strong>Acesso conforme o atendimento</strong>
           <p>
-            O histórico exibido aqui vem de <code>vaccination_records</code>, a
-            mesma coleção acompanhada em tempo real pelo aplicativo Vitta.
+            As carteiras não são listadas globalmente. Cada acesso começa por
+            uma busca exata e permanece disponível apenas durante a sessão.
           </p>
         </div>
       </div>

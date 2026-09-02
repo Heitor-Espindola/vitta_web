@@ -83,9 +83,9 @@ export default function Dashboard() {
   return (
     <div className="page-stack">
       <PageHeader
-        eyebrow="Visão geral"
-        title={`${greeting()}, ${firstName}`}
-        description="Acompanhe seus atendimentos e mantenha as carteiras vacinais atualizadas."
+        eyebrow={`${greeting()}, ${firstName}`}
+        title="Dashboard"
+        description="Acompanhe os atendimentos e registros realizados pela sua conta."
         actions={
           <Link className="button button--primary" to="/pacientes">
             <Search size={18} /> Localizar paciente
@@ -97,17 +97,17 @@ export default function Dashboard() {
 
       <section className="stats-grid" aria-label="Indicadores reais">
         <StatCard icon={UsersRound} label="Pacientes atendidos" value={loading ? "—" : metrics.patients} helper="Nos seus registros" />
-        <StatCard icon={ClipboardPlus} label="Aplicações registradas" value={loading ? "—" : metrics.applications} helper="Pelo seu usuário" tone="indigo" />
-        <StatCard icon={Syringe} label="Vacinas no catálogo" value={loading ? "—" : metrics.vaccines} helper="Itens ativos" tone="cyan" />
-        <StatCard icon={CalendarCheck2} label="Registradas hoje" value={loading ? "—" : metrics.today} helper="Atualização em tempo real" tone="green" />
+        <StatCard icon={ClipboardPlus} label="Aplicações registradas" value={loading ? "—" : metrics.applications} helper="Pela sua conta" />
+        <StatCard icon={CalendarCheck2} label="Aplicações hoje" value={loading ? "—" : metrics.today} helper="No dia atual" />
+        <StatCard icon={Syringe} label="Vacinas ativas" value={loading ? "—" : metrics.vaccines} helper="No catálogo Vitta" />
       </section>
 
       <section className="dashboard-grid">
         <article className="content-card content-card--span-2">
           <header className="card-header">
             <div>
-              <span className="eyebrow">Atividade recente</span>
-              <h2>Suas últimas aplicações</h2>
+              <h2>Atividade recente</h2>
+              <p>Últimas aplicações registradas pela sua conta.</p>
             </div>
             <Link className="text-link" to="/aplicacoes">
               Ver todas <ArrowRight size={16} />
@@ -117,8 +117,8 @@ export default function Dashboard() {
             <SkeletonRows rows={5} />
           ) : records.length === 0 ? (
             <StatePanel
-              title="Nenhuma aplicação registrada"
-              description="Localize um paciente para iniciar o primeiro atendimento."
+              title="Nenhuma atividade recente"
+              description="As aplicações registradas por você aparecerão aqui."
               action={
                 <Link className="button button--secondary" to="/pacientes">
                   Localizar paciente
@@ -154,18 +154,18 @@ export default function Dashboard() {
         <aside className="content-card quick-actions">
           <header className="card-header">
             <div>
-              <span className="eyebrow">Próximas ações</span>
-              <h2>Atalhos do atendimento</h2>
+              <h2>Ações rápidas</h2>
+              <p>Continue um atendimento com segurança.</p>
             </div>
           </header>
           <Link to="/pacientes" className="quick-action">
             <span><Search /></span>
-            <div><strong>Buscar por CPF</strong><small>Localização exata e segura</small></div>
+            <div><strong>Buscar paciente</strong><small>Localize uma carteira pelo CPF</small></div>
             <ArrowRight />
           </Link>
-          <Link to="/carteiras" className="quick-action">
-            <span><UsersRound /></span>
-            <div><strong>Abrir carteira</strong><small>Histórico e próximas doses</small></div>
+          <Link to="/pacientes" className="quick-action">
+            <span><ClipboardPlus /></span>
+            <div><strong>Registrar aplicação</strong><small>Primeiro localize o paciente</small></div>
             <ArrowRight />
           </Link>
           <Link to="/vacinas" className="quick-action">
@@ -173,9 +173,6 @@ export default function Dashboard() {
             <div><strong>Consultar catálogo</strong><small>Vacinas oficiais disponíveis</small></div>
             <ArrowRight />
           </Link>
-          <div className="privacy-note">
-            Os indicadores exibem apenas dados que sua conta pode consultar com segurança.
-          </div>
         </aside>
       </section>
     </div>

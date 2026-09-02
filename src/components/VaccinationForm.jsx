@@ -1,32 +1,30 @@
 import { CheckCircle2, ShieldCheck } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { registerVaccination } from "../services/vaccinationService";
 import { watchVaccines } from "../services/vaccineService";
 import { toLocalDateInput } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
-
-const initialForm = {
-  vaccineId: "",
-  doseLabel: "",
-  appliedDate: toLocalDateInput(),
-  nextDoseDate: "",
-  lot: "",
-  manufacturer: "",
-  facilityName: "",
-  notes: "",
-};
+import {
+  createInitialVaccinationForm,
+  createSubmissionGuard,
+  validateVaccinationForm,
+} from "../utils/vaccinationForm";
 
 export default function VaccinationForm({ patient, onCancel, onSaved }) {
-  const { firebaseUser } = useAuth();
+  const { firebaseUser, profile } = useAuth();
   const { showToast } = useToast();
   const [vaccines, setVaccines] = useState([]);
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState("");
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState(() =>
+    createInitialVaccinationForm(profile),
+  );
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
+  const formElementRef = useRef(null);
+  const submitOnce = useRef(createSubmissionGuard()).current;
 
   useEffect(
     () =>
@@ -54,61 +52,65 @@ export default function VaccinationForm({ patient, onCancel, onSaved }) {
   }
 
   function validate() {
-    const next = {};
-    if (!selectedVaccine) next.vaccineId = "Selecione uma vacina do catálogo.";
-    if (!form.doseLabel.trim()) next.doseLabel = "Informe a dose aplicada.";
-    if (!form.appliedDate) next.appliedDate = "Informe a data da aplicação.";
-    if (form.appliedDate > toLocalDateInput()) {
-      next.appliedDate = "A data de aplicação não pode estar no futuro.";
-    }
-    if (form.nextDoseDate && form.nextDoseDate <= form.appliedDate) {
-      next.nextDoseDate = "A próxima dose deve ser posterior à aplicação.";
-    }
-    if (!form.facilityName.trim()) {
-      next.facilityName = "Informe a unidade de atendimento.";
-    }
+    const next = validateVaccinationForm({ form, selectedVaccine });
     setErrors(next);
-    return Object.keys(next).length === 0;
+    if (Object.keys(next).length) {
+      requestAnimationFrame(() =>
+        formElementRef.current
+          ?.querySelector('[aria-invalid="true"]')
+          ?.focus(),
+      );
+      return false;
+    }
+    return true;
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
-    if (saving || !validate()) return;
-    setSaving(true);
-    try {
-      const document = await registerVaccination({
-        patientId: patient.personId,
-        professionalUid: firebaseUser.uid,
-        vaccine: selectedVaccine,
-        ...form,
-      });
-      showToast({
-        tone: "success",
-        title: "Aplicação registrada",
-        message: `${selectedVaccine.name} • ${form.doseLabel}`,
-      });
-      onSaved({
-        id: document.id,
-        vaccineName: selectedVaccine.name,
-        doseLabel: form.doseLabel,
-        appliedDate: form.appliedDate,
-      });
-    } catch (error) {
-      showToast({
-        tone: "error",
-        title: "Não foi possível registrar",
-        message: friendlyFirebaseError(
-          error,
-          "Revise os dados e confirme sua permissão de atendimento.",
-        ),
-      });
-    } finally {
-      setSaving(false);
-    }
+    if (!validate()) return;
+    await submitOnce(async () => {
+      setSaving(true);
+      try {
+        const document = await registerVaccination({
+          patientId: patient.personId,
+          professionalUid: firebaseUser.uid,
+          vaccine: selectedVaccine,
+          ...form,
+        });
+        showToast({
+          tone: "success",
+          title: "Aplicação registrada com sucesso.",
+          message: `${selectedVaccine.name} • ${form.doseLabel.trim()}`,
+        });
+        onSaved({
+          id: document.id,
+          vaccineName: selectedVaccine.name,
+          doseLabel: form.doseLabel.trim(),
+          appliedDate: form.appliedDate,
+        });
+      } catch (error) {
+        showToast({
+          tone: "error",
+          title: "Não foi possível registrar a aplicação",
+          message: friendlyFirebaseError(
+            error,
+            "Revise os dados e confirme se o atendimento continua autorizado.",
+          ),
+        });
+      } finally {
+        setSaving(false);
+      }
+    });
   }
 
   return (
-    <form className="professional-form" onSubmit={handleSubmit} noValidate>
+    <form
+      className="professional-form"
+      onSubmit={handleSubmit}
+      noValidate
+      ref={formElementRef}
+      aria-busy={saving}
+    >
       <div className="form-patient-strip">
         <span>{patient.name.slice(0, 1).toUpperCase()}</span>
         <div>
@@ -130,6 +132,9 @@ export default function VaccinationForm({ patient, onCancel, onSaved }) {
             onChange={(event) => update("vaccineId", event.target.value)}
             disabled={catalogLoading}
             aria-invalid={Boolean(errors.vaccineId)}
+            aria-describedby={
+              errors.vaccineId ? "vaccine-id-error" : "vaccine-description"
+            }
           >
             <option value="">
               {catalogLoading ? "Carregando catálogo..." : "Selecione a vacina"}
@@ -140,7 +145,13 @@ export default function VaccinationForm({ patient, onCancel, onSaved }) {
               </option>
             ))}
           </select>
-          {errors.vaccineId ? <small className="field__error">{errors.vaccineId}</small> : null}
+          {errors.vaccineId ? (
+            <small className="field__error" id="vaccine-id-error">
+              {errors.vaccineId}
+            </small>
+          ) : selectedVaccine?.description ? (
+            <small id="vaccine-description">{selectedVaccine.description}</small>
+          ) : null}
         </label>
 
         <label className="field">
@@ -151,8 +162,20 @@ export default function VaccinationForm({ patient, onCancel, onSaved }) {
             placeholder="Ex.: 1ª dose"
             maxLength={40}
             aria-invalid={Boolean(errors.doseLabel)}
+            aria-describedby={errors.doseLabel ? "dose-label-error" : undefined}
+            list="dose-label-options"
           />
-          {errors.doseLabel ? <small className="field__error">{errors.doseLabel}</small> : null}
+          <datalist id="dose-label-options">
+            <option value="Dose única" />
+            <option value="1ª dose" />
+            <option value="2ª dose" />
+            <option value="Reforço" />
+          </datalist>
+          {errors.doseLabel ? (
+            <small className="field__error" id="dose-label-error">
+              {errors.doseLabel}
+            </small>
+          ) : null}
         </label>
 
         <label className="field">
@@ -160,11 +183,19 @@ export default function VaccinationForm({ patient, onCancel, onSaved }) {
           <input
             type="date"
             value={form.appliedDate}
+            min="1900-01-01"
             max={toLocalDateInput()}
             onChange={(event) => update("appliedDate", event.target.value)}
             aria-invalid={Boolean(errors.appliedDate)}
+            aria-describedby={
+              errors.appliedDate ? "applied-date-error" : undefined
+            }
           />
-          {errors.appliedDate ? <small className="field__error">{errors.appliedDate}</small> : null}
+          {errors.appliedDate ? (
+            <small className="field__error" id="applied-date-error">
+              {errors.appliedDate}
+            </small>
+          ) : null}
         </label>
 
         <label className="field">
@@ -173,10 +204,18 @@ export default function VaccinationForm({ patient, onCancel, onSaved }) {
             type="date"
             value={form.nextDoseDate}
             min={form.appliedDate || undefined}
+            max="2100-12-31"
             onChange={(event) => update("nextDoseDate", event.target.value)}
             aria-invalid={Boolean(errors.nextDoseDate)}
+            aria-describedby={
+              errors.nextDoseDate ? "next-dose-date-error" : undefined
+            }
           />
-          {errors.nextDoseDate ? <small className="field__error">{errors.nextDoseDate}</small> : null}
+          {errors.nextDoseDate ? (
+            <small className="field__error" id="next-dose-date-error">
+              {errors.nextDoseDate}
+            </small>
+          ) : null}
         </label>
 
         <label className="field">
@@ -200,15 +239,16 @@ export default function VaccinationForm({ patient, onCancel, onSaved }) {
         </label>
 
         <label className="field field--span-2">
-          <span>Unidade de atendimento *</span>
+          <span>Unidade de atendimento</span>
           <input
             value={form.facilityName}
             onChange={(event) => update("facilityName", event.target.value)}
             placeholder="Ex.: UBS Central"
             maxLength={140}
-            aria-invalid={Boolean(errors.facilityName)}
           />
-          {errors.facilityName ? <small className="field__error">{errors.facilityName}</small> : null}
+          <small>
+            Preenchida automaticamente quando vinculada ao seu perfil.
+          </small>
         </label>
 
         <label className="field field--span-2">

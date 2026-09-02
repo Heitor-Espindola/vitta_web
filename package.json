@@ -8,6 +8,7 @@
     "demo:legacy": "json-server db.json --port 3001",
     "lint": "eslint .",
     "test": "vitest run",
+    "seed:vaccines": "node scripts/seed-vaccines.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },

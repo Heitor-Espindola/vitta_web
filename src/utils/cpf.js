@@ -31,8 +31,8 @@ export function isValidCpf(value = "") {
 
 export function maskCpf(value = "") {
   const digits = cpfDigits(value);
-  if (digits.length !== 11) return "CPF não informado";
-  return `***.${digits.slice(3, 6)}.${digits.slice(6, 9)}-**`;
+  if (digits.length !== 11) return "";
+  return `***.***.***-${digits.slice(-2)}`;
 }
 
 export async function cpfRegistryHash(value) {

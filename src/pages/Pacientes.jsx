@@ -1,4 +1,4 @@
-import { LockKeyhole, Search, ShieldCheck } from "lucide-react";
+import { LockKeyhole, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PatientLookup from "../components/PatientLookup";
 import { PageHeader } from "../components/ui";
@@ -10,7 +10,7 @@ export default function Pacientes() {
       <PageHeader
         eyebrow="Atendimento"
         title="Pacientes"
-        description="Localize um cadastro pelo CPF para consultar a carteira ou registrar uma aplicação."
+        description="Localize uma carteira pelo CPF para iniciar o atendimento."
       />
       <PatientLookup
         onFound={(patient) =>
@@ -19,16 +19,12 @@ export default function Pacientes() {
       />
       <section className="security-explainer">
         <article>
-          <span><Search /></span>
-          <div><strong>Busca exata</strong><p>O painel não carrega nem filtra uma lista geral de pessoas.</p></div>
-        </article>
-        <article>
           <span><LockKeyhole /></span>
-          <div><strong>Acesso temporário</strong><p>A carteira fica disponível somente durante o atendimento autorizado.</p></div>
+          <div><strong>Atendimento temporário</strong><p>A carteira fica disponível somente durante o atendimento autorizado.</p></div>
         </article>
         <article>
           <span><ShieldCheck /></span>
-          <div><strong>Identidade preservada</strong><p>O fluxo usa personId sem expor UIDs ou hashes na interface.</p></div>
+          <div><strong>Privacidade preservada</strong><p>O Portal não exibe nem carrega uma lista geral de pacientes.</p></div>
         </article>
       </section>
     </div>
