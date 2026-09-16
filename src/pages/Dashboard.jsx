@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { PageHeader, SkeletonRows, StatCard, StatePanel } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
-import { watchProfessionalRecords } from "../services/vaccinationService";
+import { watchApplications } from "../services/vaccinationService";
 import { watchVaccines } from "../services/vaccineService";
 import { asDate, formatDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
@@ -23,7 +23,7 @@ function greeting() {
 }
 
 export default function Dashboard() {
-  const { profile, firebaseUser } = useAuth();
+  const { profile } = useAuth();
   const [records, setRecords] = useState([]);
   const [vaccines, setVaccines] = useState([]);
   const [recordsLoading, setRecordsLoading] = useState(true);
@@ -31,14 +31,13 @@ export default function Dashboard() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const unsubscribeRecords = watchProfessionalRecords(
-      firebaseUser.uid,
+    const unsubscribeRecords = watchApplications(
       (data) => {
         setRecords(data);
         setRecordsLoading(false);
       },
-      (snapshotError) => {
-        setError(friendlyFirebaseError(snapshotError));
+      (watchError) => {
+        setError(friendlyFirebaseError(watchError, watchError.message));
         setRecordsLoading(false);
       },
     );
@@ -47,32 +46,27 @@ export default function Dashboard() {
         setVaccines(data);
         setVaccinesLoading(false);
       },
-      (snapshotError) => {
-        setError(friendlyFirebaseError(snapshotError));
+      (watchError) => {
+        setError(friendlyFirebaseError(watchError, watchError.message));
         setVaccinesLoading(false);
       },
     );
     return () => {
-      unsubscribeRecords();
-      unsubscribeVaccines();
+      unsubscribeRecords?.();
+      unsubscribeVaccines?.();
     };
-  }, [firebaseUser.uid]);
+  }, []);
 
   const metrics = useMemo(() => {
     const today = new Date();
     const isToday = (value) => {
       const date = asDate(value);
-      return (
-        date &&
-        date.getFullYear() === today.getFullYear() &&
-        date.getMonth() === today.getMonth() &&
-        date.getDate() === today.getDate()
-      );
+      return date && date.toDateString() === today.toDateString();
     };
     return {
       patients: new Set(records.map((record) => record.patientId)).size,
       applications: records.length,
-      today: records.filter((record) => isToday(record.appliedAt)).length,
+      today: records.filter((record) => isToday(record.applicationDate)).length,
       vaccines: vaccines.filter((vaccine) => vaccine.active).length,
     };
   }, [records, vaccines]);
@@ -85,7 +79,7 @@ export default function Dashboard() {
       <PageHeader
         eyebrow="Visão geral"
         title={`${greeting()}, ${firstName}`}
-        description="Acompanhe seus atendimentos e mantenha as carteiras vacinais atualizadas."
+        description="Acompanhe os dados compartilhados do Vitta em tempo real."
         actions={
           <Link className="button button--primary" to="/pacientes">
             <Search size={18} /> Localizar paciente
@@ -96,8 +90,8 @@ export default function Dashboard() {
       {error ? <div className="inline-alert inline-alert--error">{error}</div> : null}
 
       <section className="stats-grid" aria-label="Indicadores reais">
-        <StatCard icon={UsersRound} label="Pacientes atendidos" value={loading ? "—" : metrics.patients} helper="Nos seus registros" />
-        <StatCard icon={ClipboardPlus} label="Aplicações registradas" value={loading ? "—" : metrics.applications} helper="Pelo seu usuário" tone="indigo" />
+        <StatCard icon={UsersRound} label="Pacientes atendidos" value={loading ? "—" : metrics.patients} helper="Nos registros compartilhados" />
+        <StatCard icon={ClipboardPlus} label="Aplicações registradas" value={loading ? "—" : metrics.applications} helper="Todos os profissionais" tone="indigo" />
         <StatCard icon={Syringe} label="Vacinas no catálogo" value={loading ? "—" : metrics.vaccines} helper="Itens ativos" tone="cyan" />
         <StatCard icon={CalendarCheck2} label="Registradas hoje" value={loading ? "—" : metrics.today} helper="Atualização em tempo real" tone="green" />
       </section>
@@ -107,7 +101,7 @@ export default function Dashboard() {
           <header className="card-header">
             <div>
               <span className="eyebrow">Atividade recente</span>
-              <h2>Suas últimas aplicações</h2>
+              <h2>Últimas aplicações</h2>
             </div>
             <Link className="text-link" to="/aplicacoes">
               Ver todas <ArrowRight size={16} />
@@ -118,31 +112,20 @@ export default function Dashboard() {
           ) : records.length === 0 ? (
             <StatePanel
               title="Nenhuma aplicação registrada"
-              description="Localize um paciente para iniciar o primeiro atendimento."
-              action={
-                <Link className="button button--secondary" to="/pacientes">
-                  Localizar paciente
-                </Link>
-              }
+              description="Registre uma aplicação para começar o histórico."
+              action={<Link className="button button--secondary" to="/pacientes">Localizar paciente</Link>}
             />
           ) : (
             <div className="table-wrap">
               <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Vacina</th>
-                    <th>Dose</th>
-                    <th>Data</th>
-                    <th>Unidade</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>Paciente</th><th>Vacina</th><th>Dose</th><th>Data</th></tr></thead>
                 <tbody>
                   {records.slice(0, 6).map((record) => (
                     <tr key={record.id}>
-                      <td><strong>{record.vaccineName}</strong></td>
+                      <td><strong>{record.patientName}</strong><small>{record.patientCpf || "CPF não informado"}</small></td>
+                      <td>{record.vaccineName}</td>
                       <td>{record.doseLabel}</td>
-                      <td>{formatDate(record.appliedAt)}</td>
-                      <td>{record.facilityName || "Não informada"}</td>
+                      <td>{formatDate(record.applicationDate)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -160,22 +143,19 @@ export default function Dashboard() {
           </header>
           <Link to="/pacientes" className="quick-action">
             <span><Search /></span>
-            <div><strong>Buscar por CPF</strong><small>Localização exata e segura</small></div>
+            <div><strong>Buscar por CPF</strong><small>Localização exata</small></div>
             <ArrowRight />
           </Link>
           <Link to="/carteiras" className="quick-action">
             <span><UsersRound /></span>
-            <div><strong>Abrir carteira</strong><small>Histórico e próximas doses</small></div>
+            <div><strong>Abrir carteira</strong><small>Histórico do paciente</small></div>
             <ArrowRight />
           </Link>
           <Link to="/vacinas" className="quick-action">
             <span><Syringe /></span>
-            <div><strong>Consultar catálogo</strong><small>Vacinas oficiais disponíveis</small></div>
+            <div><strong>Consultar catálogo</strong><small>Vacinas cadastradas</small></div>
             <ArrowRight />
           </Link>
-          <div className="privacy-note">
-            Os indicadores exibem apenas dados que sua conta pode consultar com segurança.
-          </div>
         </aside>
       </section>
     </div>

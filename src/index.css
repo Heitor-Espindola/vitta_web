@@ -1473,3 +1473,165 @@ code {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* ============================================================
+   Ajustes finais — sidebar, equipe, agenda e formulários SQL
+   ============================================================ */
+
+.sidebar__brand-toggle {
+  display: inline-grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 13px;
+  color: white;
+  background: transparent;
+}
+
+.sidebar__brand-toggle:hover {
+  background: rgb(255 255 255 / 7%);
+}
+
+.sidebar__brand-symbol-wrap {
+  position: relative;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+}
+
+.sidebar__brand-symbol-wrap .sidebar__symbol {
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.sidebar__brand-arrow {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: white;
+  background: rgb(7 27 51 / 78%);
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.sidebar--collapsed .sidebar__brand {
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar--collapsed .sidebar__brand-toggle {
+  width: 52px;
+  height: 52px;
+  flex-basis: 52px;
+}
+
+.sidebar--collapsed .sidebar__brand-toggle:hover .sidebar__brand-symbol-wrap .sidebar__symbol {
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+.sidebar--collapsed .sidebar__brand-toggle:hover .sidebar__brand-arrow {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.sidebar--collapsed .sidebar__footer {
+  min-height: 1rem;
+}
+
+.sidebar--collapsed .sidebar__nav {
+  padding-bottom: 0.5rem;
+}
+
+.page-tabs {
+  display: flex;
+  gap: 0.45rem;
+  width: max-content;
+  max-width: 100%;
+  padding: 0.3rem;
+  border: 1px solid var(--slate-200);
+  border-radius: 13px;
+  background: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.page-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.85rem;
+  border: 0;
+  border-radius: 9px;
+  color: var(--slate-600);
+  background: transparent;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.page-tab:hover {
+  color: var(--navy-800);
+  background: var(--slate-50);
+}
+
+.page-tab--active {
+  color: var(--blue-700);
+  background: var(--blue-50);
+}
+
+.onboarding-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  border-color: #c7e3ff;
+  background: linear-gradient(135deg, #f4faff, #ffffff);
+}
+
+.onboarding-card .feature-icon {
+  margin: 0;
+}
+
+.onboarding-card h2 {
+  margin: 0.18rem 0 0;
+  color: var(--navy-900);
+  font-size: 1rem;
+}
+
+.onboarding-card p {
+  margin: 0.3rem 0 0;
+  color: var(--slate-600);
+  font-size: 0.73rem;
+  line-height: 1.5;
+}
+
+.inline-alert--info {
+  border-color: #c7e3ff;
+  color: var(--blue-700);
+  background: var(--blue-50);
+}
+
+@media (max-width: 760px) {
+  .page-tabs {
+    width: 100%;
+  }
+
+  .page-tab {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .onboarding-card {
+    grid-template-columns: auto 1fr;
+  }
+
+  .onboarding-card > .button {
+    grid-column: 1 / -1;
+  }
+}

@@ -1,14 +1,12 @@
-import { ArrowRight, LockKeyhole, Search, UserRoundCheck } from "lucide-react";
+import { ArrowRight, Search, UserRoundCheck } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { authorizePatientLookup } from "../services/patientService";
-import { formatCpf, isValidCpf } from "../utils/cpf";
+import { authorizePatientLookup, formatPatientCpf } from "../services/patientService";
+import { formatDate, ageFromBirthDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
-import { ageFromBirthDate, formatDate } from "../utils/dates";
+import { isValidCpf } from "../utils/cpf";
 
 export default function PatientLookup({ onFound, compact = false }) {
-  const { firebaseUser } = useAuth();
   const { showToast } = useToast();
   const [cpf, setCpf] = useState("");
   const [patient, setPatient] = useState(null);
@@ -19,21 +17,20 @@ export default function PatientLookup({ onFound, compact = false }) {
     event.preventDefault();
     setError("");
     setPatient(null);
+
     if (!isValidCpf(cpf)) {
       setError("Informe um CPF válido com 11 dígitos.");
       return;
     }
+
     setLoading(true);
     try {
-      const result = await authorizePatientLookup({
-        cpf,
-        professionalUid: firebaseUser.uid,
-      });
+      const result = await authorizePatientLookup({ cpf });
       setPatient(result);
       showToast({
         tone: "success",
         title: "Paciente localizado",
-        message: "Acesso temporário liberado para este atendimento.",
+        message: "Cadastro carregado do banco SQL do Vitta.",
       });
     } catch (lookupError) {
       setError(friendlyFirebaseError(lookupError, lookupError.message));
@@ -50,7 +47,7 @@ export default function PatientLookup({ onFound, compact = false }) {
         </span>
         <div>
           <h2>Localizar paciente</h2>
-          <p>Use o CPF exato. Nenhuma lista geral de pacientes é carregada.</p>
+          <p>Use o CPF exato para abrir o cadastro.</p>
         </div>
       </div>
 
@@ -64,26 +61,18 @@ export default function PatientLookup({ onFound, compact = false }) {
               autoComplete="off"
               value={cpf}
               onChange={(event) => {
-                setCpf(formatCpf(event.target.value));
+                setCpf(formatPatientCpf(event.target.value));
                 setError("");
               }}
               placeholder="000.000.000-00"
               maxLength={14}
               aria-invalid={Boolean(error)}
-              aria-describedby={error ? "cpf-search-error" : undefined}
             />
           </div>
-          {error ? (
-            <small className="field__error" id="cpf-search-error">
-              {error}
-            </small>
-          ) : (
-            <small>
-              <LockKeyhole size={13} /> Consulta exata e auditável
-            </small>
-          )}
+          {error ? <small className="field__error">{error}</small> : null}
         </label>
-        <button className="button button--primary" disabled={loading}>
+
+        <button className="button button--primary" type="submit" disabled={loading}>
           {loading ? <span className="button-spinner" /> : <Search size={18} />}
           {loading ? "Localizando..." : "Localizar"}
         </button>
@@ -95,7 +84,7 @@ export default function PatientLookup({ onFound, compact = false }) {
             <UserRoundCheck aria-hidden="true" />
           </div>
           <div className="patient-result__identity">
-            <span className="status-badge status-badge--active">Cadastro ativo</span>
+            <span className="status-badge status-badge--active">Cadastro carregado</span>
             <h3>{patient.name}</h3>
             <p>
               {patient.maskedCpf} • {formatDate(patient.birthDate)}
@@ -109,7 +98,7 @@ export default function PatientLookup({ onFound, compact = false }) {
             type="button"
             onClick={() => onFound(patient)}
           >
-            Abrir carteira <ArrowRight size={17} />
+            Abrir cadastro <ArrowRight size={17} />
           </button>
         </article>
       ) : null}

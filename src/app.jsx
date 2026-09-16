@@ -1,10 +1,12 @@
 import { Route, Routes } from "react-router-dom";
 import ProfessionalRoute from "./components/ProfessionalRoute";
 import AppLayout from "./layout/AppLayout";
+import Agendamentos from "./pages/Agendamentos";
 import Aplicacoes from "./pages/Aplicacoes";
 import Carteiras from "./pages/Carteiras";
 import Config from "./pages/Config";
 import Dashboard from "./pages/Dashboard";
+import Funcionarios from "./pages/Funcionarios";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import PacienteDetalhe from "./pages/PacienteDetalhe";
@@ -23,8 +25,10 @@ export default function App() {
           <Route path="pacientes/:personId" element={<PacienteDetalhe />} />
           <Route path="carteiras" element={<Carteiras />} />
           <Route path="aplicacoes" element={<Aplicacoes />} />
+          <Route path="agendamentos" element={<Agendamentos />} />
           <Route path="vacinas" element={<Vacinas />} />
           <Route path="relatorios" element={<Relatorios />} />
+          <Route path="funcionarios" element={<Funcionarios />} />
           <Route path="config" element={<Config />} />
           <Route path="*" element={<NotFound />} />
         </Route>

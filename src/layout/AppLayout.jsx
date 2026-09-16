@@ -4,8 +4,9 @@ import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 
 export default function AppLayout() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <div className={`app-shell ${collapsed ? "app-shell--collapsed" : ""}`}>
       <Sidebar

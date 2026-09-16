@@ -12,7 +12,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "firebase": "^12.18.0",
+    "@dataconnect/generated": "file:src/dataconnect-generated",
+    "firebase": "^12.19.0",
     "lucide-react": "^1.18.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

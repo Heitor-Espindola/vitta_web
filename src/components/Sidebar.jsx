@@ -2,55 +2,57 @@ import { NavLink } from "react-router-dom";
 import {
   BarChart3,
   BookOpenCheck,
-  ChevronLeft,
+  CalendarClock,
+  ChevronRight,
   ClipboardPlus,
   LayoutDashboard,
   Settings,
   ShieldCheck,
   Syringe,
+  UserCog,
   UsersRound,
   X,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import isologo from "../assets/isologo.png";
 import isotipo from "../assets/isotipo.png";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/" },
   { label: "Pacientes", icon: UsersRound, path: "/pacientes" },
-  { label: "Carteiras", icon: BookOpenCheck, path: "/carteiras" },
-  { label: "Aplicações", icon: ClipboardPlus, path: "/aplicacoes" },
   { label: "Vacinas", icon: Syringe, path: "/vacinas" },
+  { label: "Aplicações", icon: ClipboardPlus, path: "/aplicacoes" },
+  { label: "Agendamentos", icon: CalendarClock, path: "/agendamentos" },
+  { label: "Carteiras", icon: BookOpenCheck, path: "/carteiras" },
   { label: "Relatórios", icon: BarChart3, path: "/relatorios" },
+  { label: "Equipe e UBS", icon: UserCog, path: "/funcionarios" },
   { label: "Configurações", icon: Settings, path: "/config" },
 ];
 
 export default function Sidebar({ collapsed, mobileOpen, onCollapse, onClose }) {
+  const { isAdmin } = useAuth();
+
   return (
     <>
       {mobileOpen ? (
-        <button
-          className="sidebar-backdrop"
-          onClick={onClose}
-          aria-label="Fechar menu"
-          type="button"
-        />
+        <button className="sidebar-backdrop" onClick={onClose} aria-label="Fechar menu" type="button" />
       ) : null}
-      <aside
-        className={`sidebar ${collapsed ? "sidebar--collapsed" : ""} ${
-          mobileOpen ? "sidebar--mobile-open" : ""
-        }`}
-      >
+      <aside className={`sidebar ${collapsed ? "sidebar--collapsed" : ""} ${mobileOpen ? "sidebar--mobile-open" : ""}`}>
         <div className="sidebar__brand">
-          <img className="sidebar__symbol" src={isotipo} alt="" />
-          {!collapsed ? (
-            <img className="sidebar__wordmark" src={isologo} alt="Vitta" />
-          ) : null}
           <button
-            className="sidebar__mobile-close"
-            onClick={onClose}
-            aria-label="Fechar menu"
+            className="sidebar__brand-toggle"
+            onClick={onCollapse}
             type="button"
+            aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
+            title={collapsed ? "Expandir menu" : "Recolher menu"}
           >
+            <span className="sidebar__brand-symbol-wrap">
+              <img className="sidebar__symbol" src={isotipo} alt="Vitta" />
+              <span className="sidebar__brand-arrow"><ChevronRight size={18} /></span>
+            </span>
+          </button>
+          {!collapsed ? <img className="sidebar__wordmark" src={isologo} alt="Vitta" /> : null}
+          <button className="sidebar__mobile-close" onClick={onClose} aria-label="Fechar menu" type="button">
             <X size={20} />
           </button>
         </div>
@@ -58,7 +60,7 @@ export default function Sidebar({ collapsed, mobileOpen, onCollapse, onClose }) 
         {!collapsed ? (
           <div className="sidebar__workspace">
             <span>Vitta Profissional</span>
-            <small>Atendimento seguro</small>
+            <small>{isAdmin ? "Gestão autorizada" : "Atendimento seguro"}</small>
           </div>
         ) : null}
 
@@ -69,9 +71,7 @@ export default function Sidebar({ collapsed, mobileOpen, onCollapse, onClose }) 
               to={path}
               end={path === "/"}
               onClick={onClose}
-              className={({ isActive }) =>
-                `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
-              }
+              className={({ isActive }) => `sidebar__link ${isActive ? "sidebar__link--active" : ""}`}
               title={collapsed ? label : undefined}
             >
               <Icon size={20} aria-hidden="true" />
@@ -90,15 +90,6 @@ export default function Sidebar({ collapsed, mobileOpen, onCollapse, onClose }) 
               </div>
             </div>
           ) : null}
-          <button
-            className="sidebar__collapse"
-            onClick={onCollapse}
-            type="button"
-            aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
-          >
-            <ChevronLeft size={18} />
-            {!collapsed ? <span>Recolher menu</span> : null}
-          </button>
         </div>
       </aside>
     </>

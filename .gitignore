@@ -1,10 +1,12 @@
 DevTools
 node_modules
 dist
+
 .env
 .env.local
 .env.*.local
 !.env.example
+
 coverage
 
 .dataconnect/
@@ -14,5 +16,11 @@ coverage
 **/pglite-debug.log
 **/dataconnect-debug.log
 
-.env
-.env.local
+Firebase_SQL_Connect/.agents/
+Firebase_SQL_Connect/.claude/
+
+.vscode/
+.idea/
+
+.DS_Store
+Thumbs.db
