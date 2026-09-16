@@ -85,10 +85,10 @@ export function StatusBadge({ status, children }) {
   return <span className={`status-badge status-badge--${status}`}>{children}</span>;
 }
 
-export function StatCard({ icon: Icon, label, value, helper }) {
+export function StatCard({ icon: Icon, label, value, helper, tone = "blue" }) {
   return (
     <article className="stat-card">
-      <div className="stat-card__icon">
+      <div className={`stat-card__icon stat-card__icon--${tone}`}>
         <Icon aria-hidden="true" />
       </div>
       <div>

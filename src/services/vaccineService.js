@@ -1,42 +1,170 @@
+import { subscribe } from "firebase/data-connect";
 import {
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-} from "firebase/firestore";
-import { db } from "./firebase";
+  createBatch,
+  createVaccine,
+  deleteBatch,
+  deleteVaccine,
+  listBatchesRef,
+  listVaccinesRef,
+  updateBatch,
+  updateVaccine,
+} from "@dataconnect/generated";
 
-export function mapVaccine(snapshot) {
-  const data = snapshot.data();
-  const sourceUrl = String(data.sourceUrl || "").trim();
+function mapVaccine(vaccine) {
   return {
-    id: snapshot.id,
-    name: data.name || data.vaccineName || "",
-    shortName: data.shortName || "",
-    description: data.description || "",
-    recommendedAge: data.recommendedAge || "",
-    doseCount: Number.isInteger(data.doseCount) ? data.doseCount : null,
-    intervalDays: Number.isInteger(data.intervalDays)
-      ? data.intervalDays
-      : null,
-    targetGroups: Array.isArray(data.targetGroups) ? data.targetGroups : [],
-    prevents: Array.isArray(data.prevents) ? data.prevents : [],
-    sourceName: data.sourceName || "",
-    sourceUrl: /^https?:\/\//i.test(sourceUrl) ? sourceUrl : "",
-    active: data.active !== false,
-    hasActiveStatus: typeof data.active === "boolean",
+    id: vaccine.id,
+    name: vaccine.name || "Vacina sem nome",
+    shortName: "",
+    description: vaccine.description || "",
+    recommendedAge: "",
+    doseCount:
+      typeof vaccine.requiredDoses === "number"
+        ? vaccine.requiredDoses
+        : null,
+    intervalDays: null,
+    targetGroups: [],
+    prevents: [],
+    doseSchedule: [],
+    expectedReactions: [],
+    warningSigns: [],
+    contraindications: [],
+    sourceName: "Banco de dados Vitta",
+    sourceUrl: "",
+    active: true,
+    requiredDoses: vaccine.requiredDoses,
   };
 }
 
-export function mapVaccineSnapshot(snapshot) {
-  return snapshot.docs.map(mapVaccine).filter((vaccine) => vaccine.name);
+function mapBatch(batch) {
+  return {
+    id: batch.id,
+    vaccineId: batch.vaccine?.id || "",
+    vaccineName: batch.vaccine?.name || "Vacina não informada",
+    vaccineRequiredDoses: batch.vaccine?.requiredDoses ?? null,
+    manufacturer: batch.manufacturer || "",
+    batchCode: batch.batchCode || "",
+    initialQuantity:
+      typeof batch.initialQuantity === "number"
+        ? batch.initialQuantity
+        : 0,
+    currentQuantity:
+      typeof batch.currentQuantity === "number"
+        ? batch.currentQuantity
+        : 0,
+    manufacturingDate: batch.manufacturingDate || "",
+    expirationDate: batch.expirationDate || "",
+  };
 }
 
 export function watchVaccines(onData, onError) {
-  const vaccineQuery = query(collection(db, "vaccines"), orderBy("name"));
-  return onSnapshot(
-    vaccineQuery,
-    (snapshot) => onData(mapVaccineSnapshot(snapshot)),
+  return subscribe(
+    listVaccinesRef(),
+    (result) => {
+      const vaccines = result.data?.vaccines || [];
+      const mapped = vaccines
+        .map(mapVaccine)
+        .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+
+      onData(mapped);
+    },
     onError,
   );
+}
+
+export function watchBatches(onData, onError) {
+  return subscribe(
+    listBatchesRef(),
+    (result) => {
+      const batches = result.data?.batches || [];
+      const mapped = batches
+        .map(mapBatch)
+        .sort((a, b) => {
+          const vaccineComparison = a.vaccineName.localeCompare(
+            b.vaccineName,
+            "pt-BR",
+          );
+
+          if (vaccineComparison !== 0) {
+            return vaccineComparison;
+          }
+
+          return a.batchCode.localeCompare(b.batchCode, "pt-BR");
+        });
+
+      onData(mapped);
+    },
+    onError,
+  );
+}
+
+export async function addVaccine({ name, description, requiredDoses }) {
+  return createVaccine({
+    name,
+    description: description || null,
+    requiredDoses,
+  });
+}
+
+export async function editVaccine(
+  id,
+  { name, description, requiredDoses },
+) {
+  return updateVaccine({
+    id,
+    name,
+    description: description || null,
+    requiredDoses,
+  });
+}
+
+export async function removeVaccine(id) {
+  return deleteVaccine({ id });
+}
+
+export async function addBatch({
+  vaccineId,
+  manufacturer,
+  batchCode,
+  initialQuantity,
+  currentQuantity,
+  manufacturingDate,
+  expirationDate,
+}) {
+  return createBatch({
+    vaccineId,
+    manufacturer,
+    batchCode,
+    initialQuantity,
+    currentQuantity,
+    manufacturingDate: manufacturingDate || null,
+    expirationDate,
+  });
+}
+
+export async function editBatch(
+  id,
+  {
+    vaccineId,
+    manufacturer,
+    batchCode,
+    initialQuantity,
+    currentQuantity,
+    manufacturingDate,
+    expirationDate,
+  },
+) {
+  return updateBatch({
+    id,
+    vaccineId,
+    manufacturer,
+    batchCode,
+    initialQuantity,
+    currentQuantity,
+    manufacturingDate: manufacturingDate || null,
+    expirationDate,
+  });
+}
+
+export async function removeBatch(id) {
+  return deleteBatch({ id });
 }

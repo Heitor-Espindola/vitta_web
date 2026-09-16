@@ -1,182 +1,176 @@
+import { subscribe } from "firebase/data-connect";
+import { asDate } from "../utils/dates";
 import {
-  Timestamp,
-  addDoc,
-  collection,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-  serverTimestamp,
-  where,
-} from "firebase/firestore";
-import { db } from "./firebase";
-import { dateFromInput, toLocalDateInput } from "../utils/dates";
-import { doseNumberFromLabel } from "../utils/vaccination";
+  createApplication,
+  deleteApplication,
+  getProfessionalByUser,
+  getUserByEmail,
+  listApplicationsRef,
+  listApplicationsByPatientRef,
+  updateApplication,
+} from "@dataconnect/generated";
 
-export function mapVaccinationRecord(snapshot) {
-  return { id: snapshot.id, ...snapshot.data() };
-}
-
-export function mapVaccinationSnapshot(snapshot) {
-  return snapshot.docs.map(mapVaccinationRecord);
-}
-
-function optionalText(value, maximumLength, fieldName) {
-  const text = String(value || "").trim();
-  if (text.length > maximumLength) {
-    throw new Error(`${fieldName} excede o limite permitido.`);
-  }
+function textOrNull(value) {
+  const text = String(value ?? "").trim();
   return text || null;
 }
 
-export function buildVaccinationRecord({
-  patientId,
-  professionalUid,
-  vaccine,
-  doseLabel,
-  appliedDate,
-  nextDoseDate,
-  lot,
-  manufacturer,
-  facilityId,
-  facilityName,
-  notes,
-  now = new Date(),
-}) {
-  const appliedAt = dateFromInput(appliedDate);
-  const nextDoseAt = nextDoseDate ? dateFromInput(nextDoseDate) : null;
-  if (!patientId || !professionalUid) {
-    throw new Error("Paciente e profissional são obrigatórios.");
-  }
-  if (!vaccine?.id || !vaccine?.name?.trim()) {
-    throw new Error("Selecione uma vacina do catálogo.");
-  }
-  if (!doseLabel?.trim() || !appliedAt) {
-    throw new Error("Informe a dose e uma data de aplicação válida.");
-  }
-  if (doseLabel.trim().length > 40) {
-    throw new Error("A dose excede o limite permitido.");
-  }
-  const today = dateFromInput(toLocalDateInput(now));
-  if (appliedAt.getFullYear() < 1900 || appliedAt > today) {
-    throw new Error("A data de aplicação deve estar entre 1900 e hoje.");
-  }
-  if (nextDoseDate && !nextDoseAt) {
-    throw new Error("Informe uma data válida para a próxima dose.");
-  }
-  if (nextDoseAt && nextDoseAt < appliedAt) {
-    throw new Error("A próxima dose não pode ser anterior à aplicação.");
-  }
-  if (nextDoseAt && nextDoseAt.getFullYear() > 2100) {
-    throw new Error("Informe uma data válida para a próxima dose.");
-  }
+export function mapApplication(application) {
+  const patient = application?.patient || {};
+  const user = patient?.user || {};
+  const vaccine = application?.vaccine || {};
+  const batch = application?.batch || null;
+  const professional = application?.professional || {};
+  const professionalUser = professional?.user || {};
+  const ubs = application?.ubs || {};
 
-  const doseNumber = doseNumberFromLabel(doseLabel);
-  const normalizedLot = optionalText(lot, 80, "O lote");
-  const normalizedManufacturer = optionalText(
-    manufacturer,
-    120,
-    "O fabricante",
-  );
-  const normalizedFacilityId = optionalText(facilityId, 120, "A unidade");
-  const normalizedFacilityName = optionalText(
-    facilityName,
-    140,
-    "A unidade",
-  );
-  const normalizedNotes = optionalText(notes, 600, "As observações");
   return {
-    patientId,
-    vaccineId: vaccine.id,
-    vaccineName: vaccine.name.trim(),
-    doseLabel: doseLabel.trim(),
-    ...(doseNumber ? { doseNumber } : {}),
-    appliedAt: Timestamp.fromDate(appliedAt),
-    ...(nextDoseAt ? { nextDoseAt: Timestamp.fromDate(nextDoseAt) } : {}),
-    ...(normalizedLot ? { lot: normalizedLot } : {}),
-    ...(normalizedManufacturer ? { manufacturer: normalizedManufacturer } : {}),
-    ...(normalizedFacilityId ? { facilityId: normalizedFacilityId } : {}),
-    ...(normalizedFacilityName ? { facilityName: normalizedFacilityName } : {}),
-    ...(normalizedNotes ? { notes: normalizedNotes } : {}),
-    professionalUid,
-    source: "professional_panel",
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
+    id: application?.id || "",
+    patientId: patient.id || "",
+    patientName: user.name || "Paciente não informado",
+    patientCpf: user.cpf || "",
+    vaccineId: vaccine.id || "",
+    vaccineName: vaccine.name || "Vacina não informada",
+    vaccineRequiredDoses: vaccine.requiredDoses ?? null,
+    batchId: batch?.id || "",
+    batchCode: batch?.batchCode || "",
+    manufacturer: batch?.manufacturer || "",
+    expirationDate: batch?.expirationDate || null,
+    appointmentId: application?.appointment?.id || "",
+    professionalId: professional.id || "",
+    professionalName: professionalUser.name || "Profissional não informado",
+    professionalType: professional.professionalType || "OTHER",
+    professionalRegistration: professional.professionalRegistration || "",
+    ubsId: ubs.id || "",
+    ubsName: ubs.name || "UBS não informada",
+    applicationDate: application?.applicationDate || null,
+    doseNumber: application?.doseNumber ?? null,
+    doseLabel:
+      application?.doseNumber != null
+        ? `${application.doseNumber}ª dose`
+        : "Dose não informada",
+    notes: application?.notes || "",
+    source: "sql_connect",
   };
 }
 
-export async function registerVaccination(input) {
-  const payload = buildVaccinationRecord(input);
-  return addDoc(collection(db, "vaccination_records"), payload);
+function sortApplications(items) {
+  return [...items].sort((a, b) => {
+    const dateA = asDate(a.applicationDate)?.getTime() || 0;
+    const dateB = asDate(b.applicationDate)?.getTime() || 0;
+    return dateB - dateA;
+  });
+}
+
+export function watchApplications(onData, onError) {
+  return subscribe(
+    listApplicationsRef(),
+    (result) => {
+      const applications = result?.data?.applications || [];
+      onData(sortApplications(applications.map(mapApplication)));
+    },
+    onError,
+  );
 }
 
 export function watchPatientRecords(patientId, onData, onError) {
-  const recordsQuery = query(
-    collection(db, "vaccination_records"),
-    where("patientId", "==", patientId),
-    orderBy("appliedAt", "desc"),
-  );
-  return onSnapshot(
-    recordsQuery,
-    (snapshot) => onData(mapVaccinationSnapshot(snapshot)),
+  return subscribe(
+    listApplicationsByPatientRef({ patientId }),
+    (result) => {
+      const applications = result?.data?.applications || [];
+      onData(sortApplications(applications.map(mapApplication)));
+    },
     onError,
   );
 }
 
-export function watchProfessionalRecords(professionalUid, onData, onError) {
-  const scope = professionalRecordsQueryScope(professionalUid);
-  const recordsQuery = query(
-    collection(db, scope.collection),
-    where(scope.field, "==", scope.value),
-    orderBy(scope.orderBy, scope.direction),
-    limit(scope.limit),
-  );
-  return onSnapshot(
-    recordsQuery,
-    (snapshot) => onData(mapVaccinationSnapshot(snapshot)),
-    onError,
-  );
-}
-
-export function watchProfessionalReportRecords(
-  professionalUid,
-  onData,
-  onError,
-) {
-  const scope = professionalReportQueryScope(professionalUid);
-  const recordsQuery = query(
-    collection(db, scope.collection),
-    where(scope.field, "==", scope.value),
-    orderBy(scope.orderBy, scope.direction),
-  );
-  return onSnapshot(
-    recordsQuery,
-    (snapshot) => onData(mapVaccinationSnapshot(snapshot)),
-    onError,
-  );
-}
-
-export function professionalRecordsQueryScope(professionalUid) {
-  if (!professionalUid) {
-    throw new Error("O UID profissional é obrigatório.");
+export async function resolveCurrentProfessional(firebaseUser) {
+  const email = String(firebaseUser?.email || "").trim().toLowerCase();
+  if (!email) {
+    throw new Error("A conta autenticada não possui um e-mail válido.");
   }
-  return {
-    collection: "vaccination_records",
-    field: "professionalUid",
-    value: professionalUid,
-    orderBy: "appliedAt",
-    direction: "desc",
-    limit: 100,
-  };
+
+  const userResult = await getUserByEmail({ email });
+  const user = userResult?.data?.users?.[0];
+  if (!user?.id) {
+    throw new Error("O usuário autenticado não possui cadastro no Vitta SQL.");
+  }
+
+  const professionalResult = await getProfessionalByUser({ userId: user.id });
+  const professional = professionalResult?.data?.professionals?.[0];
+  if (!professional?.id) {
+    throw new Error("A conta autenticada não possui cadastro profissional.");
+  }
+  if (!professional.ubs?.id) {
+    throw new Error("O profissional autenticado não possui uma UBS vinculada.");
+  }
+
+  return professional;
 }
 
-export function professionalReportQueryScope(professionalUid) {
-  const scope = professionalRecordsQueryScope(professionalUid);
-  return {
-    collection: scope.collection,
-    field: scope.field,
-    value: scope.value,
-    orderBy: scope.orderBy,
-    direction: scope.direction,
-  };
+function timestampFromDateInput(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    throw new Error("Informe uma data de aplicação válida.");
+  }
+  return new Date(`${value}T12:00:00-03:00`).toISOString();
+}
+
+export async function registerVaccination({
+  patientId,
+  vaccineId,
+  batchId,
+  applicationDate,
+  doseNumber,
+  notes,
+  firebaseUser,
+}) {
+  if (!patientId || !vaccineId) {
+    throw new Error("Selecione o paciente e a vacina.");
+  }
+
+  const professional = await resolveCurrentProfessional(firebaseUser);
+
+  return createApplication({
+    patientId,
+    vaccineId,
+    batchId: batchId || null,
+    appointmentId: null,
+    professionalId: professional.id,
+    ubsId: professional.ubs.id,
+    applicationDate: timestampFromDateInput(applicationDate),
+    doseNumber: doseNumber ? Number(doseNumber) : null,
+    notes: textOrNull(notes),
+  });
+}
+
+export async function editApplication(
+  id,
+  {
+    patientId,
+    vaccineId,
+    batchId,
+    appointmentId,
+    professionalId,
+    ubsId,
+    applicationDate,
+    doseNumber,
+    notes,
+  },
+) {
+  return updateApplication({
+    id,
+    patientId,
+    vaccineId,
+    batchId: batchId || null,
+    appointmentId: appointmentId || null,
+    professionalId,
+    ubsId,
+    applicationDate: timestampFromDateInput(applicationDate),
+    doseNumber: doseNumber ? Number(doseNumber) : null,
+    notes: textOrNull(notes),
+  });
+}
+
+export async function removeApplication(id) {
+  return deleteApplication({ id });
 }

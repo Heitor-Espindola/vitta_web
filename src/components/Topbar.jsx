@@ -1,8 +1,7 @@
 import { ChevronDown, LogOut, Menu, ShieldCheck } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { primaryRoleLabel } from "../utils/professionalAuth";
 
 const pageNames = {
   "/": "Dashboard",
@@ -33,32 +32,7 @@ export default function Topbar({ onOpenMenu }) {
   const { pathname } = useLocation();
   const { profile, logout } = useAuth();
   const [accountOpen, setAccountOpen] = useState(false);
-  const accountRef = useRef(null);
   const name = profile?.fullName || profile?.name || "Profissional Vitta";
-  const unitName = profile?.facilityName || profile?.unitName;
-  const roleLabel = primaryRoleLabel(profile);
-  const professionalContext = unitName
-    ? `${roleLabel} • ${unitName}`
-    : roleLabel;
-
-  useEffect(() => {
-    if (!accountOpen) return undefined;
-    const closeMenu = (event) => {
-      if (event.key === "Escape") setAccountOpen(false);
-      if (
-        event.type === "pointerdown" &&
-        !accountRef.current?.contains(event.target)
-      ) {
-        setAccountOpen(false);
-      }
-    };
-    document.addEventListener("keydown", closeMenu);
-    document.addEventListener("pointerdown", closeMenu);
-    return () => {
-      document.removeEventListener("keydown", closeMenu);
-      document.removeEventListener("pointerdown", closeMenu);
-    };
-  }, [accountOpen]);
 
   return (
     <header className="topbar">
@@ -71,34 +45,35 @@ export default function Topbar({ onOpenMenu }) {
         >
           <Menu size={21} />
         </button>
-        <strong>{pageName(pathname)}</strong>
+        <div>
+          <span className="topbar__breadcrumb">Painel /</span>
+          <strong>{pageName(pathname)}</strong>
+        </div>
       </div>
 
-      <div className="topbar__account-wrap" ref={accountRef}>
+      <div className="topbar__account-wrap">
         <button
           className="topbar__account"
           type="button"
           onClick={() => setAccountOpen((open) => !open)}
           aria-expanded={accountOpen}
-          aria-haspopup="menu"
-          aria-controls="account-menu"
         >
           <span className="avatar">{initials(name)}</span>
           <span className="topbar__identity">
             <strong>{name}</strong>
             <small>
-              <ShieldCheck size={13} /> {professionalContext}
+              <ShieldCheck size={13} /> Profissional autorizado
             </small>
           </span>
           <ChevronDown size={17} aria-hidden="true" />
         </button>
         {accountOpen ? (
-          <div className="account-menu" id="account-menu" role="menu">
+          <div className="account-menu">
             <div>
               <strong>{name}</strong>
               <span>{profile?.email || "Conta profissional"}</span>
             </div>
-            <button type="button" onClick={logout} role="menuitem">
+            <button type="button" onClick={logout}>
               <LogOut size={17} /> Encerrar sessão
             </button>
           </div>

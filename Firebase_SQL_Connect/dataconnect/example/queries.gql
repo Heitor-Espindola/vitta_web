@@ -1,0 +1,710 @@
+# ============================================================
+# USERS
+# ============================================================
+
+query ListUsers
+  @auth(level: USER)
+  @refresh(onMutationExecuted: { operation: "CreateUser" })
+  @refresh(onMutationExecuted: { operation: "UpdateUser" })
+  @refresh(onMutationExecuted: { operation: "DeleteUser" }) {
+  users {
+    id
+    name
+    birthDate
+    email
+    status
+    cpf
+    sex
+  }
+}
+
+query GetUser($id: UUID!) @auth(level: USER) {
+  user(id: $id) {
+    id
+    name
+    birthDate
+    email
+    status
+    cpf
+    sex
+  }
+}
+
+query GetUserByCpf($cpf: String!) @auth(level: USER) {
+  users(where: { cpf: { eq: $cpf } }) {
+    id
+    name
+    birthDate
+    email
+    status
+    cpf
+    sex
+  }
+}
+
+query GetUserByEmail($email: String!) @auth(level: USER) {
+  users(where: { email: { eq: $email } }) {
+    id
+    name
+    birthDate
+    email
+    status
+    cpf
+    sex
+  }
+}
+
+# ============================================================
+# PATIENTS
+# ============================================================
+
+query ListPatients
+  @auth(level: USER)
+  @refresh(onMutationExecuted: { operation: "CreateUser" })
+  @refresh(onMutationExecuted: { operation: "UpdateUser" })
+  @refresh(onMutationExecuted: { operation: "DeleteUser" })
+  @refresh(onMutationExecuted: { operation: "CreatePatient" })
+  @refresh(onMutationExecuted: { operation: "UpdatePatient" })
+  @refresh(onMutationExecuted: { operation: "DeletePatient" }) {
+  patients {
+    id
+    motherName
+    user {
+      id
+      name
+      birthDate
+      email
+      cpf
+      sex
+      status
+    }
+    patientType
+    responsible {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+  }
+}
+
+query GetPatient($id: UUID!) @auth(level: USER) {
+  patient(id: $id) {
+    id
+    motherName
+    user {
+      id
+      name
+      birthDate
+      email
+      cpf
+      sex
+      status
+    }
+    patientType
+    responsible {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+  }
+}
+
+query GetPatientByUser($userId: UUID!) @auth(level: USER) {
+  patients(where: { userId: { eq: $userId } }) {
+    id
+    motherName
+    user {
+      id
+      name
+      birthDate
+      email
+      cpf
+      sex
+      status
+    }
+    patientType
+    responsible {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+  }
+}
+
+# ============================================================
+# UBS
+# ============================================================
+
+query ListUbs
+  @auth(level: USER)
+  @refresh(onMutationExecuted: { operation: "CreateUbs" })
+  @refresh(onMutationExecuted: { operation: "UpdateUbs" })
+  @refresh(onMutationExecuted: { operation: "DeleteUbs" }) {
+  uBSs {
+    id
+    name
+    logradouro
+    numero
+    bairro
+    cidade
+    cep
+  }
+}
+
+query GetUbs($id: UUID!) @auth(level: USER) {
+  uBS(id: $id) {
+    id
+    name
+    logradouro
+    numero
+    bairro
+    cidade
+    cep
+  }
+}
+
+query SearchUbsByName($name: String!) @auth(level: USER) {
+  uBSs(where: { name: { contains: $name } }) {
+    id
+    name
+    logradouro
+    numero
+    bairro
+    cidade
+    cep
+  }
+}
+
+# ============================================================
+# PROFESSIONALS
+# ============================================================
+
+query ListProfessionals
+  @auth(level: USER)
+  @refresh(onMutationExecuted: { operation: "CreateProfessional" })
+  @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
+  @refresh(onMutationExecuted: { operation: "DeleteProfessional" }) {
+  professionals {
+    id
+    user {
+      id
+      name
+      birthDate
+      email
+      cpf
+      sex
+      status
+    }
+    professionalType
+    professionalRegistration
+    ubs {
+      id
+      name
+      cidade
+      bairro
+    }
+  }
+}
+
+query GetProfessional($id: UUID!) @auth(level: USER) {
+  professional(id: $id) {
+    id
+    user {
+      id
+      name
+      birthDate
+      email
+      cpf
+      sex
+      status
+    }
+    professionalType
+    professionalRegistration
+    ubs {
+      id
+      name
+      logradouro
+      numero
+      bairro
+      cidade
+      cep
+    }
+  }
+}
+
+query GetProfessionalByUser($userId: UUID!) @auth(level: USER) {
+  professionals(where: { userId: { eq: $userId } }) {
+    id
+    user {
+      id
+      name
+      email
+      cpf
+    }
+    professionalType
+    professionalRegistration
+    ubs {
+      id
+      name
+    }
+  }
+}
+
+# ============================================================
+# VACCINES
+# ============================================================
+
+query ListVaccines
+  @auth(level: USER)
+  @refresh(onMutationExecuted: { operation: "CreateVaccine" })
+  @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
+  @refresh(onMutationExecuted: { operation: "DeleteVaccine" }) {
+  vaccines {
+    id
+    name
+    description
+    requiredDoses
+  }
+}
+
+query GetVaccine($id: UUID!) @auth(level: USER) {
+  vaccine(id: $id) {
+    id
+    name
+    description
+    requiredDoses
+  }
+}
+
+query SearchVaccinesByName($name: String!) @auth(level: USER) {
+  vaccines(where: { name: { contains: $name } }) {
+    id
+    name
+    description
+    requiredDoses
+  }
+}
+
+# ============================================================
+# BATCHES
+# ============================================================
+
+query ListBatches
+  @auth(level: USER)
+  @refresh(onMutationExecuted: { operation: "CreateBatch" })
+  @refresh(onMutationExecuted: { operation: "UpdateBatch" })
+  @refresh(onMutationExecuted: { operation: "DeleteBatch" })
+  @refresh(onMutationExecuted: { operation: "CreateVaccine" })
+  @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
+  @refresh(onMutationExecuted: { operation: "DeleteVaccine" }) {
+  batches {
+    id
+    vaccine {
+      id
+      name
+      requiredDoses
+    }
+    manufacturer
+    batchCode
+    initialQuantity
+    currentQuantity
+    manufacturingDate
+    expirationDate
+  }
+}
+
+query GetBatch($id: UUID!) @auth(level: USER) {
+  batch(id: $id) {
+    id
+    vaccine {
+      id
+      name
+      description
+      requiredDoses
+    }
+    manufacturer
+    batchCode
+    initialQuantity
+    currentQuantity
+    manufacturingDate
+    expirationDate
+  }
+}
+
+query ListBatchesByVaccine($vaccineId: UUID!) @auth(level: USER) {
+  batches(where: { vaccineId: { eq: $vaccineId } }) {
+    id
+    vaccine {
+      id
+      name
+    }
+    manufacturer
+    batchCode
+    initialQuantity
+    currentQuantity
+    manufacturingDate
+    expirationDate
+  }
+}
+
+# ============================================================
+# APPOINTMENTS
+# ============================================================
+
+query ListAppointments
+  @auth(level: USER)
+  @refresh(onMutationExecuted: { operation: "CreateAppointment" })
+  @refresh(onMutationExecuted: { operation: "UpdateAppointment" })
+  @refresh(onMutationExecuted: { operation: "DeleteAppointment" }) {
+  appointments {
+    id
+    patient {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+    vaccine {
+      id
+      name
+      requiredDoses
+    }
+    ubs {
+      id
+      name
+      cidade
+    }
+    createdAt
+    scheduledAt
+    status
+    notes
+  }
+}
+
+query GetAppointment($id: UUID!) @auth(level: USER) {
+  appointment(id: $id) {
+    id
+    patient {
+      id
+      user {
+        id
+        name
+        birthDate
+        cpf
+      }
+    }
+    vaccine {
+      id
+      name
+      description
+      requiredDoses
+    }
+    ubs {
+      id
+      name
+      logradouro
+      numero
+      bairro
+      cidade
+      cep
+    }
+    createdAt
+    scheduledAt
+    status
+    notes
+  }
+}
+
+query ListAppointmentsByPatient($patientId: UUID!) @auth(level: USER) {
+  appointments(where: { patientId: { eq: $patientId } }) {
+    id
+    patient {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+    vaccine {
+      id
+      name
+    }
+    ubs {
+      id
+      name
+    }
+    createdAt
+    scheduledAt
+    status
+    notes
+  }
+}
+
+query ListAppointmentsByStatus($status: AppointmentStatus!) @auth(level: USER) {
+  appointments(where: { status: { eq: $status } }) {
+    id
+    patient {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+    vaccine {
+      id
+      name
+    }
+    ubs {
+      id
+      name
+    }
+    scheduledAt
+    status
+    notes
+  }
+}
+
+# ============================================================
+# APPLICATIONS / VACCINATION HISTORY
+# ============================================================
+
+query ListApplications
+  @auth(level: USER)
+  @refresh(onMutationExecuted: { operation: "CreateUser" })
+  @refresh(onMutationExecuted: { operation: "UpdateUser" })
+  @refresh(onMutationExecuted: { operation: "DeleteUser" })
+  @refresh(onMutationExecuted: { operation: "CreatePatient" })
+  @refresh(onMutationExecuted: { operation: "UpdatePatient" })
+  @refresh(onMutationExecuted: { operation: "DeletePatient" })
+  @refresh(onMutationExecuted: { operation: "CreateApplication" })
+  @refresh(onMutationExecuted: { operation: "UpdateApplication" })
+  @refresh(onMutationExecuted: { operation: "DeleteApplication" })
+  @refresh(onMutationExecuted: { operation: "CreateVaccine" })
+  @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
+  @refresh(onMutationExecuted: { operation: "DeleteVaccine" })
+  @refresh(onMutationExecuted: { operation: "CreateBatch" })
+  @refresh(onMutationExecuted: { operation: "UpdateBatch" })
+  @refresh(onMutationExecuted: { operation: "DeleteBatch" })
+  @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
+  @refresh(onMutationExecuted: { operation: "UpdateUbs" }) {
+  applications {
+    id
+    patient {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+    vaccine {
+      id
+      name
+      requiredDoses
+    }
+    batch {
+      id
+      manufacturer
+      batchCode
+      expirationDate
+    }
+    appointment {
+      id
+      scheduledAt
+      status
+    }
+    professional {
+      id
+      user {
+        id
+        name
+      }
+      professionalType
+      professionalRegistration
+    }
+    ubs {
+      id
+      name
+      cidade
+    }
+    applicationDate
+    doseNumber
+    notes
+  }
+}
+
+query GetApplication($id: UUID!) @auth(level: USER) {
+  application(id: $id) {
+    id
+    patient {
+      id
+      user {
+        id
+        name
+        birthDate
+        cpf
+      }
+    }
+    vaccine {
+      id
+      name
+      description
+      requiredDoses
+    }
+    batch {
+      id
+      manufacturer
+      batchCode
+      initialQuantity
+      currentQuantity
+      manufacturingDate
+      expirationDate
+    }
+    appointment {
+      id
+      scheduledAt
+      status
+    }
+    professional {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+      professionalType
+      professionalRegistration
+    }
+    ubs {
+      id
+      name
+      logradouro
+      numero
+      bairro
+      cidade
+      cep
+    }
+    applicationDate
+    doseNumber
+    notes
+  }
+}
+
+query ListApplicationsByPatient($patientId: UUID!)
+  @auth(level: USER)
+  @refresh(onMutationExecuted: { operation: "CreateUser" })
+  @refresh(onMutationExecuted: { operation: "UpdateUser" })
+  @refresh(onMutationExecuted: { operation: "DeleteUser" })
+  @refresh(onMutationExecuted: { operation: "CreatePatient" })
+  @refresh(onMutationExecuted: { operation: "UpdatePatient" })
+  @refresh(onMutationExecuted: { operation: "DeletePatient" })
+  @refresh(onMutationExecuted: { operation: "CreateApplication" })
+  @refresh(onMutationExecuted: { operation: "UpdateApplication" })
+  @refresh(onMutationExecuted: { operation: "DeleteApplication" })
+  @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
+  @refresh(onMutationExecuted: { operation: "UpdateBatch" })
+  @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
+  @refresh(onMutationExecuted: { operation: "UpdateUbs" }) {
+  applications(where: { patientId: { eq: $patientId } }) {
+    id
+    vaccine {
+      id
+      name
+      requiredDoses
+    }
+    batch {
+      id
+      manufacturer
+      batchCode
+      expirationDate
+    }
+    appointment {
+      id
+      scheduledAt
+      status
+    }
+    professional {
+      id
+      user {
+        id
+        name
+      }
+      professionalType
+      professionalRegistration
+    }
+    ubs {
+      id
+      name
+    }
+    patient {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+    applicationDate
+    doseNumber
+    notes
+  }
+}
+
+query ListApplicationsByVaccine($vaccineId: UUID!) @auth(level: USER)
+  @refresh(onMutationExecuted: { operation: "CreateUser" })
+  @refresh(onMutationExecuted: { operation: "UpdateUser" })
+  @refresh(onMutationExecuted: { operation: "DeleteUser" })
+  @refresh(onMutationExecuted: { operation: "CreateProfessional" })
+  @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
+  @refresh(onMutationExecuted: { operation: "DeleteProfessional" })
+  @refresh(onMutationExecuted: { operation: "CreateUbs" })
+  @refresh(onMutationExecuted: { operation: "UpdateUbs" })
+  @refresh(onMutationExecuted: { operation: "DeleteUbs" })
+  @refresh(onMutationExecuted: { operation: "CreateVaccine" })
+  @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
+  @refresh(onMutationExecuted: { operation: "DeleteVaccine" })
+  @refresh(onMutationExecuted: { operation: "CreateBatch" })
+  @refresh(onMutationExecuted: { operation: "UpdateBatch" })
+  @refresh(onMutationExecuted: { operation: "DeleteBatch" })
+  @refresh(onMutationExecuted: { operation: "CreateApplication" })
+  @refresh(onMutationExecuted: { operation: "UpdateApplication" })
+  @refresh(onMutationExecuted: { operation: "DeleteApplication" }) {
+  applications(where: { vaccineId: { eq: $vaccineId } }) {
+    id
+    patient {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+    professional {
+      id
+      user {
+        id
+        name
+      }
+    }
+    ubs {
+      id
+      name
+    }
+    applicationDate
+    doseNumber
+    notes
+  }
+}

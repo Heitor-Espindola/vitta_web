@@ -1,36 +1,27 @@
 import { formatDate, formatDateTime } from "../utils/dates";
-import {
-  statusLabels,
-  vaccinationRecordCapabilities,
-  vaccinationStatus,
-} from "../utils/vaccination";
 import { StatusBadge } from "./ui";
 
 export default function VaccinationDetail({ record }) {
   if (!record) return null;
-  const status = vaccinationStatus(record);
+
   const fields = [
+    ["Paciente", record.patientName],
+    ["CPF", record.patientCpf || "Não informado"],
     ["Vacina", record.vaccineName],
     ["Dose", record.doseLabel],
-    ["Data da aplicação", formatDate(record.appliedAt)],
-    record.nextDoseAt
-      ? ["Próxima dose", formatDate(record.nextDoseAt)]
-      : null,
-    record.lot ? ["Lote", record.lot] : null,
-    record.manufacturer ? ["Fabricante", record.manufacturer] : null,
-    record.facilityName ? ["Unidade", record.facilityName] : null,
-    record.source === "professional_panel"
-      ? ["Origem", "Registrado pelo Portal Vitta"]
-      : null,
-  ].filter(Boolean);
-  const readOnly =
-    !vaccinationRecordCapabilities.canUpdate &&
-    !vaccinationRecordCapabilities.canDelete;
+    ["Data da aplicação", formatDate(record.applicationDate)],
+    ["Lote", record.batchCode || "Não informado"],
+    ["Fabricante", record.manufacturer || "Não informado"],
+    ["Unidade", record.ubsName || "Não informada"],
+    ["Profissional", record.professionalName || "Não informado"],
+    ["Registro profissional", record.professionalRegistration || "Não informado"],
+  ];
+
   return (
     <div className="record-detail">
       <div className="record-detail__status">
-        <StatusBadge status={status}>{statusLabels[status]}</StatusBadge>
-        {readOnly ? <span>Registro somente leitura</span> : null}
+        <StatusBadge status="active">Registrada</StatusBadge>
+        <span>Registro do SQL Connect</span>
       </div>
       <dl>
         {fields.map(([label, value]) => (
@@ -46,12 +37,9 @@ export default function VaccinationDetail({ record }) {
           <p>{record.notes}</p>
         </div>
       ) : null}
-      {record.createdAt ? (
-        <p className="record-detail__audit">
-          Registrado em {formatDateTime(record.createdAt)} pelo profissional
-          autenticado.
-        </p>
-      ) : null}
+      <p className="record-detail__audit">
+        Data registrada: {formatDateTime(record.applicationDate)}.
+      </p>
     </div>
   );
 }

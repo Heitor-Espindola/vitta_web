@@ -1,58 +1,113 @@
-import { ClipboardPlus, Eye, Search } from "lucide-react";
+import { ClipboardPlus, Eye, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import VaccinationDetail from "../components/VaccinationDetail";
-import { Modal, PageHeader, SkeletonRows, StatePanel, StatusBadge } from "../components/ui";
-import { useAuth } from "../context/AuthContext";
-import { watchProfessionalRecords } from "../services/vaccinationService";
+import ApplicationForm from "../components/ApplicationForm";
+import {
+  Modal,
+  PageHeader,
+  SkeletonRows,
+  StatePanel,
+  StatusBadge,
+} from "../components/ui";
+import { useToast } from "../context/ToastContext";
+import { removeApplication, watchApplications } from "../services/vaccinationService";
 import { formatDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
-import { statusLabels, vaccinationStatus } from "../utils/vaccination";
 
 export default function Aplicacoes() {
-  const { firebaseUser } = useAuth();
+  const { showToast } = useToast();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState("");
 
-  useEffect(
-    () =>
-      watchProfessionalRecords(
-        firebaseUser.uid,
-        (data) => {
-          setRecords(data);
-          setLoading(false);
-        },
-        (snapshotError) => {
-          setError(friendlyFirebaseError(snapshotError));
-          setLoading(false);
-        },
-      ),
-    [firebaseUser.uid],
-  );
+  useEffect(() => {
+    return watchApplications(
+      (data) => {
+        setRecords(data);
+        setLoading(false);
+        setError("");
+      },
+      (watchError) => {
+        setError(friendlyFirebaseError(watchError, watchError.message));
+        setLoading(false);
+      },
+    );
+  }, []);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLocaleLowerCase("pt-BR");
     if (!term) return records;
     return records.filter((record) =>
-      [record.vaccineName, record.doseLabel, record.facilityName, record.lot]
+      [
+        record.patientName,
+        record.patientCpf,
+        record.vaccineName,
+        record.batchCode,
+        record.ubsName,
+        record.professionalName,
+      ]
         .filter(Boolean)
-        .some((value) => value.toLocaleLowerCase("pt-BR").includes(term)),
+        .some((value) => String(value).toLocaleLowerCase("pt-BR").includes(term)),
     );
   }, [records, search]);
+
+  function openCreate() {
+    setEditingRecord(null);
+    setFormOpen(true);
+  }
+
+  function openEdit(record) {
+    setEditingRecord(record);
+    setFormOpen(true);
+  }
+
+  function closeForm() {
+    setFormOpen(false);
+    setEditingRecord(null);
+  }
+
+  async function handleDelete(record) {
+    if (deletingId) return;
+    if (!window.confirm(`Excluir o registro de ${record.vaccineName} de ${record.patientName}?`)) {
+      return;
+    }
+
+    setDeletingId(record.id);
+    try {
+      await removeApplication(record.id);
+      showToast({
+        tone: "success",
+        title: "Aplicação excluída",
+        message: "A lista foi atualizada em tempo real.",
+      });
+      if (selectedRecord?.id === record.id) setSelectedRecord(null);
+    } catch (deleteError) {
+      showToast({
+        tone: "error",
+        title: "Não foi possível excluir",
+        message: friendlyFirebaseError(deleteError, deleteError.message),
+      });
+    } finally {
+      setDeletingId("");
+    }
+  }
 
   return (
     <div className="page-stack">
       <PageHeader
         eyebrow="Registros oficiais"
         title="Aplicações"
-        description="Acompanhe as aplicações registradas pela sua conta profissional."
+        description="Gerencie todas as aplicações do Vitta. Todos os profissionais aprovados visualizam o mesmo conjunto de registros."
         actions={
-          <Link className="button button--primary" to="/pacientes">
-            <ClipboardPlus size={18} /> Nova aplicação
-          </Link>
+          <button className="button button--primary" type="button" onClick={openCreate}>
+            <Plus size={18} /> Nova aplicação
+          </button>
         }
       />
 
@@ -63,52 +118,116 @@ export default function Aplicacoes() {
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar por vacina, dose, lote ou unidade"
-              aria-label="Buscar nas minhas aplicações"
+              placeholder="Buscar por paciente, vacina, lote, UBS ou profissional"
             />
           </div>
           <span className="toolbar__count">{filtered.length} registro(s)</span>
         </div>
 
         {error ? <div className="inline-alert inline-alert--error">{error}</div> : null}
+
         {loading ? (
           <SkeletonRows rows={6} />
         ) : filtered.length === 0 ? (
           <StatePanel
             title={records.length ? "Nenhum resultado encontrado" : "Nenhuma aplicação registrada"}
-            description={records.length ? "Tente ajustar o termo de busca." : "Localize um paciente para registrar uma aplicação."}
-            action={!records.length ? <Link className="button button--secondary" to="/pacientes">Localizar paciente</Link> : null}
+            description={
+              records.length
+                ? "Ajuste o termo de busca."
+                : "Cadastre a primeira aplicação para começar o histórico."
+            }
+            action={
+              !records.length ? (
+                <button className="button button--primary" type="button" onClick={openCreate}>
+                  <ClipboardPlus size={17} /> Registrar aplicação
+                </button>
+              ) : null
+            }
           />
         ) : (
           <div className="table-wrap">
             <table className="data-table">
-              <thead><tr><th>Vacina</th><th>Dose</th><th>Data</th><th>Unidade</th><th>Status</th><th><span className="sr-only">Ações</span></th></tr></thead>
+              <thead>
+                <tr>
+                  <th>Paciente</th>
+                  <th>Vacina</th>
+                  <th>Dose</th>
+                  <th>Data</th>
+                  <th>UBS</th>
+                  <th>Lote</th>
+                  <th>Status</th>
+                  <th><span className="sr-only">Ações</span></th>
+                </tr>
+              </thead>
               <tbody>
-                {filtered.map((record) => {
-                  const status = vaccinationStatus(record);
-                  return (
-                    <tr key={record.id}>
-                      <td>
-                        <strong>{record.vaccineName}</strong>
-                        {record.manufacturer ? <small>{record.manufacturer}</small> : null}
-                      </td>
-                      <td>{record.doseLabel}</td>
-                      <td>{formatDate(record.appliedAt)}</td>
-                      <td>{record.facilityName || null}</td>
-                      <td><StatusBadge status={status}>{statusLabels[status]}</StatusBadge></td>
-                      <td><button className="icon-button" type="button" onClick={() => setSelectedRecord(record)} aria-label={`Ver ${record.vaccineName}`}><Eye size={18} /></button></td>
-                    </tr>
-                  );
-                })}
+                {filtered.map((record) => (
+                  <tr key={record.id}>
+                    <td>
+                      <strong>{record.patientName}</strong>
+                      <small>{record.patientCpf || "CPF não informado"}</small>
+                    </td>
+                    <td>
+                      <strong>{record.vaccineName}</strong>
+                      <small>{record.manufacturer || "Fabricante não informado"}</small>
+                    </td>
+                    <td>{record.doseLabel}</td>
+                    <td>{formatDate(record.applicationDate)}</td>
+                    <td>{record.ubsName || "Não informada"}</td>
+                    <td>{record.batchCode || "—"}</td>
+                    <td><StatusBadge status="active">Registrada</StatusBadge></td>
+                    <td>
+                      <div className="table-actions">
+                        <button className="icon-button" type="button" onClick={() => setSelectedRecord(record)} title="Detalhes">
+                          <Eye size={17} />
+                        </button>
+                        <button className="icon-button" type="button" onClick={() => openEdit(record)} title="Editar">
+                          <Pencil size={17} />
+                        </button>
+                        <button
+                          className="icon-button"
+                          type="button"
+                          onClick={() => handleDelete(record)}
+                          disabled={deletingId === record.id}
+                          title="Excluir"
+                        >
+                          {deletingId === record.id ? <span className="button-spinner" /> : <Trash2 size={17} />}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         )}
       </section>
 
-      <Modal open={Boolean(selectedRecord)} onClose={() => setSelectedRecord(null)} title="Detalhes da aplicação" description="Edição e exclusão não são permitidas para registros oficiais.">
+      <Modal
+        open={Boolean(selectedRecord)}
+        onClose={() => setSelectedRecord(null)}
+        title="Detalhes da aplicação"
+        description="Registro oficial armazenado no SQL Connect."
+      >
         <VaccinationDetail record={selectedRecord} />
       </Modal>
+
+      <Modal
+        open={formOpen}
+        onClose={closeForm}
+        title={editingRecord ? "Editar aplicação" : "Nova aplicação"}
+        description="O registro será atualizado no banco e a lista será sincronizada sem recarregar a página."
+        wide
+      >
+        <ApplicationForm
+          initialApplication={editingRecord}
+          onCancel={closeForm}
+          onSaved={closeForm}
+        />
+      </Modal>
+
+      <Link className="text-link" to="/pacientes">
+        <ClipboardPlus size={16} /> Registrar aplicação a partir de um paciente
+      </Link>
     </div>
   );
 }

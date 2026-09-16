@@ -1,16 +1,13 @@
 const messages = {
   "auth/invalid-credential": "E-mail ou senha incorretos.",
-  "auth/invalid-login-credentials": "E-mail ou senha incorretos.",
-  "auth/wrong-password": "E-mail ou senha incorretos.",
-  "auth/user-not-found": "E-mail ou senha incorretos.",
   "auth/user-disabled": "Esta conta foi desativada.",
   "auth/too-many-requests":
     "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
-  "auth/network-request-failed":
-    "Não foi possível conectar ao Vitta. Verifique sua internet.",
+  "auth/network-request-failed": "Verifique sua conexão e tente novamente.",
   "auth/invalid-email": "Informe um e-mail válido.",
-  "permission-denied": "Não foi possível validar seu acesso neste momento.",
-  unavailable: "Não foi possível conectar ao Vitta. Tente novamente.",
+  "permission-denied":
+    "Você não possui permissão para realizar esta operação.",
+  unavailable: "O serviço está temporariamente indisponível.",
 };
 
 export function friendlyFirebaseError(error, fallback) {

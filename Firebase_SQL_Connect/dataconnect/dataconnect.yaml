@@ -1,0 +1,14 @@
+specVersion: "v1"
+serviceId: "vitta-5ec1e-service"
+location: "southamerica-east1"
+
+schemas:
+  - source: "./schema"
+    datasource:
+      postgresql:
+        database: "vitta-5ec1e-database"
+        cloudSql:
+          instanceId: "vitta-5ec1e-instance"
+          schemaValidation: "COMPATIBLE"
+
+connectorDirs: ["./example"]

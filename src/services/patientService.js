@@ -1,18 +1,18 @@
+import { subscribe } from "firebase/data-connect";
 import {
-  Timestamp,
-  doc,
-  getDoc,
-  serverTimestamp,
-  setDoc,
-} from "firebase/firestore";
-import { db } from "./firebase";
-import {
-  cpfRegistryHash,
-  isValidCpf,
-  maskCpf,
-} from "../utils/cpf";
-
-export const patientAccessDurationMs = 25 * 60 * 1000;
+  createPatient,
+  createUser,
+  deletePatient,
+  deleteUser,
+  getPatientByUser,
+  getPatientRef,
+  getUserByCpf,
+  getUserByEmail,
+  listPatientsRef,
+  updatePatient,
+  updateUser,
+} from "@dataconnect/generated";
+import { formatCpf, isValidCpf, maskCpf } from "../utils/cpf";
 
 export class PatientLookupError extends Error {
   constructor(code, message) {
@@ -22,117 +22,245 @@ export class PatientLookupError extends Error {
   }
 }
 
-export function mapPatient(personId, data = {}, fallbackCpf = "") {
-  const cpf =
-    data.cpfFormatted || data.cpfDigits || data.cpf || fallbackCpf;
+function cleanText(value) {
+  const text = String(value ?? "").trim();
+  return text || "";
+}
+
+function cleanCpf(value) {
+  return String(value ?? "").replace(/\D/g, "");
+}
+
+function mapPatient(patient) {
+  const user = patient?.user || {};
+
   return {
-    personId,
-    name: data.fullName || data.name || "Paciente",
-    birthDate: data.birthDate || null,
-    maskedCpf: maskCpf(cpf),
-    accountStatus: data.accountStatus || null,
-    photoUrl: data.photoUrl || null,
+    id: patient?.id || "",
+    personId: patient?.id || "",
+    userId: user.id || "",
+    name: user.name || "Paciente",
+    fullName: user.name || "Paciente",
+    birthDate: user.birthDate || null,
+    email: user.email || "",
+    cpf: user.cpf || "",
+    maskedCpf: maskCpf(user.cpf || ""),
+    sex: user.sex || "",
+    status: user.status || "ACTIVE",
+    patientType: patient?.patientType || "ADULT",
+
+    responsibleId: patient?.responsible?.id || "",
+    responsibleName: patient?.responsible?.user?.name || "",
+    responsibleCpf: patient?.responsible?.user?.cpf || "",
+    responsibleEmail: patient?.responsible?.user?.email || "",
   };
 }
 
-export async function authorizePatientLookupWithGateway(
-  { cpf, professionalUid },
-  {
-    lookupRegistry,
-    writeAccess,
-    loadPatient,
-    storage = globalThis.sessionStorage,
-    now = () => Date.now(),
-  },
-) {
-  if (!isValidCpf(cpf)) {
-    throw new PatientLookupError("invalid-cpf", "Informe um CPF válido.");
-  }
-  if (!String(professionalUid || "").trim()) {
-    throw new PatientLookupError(
-      "invalid-professional-session",
-      "Sua sessão profissional não pôde ser validada.",
-    );
-  }
+export function watchPatients(onData, onError) {
+  return subscribe(
+    listPatientsRef(),
+    (result) => {
+      const patients = result?.data?.patients || [];
 
-  const cpfHash = await cpfRegistryHash(cpf);
-  const registry = await lookupRegistry(cpfHash);
-  if (!registry) {
-    throw new PatientLookupError(
-      "patient-not-found",
-      "Confira o CPF informado ou solicite que o paciente realize o cadastro no Vitta.",
-    );
-  }
+      const mapped = patients
+        .map(mapPatient)
+        .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
 
-  const personId = String(registry.personId || registry.ownerUid || "").trim();
-  if (!personId) {
-    throw new PatientLookupError(
-      "invalid-registry",
-      "Não foi possível abrir esta carteira no momento.",
-    );
-  }
-
-  const accessId = `${professionalUid}_${personId}`;
-  await writeAccess(accessId, {
-    professionalUid,
-    patientId: personId,
-    cpfHash,
-    expiresAt: Timestamp.fromMillis(now() + patientAccessDurationMs),
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  });
-
-  const patientData = await loadPatient(personId);
-  if (!patientData) {
-    throw new PatientLookupError(
-      "patient-not-found",
-      "Confira o CPF informado ou solicite que o paciente realize o cadastro no Vitta.",
-    );
-  }
-
-  storage?.setItem("vitta:selectedPatientId", personId);
-  return mapPatient(personId, patientData, cpf);
+      onData(mapped);
+    },
+    onError,
+  );
 }
 
-export async function authorizePatientLookup(input) {
-  return authorizePatientLookupWithGateway(input, {
-    lookupRegistry: async (cpfHash) => {
-      const snapshot = await getDoc(doc(db, "cpf_registry", cpfHash));
-      return snapshot.exists() ? snapshot.data() : null;
-    },
-    writeAccess: (accessId, payload) =>
-      setDoc(doc(db, "professional_patient_access", accessId), payload),
-    loadPatient: async (personId) => {
-      const snapshot = await getDoc(doc(db, "users", personId));
-      return snapshot.exists() ? snapshot.data() : null;
-    },
-  });
+export async function getPatientById(id) {
+  const result = await getPatientRef({ id });
+  const patient = result?.data?.patient;
+
+  if (!patient) {
+    throw new PatientLookupError(
+      "patient-not-found",
+      "Paciente não encontrado.",
+    );
+  }
+
+  return mapPatient(patient);
+}
+
+export async function getPatientByUserId(userId) {
+  const result = await getPatientByUser({ userId });
+  const patient = result?.data?.patients?.[0];
+
+  if (!patient) {
+    throw new PatientLookupError(
+      "patient-not-found",
+      "O usuário localizado não possui um cadastro de paciente.",
+    );
+  }
+
+  return mapPatient(patient);
+}
+
+export async function authorizePatientLookup({ cpf }) {
+  const digits = cleanCpf(cpf);
+
+  if (!isValidCpf(digits)) {
+    throw new PatientLookupError("invalid-cpf", "Informe um CPF válido.");
+  }
+
+  const userResult = await getUserByCpf({ cpf: digits });
+  const user = userResult?.data?.users?.[0];
+
+  if (!user) {
+    throw new PatientLookupError(
+      "patient-not-found",
+      "Nenhum paciente foi localizado com este CPF.",
+    );
+  }
+
+  return getPatientByUserId(user.id);
 }
 
 export async function getAuthorizedPatient(personId) {
-  const snapshot = await getDoc(doc(db, "users", personId));
-  if (!snapshot.exists()) {
-    throw new PatientLookupError(
-      "patient-not-found",
-      "Paciente não encontrado ou autorização expirada.",
-    );
+  return getPatientById(personId);
+}
+
+export async function addPatient({
+  name,
+  birthDate,
+  email,
+  status,
+  cpf,
+  sex,
+  patientType,
+  responsibleId,
+}) {
+  const cleanName = cleanText(name);
+  const cleanEmail = cleanText(email).toLowerCase();
+  const cleanCpfValue = cleanCpf(cpf);
+
+  if (!cleanName || !birthDate || !cleanEmail || !cleanCpfValue) {
+    throw new Error("Preencha nome, nascimento, e-mail e CPF.");
   }
-  return mapPatient(personId, snapshot.data());
+
+  if (!isValidCpf(cleanCpfValue)) {
+    throw new Error("Informe um CPF válido.");
+  }
+
+  await createUser({
+    name: cleanName,
+    birthDate,
+    email: cleanEmail,
+    status,
+    cpf: cleanCpfValue,
+    sex: cleanText(sex) || null,
+  });
+
+  try {
+    const userResult = await getUserByEmail({
+      email: cleanEmail,
+    });
+
+    const createdUser = userResult?.data?.users?.[0];
+
+    if (!createdUser?.id) {
+      throw new Error(
+        "O usuário foi criado, mas seu ID não pôde ser localizado.",
+      );
+    }
+
+    await createPatient({
+      userId: createdUser.id,
+      patientType,
+      responsibleId: responsibleId || null,
+    });
+  } catch (error) {
+    const userResult = await getUserByEmail({
+      email: cleanEmail,
+    }).catch(() => null);
+
+    const createdUser = userResult?.data?.users?.[0];
+
+    if (createdUser?.id) {
+      await deleteUser({
+        id: createdUser.id,
+      }).catch(() => {});
+    }
+
+    throw error;
+  }
+}
+
+export async function editPatient(
+  patient,
+  { name, birthDate, email, status, cpf, sex, patientType, responsibleId },
+) {
+  const cleanName = cleanText(name);
+  const cleanEmail = cleanText(email).toLowerCase();
+  const cleanCpfValue = cleanCpf(cpf);
+
+  if (!patient?.id || !patient?.userId) {
+    throw new Error("O paciente selecionado é inválido.");
+  }
+
+  if (!cleanName || !birthDate || !cleanEmail || !cleanCpfValue) {
+    throw new Error("Preencha nome, nascimento, e-mail e CPF.");
+  }
+
+  if (!isValidCpf(cleanCpfValue)) {
+    throw new Error("Informe um CPF válido.");
+  }
+
+  await updateUser({
+    id: patient.userId,
+    name: cleanName,
+    birthDate,
+    email: cleanEmail,
+    status,
+    cpf: cleanCpfValue,
+    sex: cleanText(sex) || null,
+  });
+
+  await updatePatient({
+    id: patient.id,
+    patientType,
+    responsibleId: responsibleId || null,
+  });
+}
+
+export async function removePatient(patient) {
+  if (!patient?.id || !patient?.userId) {
+    throw new Error("O paciente selecionado é inválido.");
+  }
+
+  await deletePatient({
+    id: patient.id,
+  });
+
+  await deleteUser({
+    id: patient.userId,
+  });
 }
 
 export function selectedPatientId() {
-  return globalThis.sessionStorage?.getItem("vitta:selectedPatientId") || "";
+  return sessionStorage.getItem("vitta:selectedPatientId") || "";
 }
 
-export function isPatientAccessExpired(error) {
-  const code = String(error?.code || "").replace("firestore/", "");
-  return code === "permission-denied" || code === "access-expired";
-}
-
-export function patientAccessErrorMessage(error) {
-  if (isPatientAccessExpired(error)) {
-    return "O acesso a esta carteira expirou.";
+export function rememberSelectedPatient(patientId) {
+  if (patientId) {
+    sessionStorage.setItem("vitta:selectedPatientId", patientId);
   }
-  if (error instanceof PatientLookupError) return error.message;
-  return "Não foi possível abrir esta carteira no momento.";
+}
+
+export function clearSelectedPatient() {
+  sessionStorage.removeItem("vitta:selectedPatientId");
+}
+
+export function formatPatientCpf(value) {
+  return formatCpf(value);
+}
+
+export function mapPatientFromResult(user, patient) {
+  return mapPatient({
+    ...patient,
+    user,
+  });
 }

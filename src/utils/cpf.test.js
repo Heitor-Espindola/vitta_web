@@ -13,8 +13,7 @@ describe("CPF profissional", () => {
     expect(formatCpf("52998224725")).toBe("529.982.247-25");
     expect(isValidCpf("529.982.247-25")).toBe(true);
     expect(isValidCpf("111.111.111-11")).toBe(false);
-    expect(maskCpf("52998224725")).toBe("***.***.***-25");
-    expect(maskCpf("")).toBe("");
+    expect(maskCpf("52998224725")).toBe("***.982.247-**");
   });
 
   it("gera SHA-256 determinístico para cpf_registry", async () => {

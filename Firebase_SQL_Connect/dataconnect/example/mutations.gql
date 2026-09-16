@@ -1,0 +1,363 @@
+# ============================================================
+# USERS
+# ============================================================
+mutation CreateUser(
+  $name: String!
+  $birthDate: Date!
+  $email: String!
+  $status: UserStatus!
+  $cpf: String!
+  $sex: String
+) @auth(level: USER) {
+  user_insert(
+    data: {
+      name: $name
+      birthDate: $birthDate
+      email: $email
+      status: $status
+      cpf: $cpf
+      sex: $sex
+    }
+  )
+}
+mutation UpdateUser(
+  $id: UUID!
+  $name: String
+  $birthDate: Date
+  $email: String
+  $status: UserStatus
+  $cpf: String
+  $sex: String
+) @auth(level: USER) {
+  user_update(
+    id: $id
+    data: {
+      name: $name
+      birthDate: $birthDate
+      email: $email
+      status: $status
+      cpf: $cpf
+      sex: $sex
+    }
+  )
+}
+mutation DeleteUser($id: UUID!) @auth(level: USER) {
+  user_delete(id: $id)
+}
+
+# ============================================================
+# PATIENTS
+# ============================================================
+mutation CreatePatient(
+  $userId: UUID!
+  $patientType: PatientType!
+  $responsibleId: UUID
+  $motherName: String
+) @auth(level: USER) {
+  patient_insert(
+    data: {
+      userId: $userId
+      patientType: $patientType
+      responsibleId: $responsibleId
+      motherName: $motherName
+    }
+  )
+}
+mutation UpdatePatient(
+  $id: UUID!
+  $patientType: PatientType
+  $responsibleId: UUID
+  $motherName: String
+) @auth(level: USER) {
+  patient_update(
+    id: $id
+    data: {
+      patientType: $patientType
+      responsibleId: $responsibleId
+      motherName: $motherName
+    }
+  )
+}
+mutation DeletePatient($id: UUID!) @auth(level: USER) {
+  patient_delete(id: $id)
+}
+
+# ============================================================
+# UBS
+# ============================================================
+mutation CreateUbs(
+  $name: String!
+  $logradouro: String
+  $numero: String
+  $bairro: String
+  $cidade: String
+  $cep: String
+) @auth(level: USER) {
+  uBS_insert(
+    data: {
+      name: $name
+      logradouro: $logradouro
+      numero: $numero
+      bairro: $bairro
+      cidade: $cidade
+      cep: $cep
+    }
+  )
+}
+mutation UpdateUbs(
+  $id: UUID!
+  $name: String
+  $logradouro: String
+  $numero: String
+  $bairro: String
+  $cidade: String
+  $cep: String
+) @auth(level: USER) {
+  uBS_update(
+    id: $id
+    data: {
+      name: $name
+      logradouro: $logradouro
+      numero: $numero
+      bairro: $bairro
+      cidade: $cidade
+      cep: $cep
+    }
+  )
+}
+mutation DeleteUbs($id: UUID!) @auth(level: USER) {
+  uBS_delete(id: $id)
+}
+
+# ============================================================
+# PROFESSIONALS
+# ============================================================
+mutation CreateProfessional(
+  $userId: UUID!
+  $professionalType: ProfessionalType!
+  $professionalRegistration: String
+  $ubsId: UUID
+) @auth(level: USER) {
+  professional_insert(
+    data: {
+      userId: $userId
+      professionalType: $professionalType
+      professionalRegistration: $professionalRegistration
+      ubsId: $ubsId
+    }
+  )
+}
+mutation UpdateProfessional(
+  $id: UUID!
+  $professionalType: ProfessionalType
+  $professionalRegistration: String
+  $ubsId: UUID
+) @auth(level: USER) {
+  professional_update(
+    id: $id
+    data: {
+      professionalType: $professionalType
+      professionalRegistration: $professionalRegistration
+      ubsId: $ubsId
+    }
+  )
+}
+mutation DeleteProfessional($id: UUID!) @auth(level: USER) {
+  professional_delete(id: $id)
+}
+
+# ============================================================
+# VACCINES
+# ============================================================
+mutation CreateVaccine(
+  $name: String!
+  $description: String
+  $requiredDoses: Int!
+) @auth(level: USER) {
+  vaccine_insert(
+    data: {
+      name: $name
+      description: $description
+      requiredDoses: $requiredDoses
+    }
+  )
+}
+mutation UpdateVaccine(
+  $id: UUID!
+  $name: String
+  $description: String
+  $requiredDoses: Int
+) @auth(level: USER) {
+  vaccine_update(
+    id: $id
+    data: {
+      name: $name
+      description: $description
+      requiredDoses: $requiredDoses
+    }
+  )
+}
+mutation DeleteVaccine($id: UUID!) @auth(level: USER) {
+  vaccine_delete(id: $id)
+}
+
+# ============================================================
+# BATCHES
+# ============================================================
+mutation CreateBatch(
+  $vaccineId: UUID!
+  $manufacturer: String!
+  $batchCode: String!
+  $initialQuantity: Int!
+  $currentQuantity: Int!
+  $manufacturingDate: Date
+  $expirationDate: Date!
+) @auth(level: USER) {
+  batch_insert(
+    data: {
+      vaccineId: $vaccineId
+      manufacturer: $manufacturer
+      batchCode: $batchCode
+      initialQuantity: $initialQuantity
+      currentQuantity: $currentQuantity
+      manufacturingDate: $manufacturingDate
+      expirationDate: $expirationDate
+    }
+  )
+}
+mutation UpdateBatch(
+  $id: UUID!
+  $vaccineId: UUID
+  $manufacturer: String
+  $batchCode: String
+  $initialQuantity: Int
+  $currentQuantity: Int
+  $manufacturingDate: Date
+  $expirationDate: Date
+) @auth(level: USER) {
+  batch_update(
+    id: $id
+    data: {
+      vaccineId: $vaccineId
+      manufacturer: $manufacturer
+      batchCode: $batchCode
+      initialQuantity: $initialQuantity
+      currentQuantity: $currentQuantity
+      manufacturingDate: $manufacturingDate
+      expirationDate: $expirationDate
+    }
+  )
+}
+mutation DeleteBatch($id: UUID!) @auth(level: USER) {
+  batch_delete(id: $id)
+}
+
+# ============================================================
+# APPOINTMENTS
+# ============================================================
+mutation CreateAppointment(
+  $patientId: UUID!
+  $vaccineId: UUID!
+  $ubsId: UUID
+  $createdAt: Timestamp!
+  $scheduledAt: Timestamp!
+  $status: AppointmentStatus!
+  $notes: String
+) @auth(level: USER) {
+  appointment_insert(
+    data: {
+      patientId: $patientId
+      vaccineId: $vaccineId
+      ubsId: $ubsId
+      createdAt: $createdAt
+      scheduledAt: $scheduledAt
+      status: $status
+      notes: $notes
+    }
+  )
+}
+mutation UpdateAppointment(
+  $id: UUID!
+  $patientId: UUID
+  $vaccineId: UUID
+  $ubsId: UUID
+  $createdAt: Timestamp
+  $scheduledAt: Timestamp
+  $status: AppointmentStatus
+  $notes: String
+) @auth(level: USER) {
+  appointment_update(
+    id: $id
+    data: {
+      patientId: $patientId
+      vaccineId: $vaccineId
+      ubsId: $ubsId
+      createdAt: $createdAt
+      scheduledAt: $scheduledAt
+      status: $status
+      notes: $notes
+    }
+  )
+}
+mutation DeleteAppointment($id: UUID!) @auth(level: USER) {
+  appointment_delete(id: $id)
+}
+
+# ============================================================
+# APPLICATIONS
+# ============================================================
+mutation CreateApplication(
+  $patientId: UUID!
+  $vaccineId: UUID!
+  $batchId: UUID
+  $appointmentId: UUID
+  $professionalId: UUID!
+  $ubsId: UUID!
+  $applicationDate: Timestamp!
+  $doseNumber: Int
+  $notes: String
+) @auth(level: USER) {
+  application_insert(
+    data: {
+      patientId: $patientId
+      vaccineId: $vaccineId
+      batchId: $batchId
+      appointmentId: $appointmentId
+      professionalId: $professionalId
+      ubsId: $ubsId
+      applicationDate: $applicationDate
+      doseNumber: $doseNumber
+      notes: $notes
+    }
+  )
+}
+mutation UpdateApplication(
+  $id: UUID!
+  $patientId: UUID
+  $vaccineId: UUID
+  $batchId: UUID
+  $appointmentId: UUID
+  $professionalId: UUID
+  $ubsId: UUID
+  $applicationDate: Timestamp
+  $doseNumber: Int
+  $notes: String
+) @auth(level: USER) {
+  application_update(
+    id: $id
+    data: {
+      patientId: $patientId
+      vaccineId: $vaccineId
+      batchId: $batchId
+      appointmentId: $appointmentId
+      professionalId: $professionalId
+      ubsId: $ubsId
+      applicationDate: $applicationDate
+      doseNumber: $doseNumber
+      notes: $notes
+    }
+  )
+}
+mutation DeleteApplication($id: UUID!) @auth(level: USER) {
+  application_delete(id: $id)
+}

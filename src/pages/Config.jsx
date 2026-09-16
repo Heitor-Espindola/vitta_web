@@ -1,166 +1,50 @@
-import {
-  Building2,
-  KeyRound,
-  LogOut,
-  Mail,
-  ShieldCheck,
-  UserRound,
-} from "lucide-react";
-import { useState } from "react";
+import { ArrowRight, Database, LogOut, Mail, ShieldCheck, UserCog, UserRound } from "lucide-react";
+import { Link } from "react-router-dom";
 import { PageHeader, StatusBadge } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
-import { useToast } from "../context/ToastContext";
-import {
-  accountSettingsCapabilities,
-  buildAccountSummary,
-} from "../utils/accountPresentation";
-import { friendlyFirebaseError } from "../utils/firebaseErrors";
 
 export default function Config() {
-  const { profile, firebaseUser, logout, requestPasswordReset } = useAuth();
-  const { showToast } = useToast();
-  const [sendingReset, setSendingReset] = useState(false);
-  const account = buildAccountSummary(profile, firebaseUser);
-
-  async function handlePasswordReset() {
-    if (!account.email || sendingReset) return;
-    setSendingReset(true);
-    try {
-      await requestPasswordReset(account.email);
-      showToast({
-        tone: "success",
-        title: "E-mail de redefinição enviado",
-        message: `Enviamos as instruções para ${account.email}.`,
-      });
-    } catch (error) {
-      showToast({
-        tone: "error",
-        title: "Não foi possível enviar o e-mail",
-        message: friendlyFirebaseError(
-          error,
-          "Tente novamente em alguns instantes.",
-        ),
-      });
-    } finally {
-      setSendingReset(false);
-    }
-  }
+  const { profile, firebaseUser, logout, isAdmin } = useAuth();
+  const name = profile?.fullName || profile?.name || "Profissional Vitta";
 
   return (
     <div className="page-stack">
       <PageHeader
-        eyebrow="Conta"
+        eyebrow="Conta e segurança"
         title="Configurações"
-        description="Gerencie informações da sua conta."
+        description="Informações reais da sessão e do ambiente conectado."
       />
 
       <section className="settings-grid">
         <article className="content-card profile-card">
-          <span className="profile-card__avatar">
-            <UserRound />
-          </span>
+          <span className="profile-card__avatar"><UserRound /></span>
           <div>
-            <h2>{account.name}</h2>
-            {account.email ? <p>{account.email}</p> : null}
-            <StatusBadge status={account.accountStatus || "inactive"}>
-              {account.accountStatusLabel}
-            </StatusBadge>
+            <h2>{name}</h2>
+            <p>{profile?.email || firebaseUser?.email}</p>
+            <StatusBadge status="active">Conta ativa</StatusBadge>
           </div>
         </article>
 
         <article className="content-card settings-list">
           <header className="card-header">
-            <div>
-              <span className="eyebrow">Perfil</span>
-              <h2>Informações profissionais</h2>
-            </div>
+            <div><span className="eyebrow">Perfil</span><h2>Acesso profissional</h2></div>
             <ShieldCheck />
           </header>
           <dl>
-            <div>
-              <dt>
-                <UserRound /> Nome
-              </dt>
-              <dd>{account.name}</dd>
-            </div>
-            {account.email ? (
-              <div>
-                <dt>
-                  <Mail /> E-mail
-                </dt>
-                <dd>{account.email}</dd>
-              </div>
-            ) : null}
-            <div>
-              <dt>
-                <ShieldCheck /> Acesso ao Portal
-              </dt>
-              <dd>{account.role}</dd>
-            </div>
-            <div>
-              <dt>
-                <ShieldCheck /> Status da conta
-              </dt>
-              <dd>{account.accountStatusLabel}</dd>
-            </div>
-            <div>
-              <dt>
-                <Building2 /> Unidade
-              </dt>
-              <dd>{account.facilityName || "Unidade não configurada."}</dd>
-            </div>
+            <div><dt><Mail /> E-mail</dt><dd>{profile?.email || firebaseUser?.email}</dd></div>
+            <div><dt><ShieldCheck /> Permissão</dt><dd>{isAdmin ? "Administrador" : "Profissional do Vitta"}</dd></div>
+            <div><dt><Database /> Firebase</dt><dd>vitta-5ec1e</dd></div>
           </dl>
-          {!accountSettingsCapabilities.canEditRole ? (
-            <p className="settings-note">
-              Permissões e status são definidos pela administração responsável.
-            </p>
-          ) : null}
-        </article>
-
-        <article className="content-card security-settings">
-          <header className="card-header">
-            <div>
-              <span className="eyebrow">Segurança</span>
-              <h2>Acesso à conta</h2>
-            </div>
-            <KeyRound />
-          </header>
-          <div className="security-settings__action">
-            <div>
-              <strong>Redefinir senha</strong>
-              <p>Receba por e-mail as instruções oficiais de redefinição.</p>
-            </div>
-            <button
-              className="button button--secondary"
-              type="button"
-              onClick={handlePasswordReset}
-              disabled={!account.email || sendingReset}
-            >
-              {sendingReset ? (
-                <span className="button-spinner" />
-              ) : (
-                <Mail size={17} />
-              )}
-              {sendingReset ? "Enviando..." : "Enviar e-mail"}
-            </button>
-          </div>
         </article>
 
         <article className="content-card session-card">
-          <div>
-            <span className="feature-icon">
-              <LogOut />
-            </span>
-            <h2>Sair da conta</h2>
-            <p>Encerra com segurança a sessão atual neste navegador.</p>
-          </div>
-          <button
-            className="button button--danger"
-            type="button"
-            onClick={logout}
-          >
-            <LogOut size={18} /> Sair da conta
-          </button>
+          <div><span className="feature-icon"><UserCog /></span><h2>Equipe e unidades</h2><p>Cadastre seu perfil SQL, gerencie profissionais autorizados e mantenha as UBS usadas nos atendimentos.</p></div>
+          <Link className="button button--secondary" to="/funcionarios"><UserCog size={18} /> Abrir cadastros <ArrowRight size={17} /></Link>
+        </article>
+
+        <article className="content-card session-card">
+          <div><span className="feature-icon"><LogOut /></span><h2>Encerrar sessão</h2><p>Remove a sessão persistida deste navegador e encerra o acesso aos dados.</p></div>
+          <button className="button button--danger" type="button" onClick={logout}><LogOut size={18} /> Sair do Vitta</button>
         </article>
       </section>
     </div>

@@ -2,109 +2,94 @@ import { NavLink } from "react-router-dom";
 import {
   BarChart3,
   BookOpenCheck,
-  ChevronLeft,
+  CalendarClock,
   ChevronRight,
   ClipboardPlus,
   LayoutDashboard,
   Settings,
   ShieldCheck,
   Syringe,
+  UserCog,
   UsersRound,
   X,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import isologo from "../assets/isologo.png";
 import isotipo from "../assets/isotipo.png";
 
-const primaryNavItems = [
+const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/" },
   { label: "Pacientes", icon: UsersRound, path: "/pacientes" },
-  { label: "Carteiras", icon: BookOpenCheck, path: "/carteiras" },
-  { label: "Aplicações", icon: ClipboardPlus, path: "/aplicacoes" },
   { label: "Vacinas", icon: Syringe, path: "/vacinas" },
+  { label: "Aplicações", icon: ClipboardPlus, path: "/aplicacoes" },
+  { label: "Agendamentos", icon: CalendarClock, path: "/agendamentos" },
+  { label: "Carteiras", icon: BookOpenCheck, path: "/carteiras" },
   { label: "Relatórios", icon: BarChart3, path: "/relatorios" },
+  { label: "Equipe e UBS", icon: UserCog, path: "/funcionarios" },
+  { label: "Configurações", icon: Settings, path: "/config" },
 ];
 
-function NavigationLink({ item, collapsed, onClose }) {
-  const { label, icon: Icon, path } = item;
-  return (
-    <NavLink
-      to={path}
-      end={path === "/"}
-      onClick={onClose}
-      className={({ isActive }) =>
-        `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
-      }
-      aria-label={collapsed ? label : undefined}
-      data-tooltip={label}
-    >
-      <Icon size={19} aria-hidden="true" />
-      <span>{label}</span>
-    </NavLink>
-  );
-}
-
 export default function Sidebar({ collapsed, mobileOpen, onCollapse, onClose }) {
+  const { isAdmin } = useAuth();
+
   return (
     <>
       {mobileOpen ? (
-        <button
-          className="sidebar-backdrop"
-          onClick={onClose}
-          aria-label="Fechar menu"
-          type="button"
-        />
+        <button className="sidebar-backdrop" onClick={onClose} aria-label="Fechar menu" type="button" />
       ) : null}
-      <aside
-        className={`sidebar ${collapsed ? "sidebar--collapsed" : ""} ${
-          mobileOpen ? "sidebar--mobile-open" : ""
-        }`}
-      >
+      <aside className={`sidebar ${collapsed ? "sidebar--collapsed" : ""} ${mobileOpen ? "sidebar--mobile-open" : ""}`}>
         <div className="sidebar__brand">
-          <img className="sidebar__symbol" src={isotipo} alt="Vitta" />
-          <div className="sidebar__brand-copy">
-            <img className="sidebar__wordmark" src={isologo} alt="Vitta" />
-            <span>Portal Profissional</span>
-          </div>
           <button
-            className="sidebar__collapse"
+            className="sidebar__brand-toggle"
             onClick={onCollapse}
             type="button"
             aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
             title={collapsed ? "Expandir menu" : "Recolher menu"}
           >
-            {collapsed ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}
+            <span className="sidebar__brand-symbol-wrap">
+              <img className="sidebar__symbol" src={isotipo} alt="Vitta" />
+              <span className="sidebar__brand-arrow"><ChevronRight size={18} /></span>
+            </span>
           </button>
-          <button
-            className="sidebar__mobile-close"
-            onClick={onClose}
-            aria-label="Fechar menu"
-            type="button"
-          >
+          {!collapsed ? <img className="sidebar__wordmark" src={isologo} alt="Vitta" /> : null}
+          <button className="sidebar__mobile-close" onClick={onClose} aria-label="Fechar menu" type="button">
             <X size={20} />
           </button>
         </div>
 
+        {!collapsed ? (
+          <div className="sidebar__workspace">
+            <span>Vitta Profissional</span>
+            <small>{isAdmin ? "Gestão autorizada" : "Atendimento seguro"}</small>
+          </div>
+        ) : null}
+
         <nav className="sidebar__nav" aria-label="Navegação principal">
-          {primaryNavItems.map((item) => (
-            <NavigationLink
-              key={item.path}
-              item={item}
-              collapsed={collapsed}
-              onClose={onClose}
-            />
+          {navItems.map(({ label, icon: Icon, path }) => (
+            <NavLink
+              key={path}
+              to={path}
+              end={path === "/"}
+              onClick={onClose}
+              className={({ isActive }) => `sidebar__link ${isActive ? "sidebar__link--active" : ""}`}
+              title={collapsed ? label : undefined}
+            >
+              <Icon size={20} aria-hidden="true" />
+              {!collapsed ? <span>{label}</span> : null}
+            </NavLink>
           ))}
         </nav>
 
         <div className="sidebar__footer">
-          <NavigationLink
-            item={{ label: "Configurações", icon: Settings, path: "/config" }}
-            collapsed={collapsed}
-            onClose={onClose}
-          />
-          <div className="sidebar__security-line" aria-label="Conexão protegida">
-            <ShieldCheck size={15} aria-hidden="true" />
-            <span>Ambiente protegido</span>
-          </div>
+          {!collapsed ? (
+            <div className="sidebar__security">
+              <ShieldCheck size={18} aria-hidden="true" />
+              <div>
+                <strong>Dados protegidos</strong>
+                <span>Acesso conforme o atendimento</span>
+              </div>
+            </div>
+          ) : null}
         </div>
       </aside>
     </>
