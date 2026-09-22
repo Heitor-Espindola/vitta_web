@@ -1,36 +1,38 @@
 import { describe, expect, it } from "vitest";
-import { Timestamp } from "firebase/firestore";
-import { buildVaccinationRecord } from "../services/vaccinationService";
+import { mapApplication } from "../services/vaccinationService";
 import {
   doseNumberFromLabel,
   vaccinationStatus,
 } from "./vaccination";
 
-describe("contrato Web para vaccination_records", () => {
-  it("usa patientId, UID autenticado e omite campos vazios", () => {
-    const payload = buildVaccinationRecord({
-      patientId: "person-123",
-      professionalUid: "auth-professional-456",
-      vaccine: { id: "bcg", name: "BCG" },
-      doseLabel: "1ª dose",
-      appliedDate: "2026-08-28",
-      nextDoseDate: "",
-      lot: "  ",
-      manufacturer: "Instituto de Teste",
-      facilityName: "UBS Central",
+describe("contrato Web para aplicações do SQL Connect", () => {
+  it("normaliza uma aplicação retornada pelo Data Connect", () => {
+    const payload = mapApplication({
+      id: "application-789",
+      patient: {
+        id: "person-123",
+        user: { name: "Paciente Teste", cpf: "12345678900" },
+      },
+      vaccine: { id: "bcg", name: "BCG", requiredDoses: 1 },
+      batch: null,
+      professional: {
+        id: "professional-456",
+        professionalType: "NURSE",
+        user: { name: "Profissional Teste" },
+      },
+      ubs: { id: "ubs-1", name: "UBS Central" },
+      applicationDate: "2026-08-28T15:00:00.000Z",
+      doseNumber: 1,
       notes: "",
     });
 
     expect(payload.patientId).toBe("person-123");
-    expect(payload.professionalUid).toBe("auth-professional-456");
-    expect(payload.source).toBe("professional_panel");
+    expect(payload.professionalId).toBe("professional-456");
+    expect(payload.source).toBe("sql_connect");
     expect(payload.doseNumber).toBe(1);
-    expect(payload.appliedAt).toBeInstanceOf(Timestamp);
-    expect(payload).not.toHaveProperty("patientUid");
-    expect(payload).not.toHaveProperty("status");
-    expect(payload).not.toHaveProperty("lot");
-    expect(payload).not.toHaveProperty("notes");
-    expect(payload).not.toHaveProperty("nextDoseAt");
+    expect(payload.vaccineName).toBe("BCG");
+    expect(payload.ubsName).toBe("UBS Central");
+    expect(payload.batchId).toBe("");
   });
 
   it("deriva status sem persistir verdade duplicada", () => {
