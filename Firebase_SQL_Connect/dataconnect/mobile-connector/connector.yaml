@@ -1,0 +1,8 @@
+connectorId: mobile-connector
+
+generate:
+  dartSdk:
+    outputDir: ..\..\..\..\vitta_mobile\lib\dataconnect_generated
+    package: vitta_mobile
+    clientCache:
+      maxAge: 0

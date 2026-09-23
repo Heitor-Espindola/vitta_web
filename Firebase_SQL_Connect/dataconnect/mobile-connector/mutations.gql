@@ -1,0 +1,172 @@
+# Cadastro pós-Firebase Auth. authUid sempre vem do token; o cliente não pode
+# fornecer UID, papel, personId ou status arbitrários.
+mutation CompleteMobileRegistration(
+  $name: String!
+  $birthDate: Date!
+  $email: String!
+  $cpf: String!
+  $sex: String
+) @auth(level: USER) @transaction {
+  query
+    @redact
+    @check(
+      expr: "response.query.users.size() == 0"
+      message: "Esta conta Firebase já possui perfil."
+    ) {
+    users(where: { authUid: { eq_expr: "auth.uid" } }) {
+      id
+    }
+  }
+  user_insert(
+    data: {
+      name: $name
+      birthDate: $birthDate
+      email: $email
+      authUid_expr: "auth.uid"
+      status: ACTIVE
+      cpf: $cpf
+      sex: $sex
+      portalRole: PATIENT
+      createdAt_expr: "request.time"
+      updatedAt_expr: "request.time"
+    }
+  )
+  patient_insert(
+    data: {
+      userId_expr: "response.user_insert.id"
+      patientType: ADULT
+    }
+  )
+  patientAccess_insert(
+    data: {
+      granteeAuthUid_expr: "auth.uid"
+      patientId_expr: "response.patient_insert.id"
+      accessKind: SELF
+      viewProfile: true
+      viewVaccination: true
+      receiveNotifications: true
+      consentStatus: GRANTED
+      createdAt_expr: "request.time"
+      updatedAt_expr: "request.time"
+    }
+  )
+}
+
+# Apenas telefone é atualizável por esta operation. CPF, nascimento, papel,
+# authUid e chaves internas não aparecem na assinatura.
+mutation UpdateMobilePhone($phone: String) @auth(level: USER) @transaction {
+  user_update(
+    first: { where: { authUid: { eq_expr: "auth.uid" } } }
+    data: { phone: $phone, updatedAt_expr: "request.time" }
+  ) @check(message: "Perfil autenticado não encontrado.")
+}
+
+# Cria uma pessoa dependente sem authUid/e-mail e concede somente acesso direto
+# ao titular autenticado. O guardianPatientId precisa ser a carteira SELF.
+mutation CreateMobileDependent(
+  $guardianPatientId: UUID!
+  $name: String!
+  $birthDate: Date!
+  $cpf: String!
+  $sex: String
+  $relationshipType: RelationshipType!
+) @auth(level: USER) @transaction {
+  query @redact {
+    patientAccess(
+      key: {
+        granteeAuthUid_expr: "auth.uid"
+        patientId: $guardianPatientId
+      }
+    ) {
+      accessKind
+        @check(
+          expr: "this == 'SELF'"
+          message: "Somente o titular pode criar dependentes."
+        )
+      consentStatus
+        @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+    }
+  }
+  user_insert(
+    data: {
+      name: $name
+      birthDate: $birthDate
+      status: ACTIVE
+      cpf: $cpf
+      sex: $sex
+      portalRole: PATIENT
+      createdAt_expr: "request.time"
+      updatedAt_expr: "request.time"
+    }
+  )
+  patient_insert(
+    data: {
+      userId_expr: "response.user_insert.id"
+      patientType: CHILD
+      responsibleId: $guardianPatientId
+    }
+  )
+  familyRelationship_insert(
+    data: {
+      fromPatientId: $guardianPatientId
+      toPatientId_expr: "response.patient_insert.id"
+      relationshipType: $relationshipType
+      status: VERIFIED
+      consentStatus: GRANTED
+      viewVaccination: true
+      receiveNotifications: true
+      createdAt_expr: "request.time"
+      updatedAt_expr: "request.time"
+    }
+  )
+  patientAccess_insert(
+    data: {
+      granteeAuthUid_expr: "auth.uid"
+      patientId_expr: "response.patient_insert.id"
+      accessKind: DEPENDENT
+      viewProfile: true
+      viewVaccination: true
+      receiveNotifications: true
+      consentStatus: GRANTED
+      createdAt_expr: "request.time"
+      updatedAt_expr: "request.time"
+    }
+  )
+}
+
+mutation UpsertAccessibleEmergencyContact(
+  $patientId: UUID!
+  $name: String!
+  $phone: String!
+  $relationship: String!
+) @auth(level: USER) @transaction {
+  query @redact {
+    patientAccess(
+      key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
+    ) {
+      consentStatus
+        @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+      viewProfile
+        @check(expr: "this == true", message: "Perfil não autorizado.")
+      validUntil
+        @check(
+          expr: "this == null || this > request.time"
+          message: "Acesso expirado."
+        )
+    }
+    patient(id: $patientId) @check(message: "Paciente não encontrado.") {
+      user {
+        id
+      }
+    }
+  }
+  emergencyContact_upsert(
+    data: {
+      userId_expr: "response.query.patient.user.id"
+      name: $name
+      phone: $phone
+      relationship: $relationship
+      updatedAt_expr: "request.time"
+    }
+  )
+}
