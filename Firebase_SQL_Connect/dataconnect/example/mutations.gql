@@ -8,7 +8,7 @@ mutation CreateUser(
   $status: UserStatus!
   $cpf: String!
   $sex: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   user_insert(
     data: {
       name: $name
@@ -28,7 +28,7 @@ mutation UpdateUser(
   $status: UserStatus
   $cpf: String
   $sex: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   user_update(
     id: $id
     data: {
@@ -41,7 +41,7 @@ mutation UpdateUser(
     }
   )
 }
-mutation DeleteUser($id: UUID!) @auth(level: USER) {
+mutation DeleteUser($id: UUID!) @auth(expr: "auth.token.admin == true") {
   user_delete(id: $id)
 }
 
@@ -53,7 +53,7 @@ mutation CreatePatient(
   $patientType: PatientType!
   $responsibleId: UUID
   $motherName: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   patient_insert(
     data: {
       userId: $userId
@@ -68,7 +68,7 @@ mutation UpdatePatient(
   $patientType: PatientType
   $responsibleId: UUID
   $motherName: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   patient_update(
     id: $id
     data: {
@@ -78,7 +78,7 @@ mutation UpdatePatient(
     }
   )
 }
-mutation DeletePatient($id: UUID!) @auth(level: USER) {
+mutation DeletePatient($id: UUID!) @auth(expr: "auth.token.admin == true") {
   patient_delete(id: $id)
 }
 
@@ -92,7 +92,7 @@ mutation CreateUbs(
   $bairro: String
   $cidade: String
   $cep: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   uBS_insert(
     data: {
       name: $name
@@ -112,7 +112,7 @@ mutation UpdateUbs(
   $bairro: String
   $cidade: String
   $cep: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   uBS_update(
     id: $id
     data: {
@@ -125,7 +125,7 @@ mutation UpdateUbs(
     }
   )
 }
-mutation DeleteUbs($id: UUID!) @auth(level: USER) {
+mutation DeleteUbs($id: UUID!) @auth(expr: "auth.token.admin == true") {
   uBS_delete(id: $id)
 }
 
@@ -137,7 +137,7 @@ mutation CreateProfessional(
   $professionalType: ProfessionalType!
   $professionalRegistration: String
   $ubsId: UUID
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   professional_insert(
     data: {
       userId: $userId
@@ -152,7 +152,7 @@ mutation UpdateProfessional(
   $professionalType: ProfessionalType
   $professionalRegistration: String
   $ubsId: UUID
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   professional_update(
     id: $id
     data: {
@@ -162,7 +162,8 @@ mutation UpdateProfessional(
     }
   )
 }
-mutation DeleteProfessional($id: UUID!) @auth(level: USER) {
+mutation DeleteProfessional($id: UUID!)
+  @auth(expr: "auth.token.admin == true") {
   professional_delete(id: $id)
 }
 
@@ -173,7 +174,7 @@ mutation CreateVaccine(
   $name: String!
   $description: String
   $requiredDoses: Int!
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   vaccine_insert(
     data: {
       name: $name
@@ -187,7 +188,7 @@ mutation UpdateVaccine(
   $name: String
   $description: String
   $requiredDoses: Int
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   vaccine_update(
     id: $id
     data: {
@@ -197,7 +198,7 @@ mutation UpdateVaccine(
     }
   )
 }
-mutation DeleteVaccine($id: UUID!) @auth(level: USER) {
+mutation DeleteVaccine($id: UUID!) @auth(expr: "auth.token.admin == true") {
   vaccine_delete(id: $id)
 }
 
@@ -212,7 +213,7 @@ mutation CreateBatch(
   $currentQuantity: Int!
   $manufacturingDate: Date
   $expirationDate: Date!
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   batch_insert(
     data: {
       vaccineId: $vaccineId
@@ -234,7 +235,7 @@ mutation UpdateBatch(
   $currentQuantity: Int
   $manufacturingDate: Date
   $expirationDate: Date
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   batch_update(
     id: $id
     data: {
@@ -248,7 +249,7 @@ mutation UpdateBatch(
     }
   )
 }
-mutation DeleteBatch($id: UUID!) @auth(level: USER) {
+mutation DeleteBatch($id: UUID!) @auth(expr: "auth.token.admin == true") {
   batch_delete(id: $id)
 }
 
@@ -263,7 +264,37 @@ mutation CreateAppointment(
   $scheduledAt: Timestamp!
   $status: AppointmentStatus!
   $notes: String
-) @auth(level: USER) {
+) @auth(level: USER) @transaction {
+  query @redact {
+    users(
+      where: {
+        _and: [
+          { authUid: { eq_expr: "auth.uid" } }
+          { portalRole: { eq: PROFESSIONAL } }
+        ]
+      }
+    ) @check(message: "Ação restrita a profissional autenticado.") {
+      id
+    }
+    patientAccess(
+      key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
+    ) {
+      accessKind
+        @check(
+          expr: "this == 'PROFESSIONAL'"
+          message: "Grant profissional obrigatório."
+        )
+      consentStatus
+        @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+      viewVaccination
+        @check(expr: "this == true", message: "Agenda não autorizada.")
+      validUntil
+        @check(
+          expr: "this == null || this > request.time"
+          message: "Acesso expirado."
+        )
+    }
+  }
   appointment_insert(
     data: {
       patientId: $patientId
@@ -285,7 +316,7 @@ mutation UpdateAppointment(
   $scheduledAt: Timestamp
   $status: AppointmentStatus
   $notes: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   appointment_update(
     id: $id
     data: {
@@ -299,7 +330,8 @@ mutation UpdateAppointment(
     }
   )
 }
-mutation DeleteAppointment($id: UUID!) @auth(level: USER) {
+mutation DeleteAppointment($id: UUID!)
+  @auth(expr: "auth.token.admin == true") {
   appointment_delete(id: $id)
 }
 
@@ -316,7 +348,42 @@ mutation CreateApplication(
   $applicationDate: Timestamp!
   $doseNumber: Int
   $notes: String
-) @auth(level: USER) {
+) @auth(level: USER) @transaction {
+  query @redact {
+    professional(id: $professionalId)
+      @check(message: "Profissional não encontrado.") {
+      user {
+        authUid
+          @check(
+            expr: "this == auth.uid"
+            message: "O profissional deve corresponder ao usuário autenticado."
+          )
+        portalRole
+          @check(
+            expr: "this == 'PROFESSIONAL'"
+            message: "Papel profissional obrigatório."
+          )
+      }
+    }
+    patientAccess(
+      key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
+    ) {
+      accessKind
+        @check(
+          expr: "this == 'PROFESSIONAL'"
+          message: "Grant profissional obrigatório."
+        )
+      consentStatus
+        @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+      viewVaccination
+        @check(expr: "this == true", message: "Carteira não autorizada.")
+      validUntil
+        @check(
+          expr: "this == null || this > request.time"
+          message: "Acesso expirado."
+        )
+    }
+  }
   application_insert(
     data: {
       patientId: $patientId
@@ -342,7 +409,7 @@ mutation UpdateApplication(
   $applicationDate: Timestamp
   $doseNumber: Int
   $notes: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   application_update(
     id: $id
     data: {
@@ -358,6 +425,7 @@ mutation UpdateApplication(
     }
   )
 }
-mutation DeleteApplication($id: UUID!) @auth(level: USER) {
+mutation DeleteApplication($id: UUID!)
+  @auth(expr: "auth.token.admin == true") {
   application_delete(id: $id)
 }

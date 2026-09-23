@@ -218,6 +218,17 @@ export interface DeleteVaccineVariables {
   id: UUIDString;
 }
 
+export interface EmergencyContact_Key {
+  userId: UUIDString;
+  __typename?: 'EmergencyContact_Key';
+}
+
+export interface FamilyRelationship_Key {
+  fromPatientId: UUIDString;
+  toPatientId: UUIDString;
+  __typename?: 'FamilyRelationship_Key';
+}
+
 export interface GetApplicationData {
   application?: {
     id: UUIDString;
@@ -347,7 +358,7 @@ export interface GetPatientByUserData {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email: string;
+      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -376,7 +387,7 @@ export interface GetPatientData {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email: string;
+      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -403,7 +414,7 @@ export interface GetProfessionalByUserData {
     user: {
       id: UUIDString;
       name: string;
-      email: string;
+      email?: string | null;
       cpf: string;
     } & User_Key;
     professionalType: ProfessionalType;
@@ -426,7 +437,7 @@ export interface GetProfessionalData {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email: string;
+      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -470,7 +481,7 @@ export interface GetUserByCpfData {
     id: UUIDString;
     name: string;
     birthDate: DateString;
-    email: string;
+    email?: string | null;
     status: UserStatus;
     cpf: string;
     sex?: string | null;
@@ -486,7 +497,7 @@ export interface GetUserByEmailData {
     id: UUIDString;
     name: string;
     birthDate: DateString;
-    email: string;
+    email?: string | null;
     status: UserStatus;
     cpf: string;
     sex?: string | null;
@@ -502,7 +513,7 @@ export interface GetUserData {
     id: UUIDString;
     name: string;
     birthDate: DateString;
-    email: string;
+    email?: string | null;
     status: UserStatus;
     cpf: string;
     sex?: string | null;
@@ -787,7 +798,7 @@ export interface ListPatientsData {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email: string;
+      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -811,7 +822,7 @@ export interface ListProfessionalsData {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email: string;
+      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -844,7 +855,7 @@ export interface ListUsersData {
     id: UUIDString;
     name: string;
     birthDate: DateString;
-    email: string;
+    email?: string | null;
     status: UserStatus;
     cpf: string;
     sex?: string | null;
@@ -858,6 +869,12 @@ export interface ListVaccinesData {
     description?: string | null;
     requiredDoses: number;
   } & Vaccine_Key)[];
+}
+
+export interface PatientAccess_Key {
+  granteeAuthUid: string;
+  patientId: UUIDString;
+  __typename?: 'PatientAccess_Key';
 }
 
 export interface Patient_Key {
