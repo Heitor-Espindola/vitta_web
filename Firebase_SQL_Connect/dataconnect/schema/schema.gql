@@ -20,14 +20,52 @@ enum AppointmentStatus {
   CANCELLED
   OVERDUE
 }
+enum PortalRole {
+  PATIENT
+  PROFESSIONAL
+  ADMIN
+}
+enum RelationshipType {
+  MOTHER
+  FATHER
+  LEGAL_GUARDIAN
+  TUTOR
+  CAREGIVER
+}
+enum RelationshipStatus {
+  PENDING
+  VERIFIED
+  REVOKED
+}
+enum ConsentStatus {
+  PENDING
+  GRANTED
+  REVOKED
+}
+enum PatientAccessKind {
+  SELF
+  DEPENDENT
+  CAREGIVER
+  PROFESSIONAL
+}
 
 type User @table {
   name: String!
   birthDate: Date!
-  email: String! @unique
+  # Dependentes podem existir sem conta Firebase e, portanto, sem e-mail.
+  email: String @unique
+  # UID do Firebase Auth. Nulo para dependentes sem autenticação própria.
+  authUid: String @unique
   status: UserStatus!
   cpf: String! @unique
   sex: String
+  phone: String
+  photoUrl: String
+  # Preenchido apenas por fluxo administrativo; nunca por mutation Mobile.
+  portalRole: PortalRole
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  lastLoginAt: Timestamp
 }
 
 type Patient @table {
@@ -35,6 +73,50 @@ type Patient @table {
   patientType: PatientType!
   responsible: Patient
   motherName: String
+  # ID original do Firestore para importação idempotente e auditável.
+  legacyPersonId: String @unique
+}
+
+# Dados privados, separados das queries genéricas de paciente.
+type EmergencyContact @table(key: "user") {
+  user: User!
+  name: String!
+  phone: String!
+  relationship: String!
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+# Relação familiar estritamente direta. Nenhuma query deve percorrer este
+# grafo para inferir autorização transitiva.
+type FamilyRelationship @table(key: ["fromPatient", "toPatient"]) {
+  fromPatient: Patient!
+  toPatient: Patient!
+  relationshipType: RelationshipType!
+  status: RelationshipStatus!
+  consentStatus: ConsentStatus!
+  viewVaccination: Boolean!
+  receiveNotifications: Boolean!
+  validUntil: Timestamp
+  legacyRelationshipId: String @unique
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+# Grant direto entre o Firebase Auth UID e uma carteira. A chave composta
+# impede duplicidade e não permite que A -> B e B -> C conceda A -> C.
+type PatientAccess @table(key: ["granteeAuthUid", "patient"]) {
+  granteeAuthUid: String!
+  patient: Patient!
+  accessKind: PatientAccessKind!
+  viewProfile: Boolean!
+  viewVaccination: Boolean!
+  receiveNotifications: Boolean!
+  consentStatus: ConsentStatus!
+  validUntil: Timestamp
+  legacyGrantId: String @unique
+  createdAt: Timestamp
+  updatedAt: Timestamp
 }
 
 type UBS @table {
@@ -57,6 +139,21 @@ type Vaccine @table {
   name: String!
   description: String
   requiredDoses: Int!
+  legacyVaccineId: String @unique
+  shortName: String
+  recommendedAge: String
+  intervalDays: Int
+  prevents: [String!]
+  targetGroups: [String!]
+  doseSchedule: Any
+  expectedReactions: [String!]
+  warningSigns: [String!]
+  contraindications: [String!]
+  sourceName: String
+  sourceUrl: String
+  sourceUpdatedAt: Timestamp
+  calendarVersion: String
+  active: Boolean
 }
 
 type Batch @table {
@@ -84,9 +181,21 @@ type Application @table {
   vaccine: Vaccine!
   batch: Batch
   appointment: Appointment
+  # Registros importados sem correspondência relacional usarão referências
+  # administrativas controladas e preservarão os textos originais abaixo.
   professional: Professional!
   ubs: UBS!
   applicationDate: Timestamp!
   doseNumber: Int
+  doseLabel: String
+  nextDoseAt: Timestamp
+  legacyRecordId: String @unique
+  lotSnapshot: String
+  manufacturerSnapshot: String
+  facilityNameSnapshot: String
+  professionalNameSnapshot: String
+  source: String
   notes: String
+  createdAt: Timestamp
+  updatedAt: Timestamp
 }
