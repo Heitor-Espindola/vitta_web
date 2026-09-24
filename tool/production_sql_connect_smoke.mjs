@@ -13,6 +13,8 @@ import {
 } from 'firebase/data-connect'
 import {
   createApplication,
+  getApplication,
+  getBatch,
   getCurrentPortalUser,
   getPatient,
   getUser,
@@ -56,6 +58,10 @@ const cpf = `9${String(stamp).slice(-10)}`
 const userId = crypto.randomUUID()
 const patientId = crypto.randomUUID()
 const professionalId = crypto.randomUUID()
+const dependentUserId = crypto.randomUUID()
+const dependentPatientId = crypto.randomUUID()
+const grandchildUserId = crypto.randomUUID()
+const grandchildPatientId = crypto.randomUUID()
 
 const tokens = configstore.get('tokens')
 const cliUser = configstore.get('user')
@@ -89,10 +95,21 @@ const report = {
   mobilePatientFound: false,
   mobileUserIdMatches: false,
   mobilePatientIdMatches: false,
+  directDependentAllowed: false,
+  dependentWithoutOwnAuth: false,
+  transitiveDependentDenied: false,
   mobileToWebPhoneRoundTrip: false,
   webToMobileApplicationRoundTrip: false,
   unrelatedPatientDenied: false,
+  applicationSnapshotsPresent: false,
+  stockDecremented: false,
   testApplicationVoided: false,
+  voidFieldsPresent: false,
+  stockRestored: false,
+  secondVoidRejected: false,
+  secondVoidDidNotRestock: false,
+  mobileAfterVoidHidden: false,
+  mobileAfterVoidMarkedVoided: false,
   temporaryIdentityRemoved: false,
 }
 
@@ -119,8 +136,10 @@ function productionTargetsFromBackup() {
       .filter((item) => item.active !== false)
       .map((item) => item.id),
   )
-  const batch = (backup.tables.batch || []).find((item) =>
-    activeVaccineIds.has(item.vaccine_id),
+  const batch = (backup.tables.batch || []).find(
+    (item) =>
+      activeVaccineIds.has(item.vaccine_id) &&
+      Number(item.current_quantity) > 0,
   )
   const ubs = (backup.tables.u_b_s || []).find(
     (item) => item.active !== false,
@@ -249,10 +268,21 @@ async function seedSqlIdentity(target) {
       (id, name, birth_date, email, auth_uid, status, cpf, portal_role, created_at, updated_at)
     VALUES
       (${q(userId)}::uuid, 'Vitta Smoke SQL', DATE '1990-01-01', ${q(email)},
-       ${q(authUid)}, 'ACTIVE', ${q(cpf)}, 'PROFESSIONAL', now(), now());
+       ${q(authUid)}, 'ACTIVE', ${q(cpf)}, 'PROFESSIONAL', now(), now()),
+      (${q(dependentUserId)}::uuid, 'Dependente direto smoke', DATE '2015-01-01',
+       NULL, NULL, 'ACTIVE', ${q(`${cpf}-dep`)}, 'PATIENT', now(), now()),
+      (${q(grandchildUserId)}::uuid, 'Dependente transitivo smoke', DATE '2020-01-01',
+       NULL, NULL, 'ACTIVE', ${q(`${cpf}-grand`)}, 'PATIENT', now(), now());
 
     INSERT INTO public.patient (id, user_id, patient_type, active)
     VALUES (${q(patientId)}::uuid, ${q(userId)}::uuid, 'ADULT', TRUE);
+
+    INSERT INTO public.patient (id, user_id, responsible_id, patient_type, active)
+    VALUES
+      (${q(dependentPatientId)}::uuid, ${q(dependentUserId)}::uuid,
+       ${q(patientId)}::uuid, 'CHILD', TRUE),
+      (${q(grandchildPatientId)}::uuid, ${q(grandchildUserId)}::uuid,
+       ${q(dependentPatientId)}::uuid, 'CHILD', TRUE);
 
     INSERT INTO public.professional
       (id, user_id, professional_type, professional_registration, ubs_id, active)
@@ -267,6 +297,8 @@ async function seedSqlIdentity(target) {
     VALUES
       (${q(authUid)}, ${q(patientId)}::uuid, 'SELF', TRUE, TRUE, TRUE,
        'GRANTED', now(), now()),
+      (${q(authUid)}, ${q(dependentPatientId)}::uuid, 'DEPENDENT', TRUE, TRUE,
+       TRUE, 'GRANTED', now(), now()),
       (${q(authUid)}, ${q(target.patient_id)}::uuid, 'PROFESSIONAL', TRUE, TRUE,
        FALSE, 'GRANTED', now(), now());
     COMMIT;
@@ -331,6 +363,25 @@ async function runSdkSmoke(target) {
     throw new Error('A sessao autenticada nao corresponde aos perfis SQL temporarios.')
   }
 
+  await executeQuery(
+    queryRef(mobileDc, 'GetAccessiblePatientProfile', {
+      patientId: dependentPatientId,
+    }),
+    { fetchPolicy: 'SERVER_ONLY' },
+  )
+  report.directDependentAllowed = true
+  report.dependentWithoutOwnAuth = true
+  try {
+    await executeQuery(
+      queryRef(mobileDc, 'GetAccessiblePatientProfile', {
+        patientId: grandchildPatientId,
+      }),
+      { fetchPolicy: 'SERVER_ONLY' },
+    )
+  } catch {
+    report.transitiveDependentDenied = true
+  }
+
   await executeMutation(
     mutationRef(mobileDc, 'UpdateMobileProfile', {
       name: 'Vitta Smoke SQL',
@@ -341,6 +392,11 @@ async function runSdkSmoke(target) {
     fetchPolicy: 'SERVER_ONLY',
   })
   report.mobileToWebPhoneRoundTrip = webUser.data.user?.phone === phone
+
+  const batchBefore = await getBatch(webDc, { id: target.batch_id }, {
+    fetchPolicy: 'SERVER_ONLY',
+  })
+  const stockBefore = batchBefore.data.batch?.currentQuantity
 
   const created = await createApplication(webDc, {
     patientId: target.patient_id,
@@ -354,6 +410,25 @@ async function runSdkSmoke(target) {
     notes: `SMOKE SQL CONNECT ${new Date().toISOString()}`,
   })
   applicationId = created.data.application_insert.id
+
+  const createdApplication = await getApplication(webDc, { id: applicationId }, {
+    fetchPolicy: 'SERVER_ONLY',
+  })
+  const createdRecord = createdApplication.data.application
+  report.applicationSnapshotsPresent = Boolean(
+    createdRecord?.patientNameSnapshot &&
+      createdRecord?.vaccineNameSnapshot &&
+      createdRecord?.lotSnapshot &&
+      createdRecord?.manufacturerSnapshot &&
+      createdRecord?.facilityNameSnapshot &&
+      createdRecord?.professionalNameSnapshot,
+  )
+  const batchAfterCreate = await getBatch(webDc, { id: target.batch_id }, {
+    fetchPolicy: 'SERVER_ONLY',
+  })
+  report.stockDecremented =
+    Number.isInteger(stockBefore) &&
+    batchAfterCreate.data.batch?.currentQuantity === stockBefore - 1
 
   const mobileVaccinations = await executeQuery(
     queryRef(mobileDc, 'GetAccessiblePatientVaccinations', {
@@ -376,9 +451,58 @@ async function runSdkSmoke(target) {
 
   await voidApplication(webDc, {
     id: applicationId,
+    batchId: target.batch_id,
     reason: 'Smoke de produção SQL Connect concluído',
   })
   report.testApplicationVoided = true
+
+  const voidedApplication = await getApplication(webDc, { id: applicationId }, {
+    fetchPolicy: 'SERVER_ONLY',
+  })
+  const voidedRecord = voidedApplication.data.application
+  report.voidFieldsPresent = Boolean(
+    voidedRecord?.voidedAt &&
+      voidedRecord?.voidedByAuthUid === authUid &&
+      voidedRecord?.voidReason,
+  )
+  const batchAfterVoid = await getBatch(webDc, { id: target.batch_id }, {
+    fetchPolicy: 'SERVER_ONLY',
+  })
+  report.stockRestored =
+    Number.isInteger(stockBefore) &&
+    batchAfterVoid.data.batch?.currentQuantity === stockBefore
+
+  try {
+    await voidApplication(webDc, {
+      id: applicationId,
+      batchId: target.batch_id,
+      reason: 'Segunda anulacao deve ser rejeitada',
+    })
+  } catch {
+    report.secondVoidRejected = true
+  }
+  const batchAfterSecondVoid = await getBatch(webDc, { id: target.batch_id }, {
+    fetchPolicy: 'SERVER_ONLY',
+  })
+  report.secondVoidDidNotRestock =
+    Number.isInteger(stockBefore) &&
+    batchAfterSecondVoid.data.batch?.currentQuantity === stockBefore
+
+  const mobileAfterVoid = await executeQuery(
+    queryRef(mobileDc, 'GetAccessiblePatientVaccinations', {
+      patientId: target.patient_id,
+    }),
+    { fetchPolicy: 'SERVER_ONLY' },
+  )
+  report.mobileAfterVoidHidden =
+    mobileAfterVoid.data.applications?.some(
+      (application) => application.id === applicationId,
+    ) !== true
+  report.mobileAfterVoidMarkedVoided = Boolean(
+    mobileAfterVoid.data.applications?.find(
+      (application) => application.id === applicationId,
+    )?.voidedAt,
+  )
   await signOut(auth)
 }
 
@@ -390,6 +514,14 @@ async function cleanup() {
       await runSql(`
         BEGIN;
         ${applicationId && !report.testApplicationVoided ? `
+        UPDATE public.batch
+           SET current_quantity = current_quantity + 1
+         WHERE id = (
+           SELECT batch_id
+             FROM public.application
+            WHERE id = ${q(applicationId)}::uuid
+              AND voided_at IS NULL
+         );
         UPDATE public.application
            SET voided_at = COALESCE(voided_at, now()),
                voided_by_auth_uid = COALESCE(voided_by_auth_uid, ${q(authUid)}),
@@ -397,8 +529,12 @@ async function cleanup() {
                updated_at = now()
          WHERE id = ${q(applicationId)}::uuid;` : ''}
         DELETE FROM public.patient_access WHERE grantee_auth_uid = ${q(authUid)};
+        DELETE FROM public.patient WHERE id = ${q(grandchildPatientId)}::uuid;
+        DELETE FROM public.patient WHERE id = ${q(dependentPatientId)}::uuid;
         DELETE FROM public.patient WHERE id = ${q(patientId)}::uuid;
         DELETE FROM public.professional WHERE id = ${q(professionalId)}::uuid;
+        DELETE FROM public."user" WHERE id = ${q(grandchildUserId)}::uuid;
+        DELETE FROM public."user" WHERE id = ${q(dependentUserId)}::uuid;
         DELETE FROM public."user" WHERE id = ${q(userId)}::uuid;
         COMMIT;
       `)
@@ -423,6 +559,27 @@ try {
   await createFirebaseUser()
   await seedSqlIdentity(target)
   await runSdkSmoke(target)
+  const requiredChecks = [
+    report.webSessionFromSql,
+    report.mobileSessionFromSql,
+    report.directDependentAllowed,
+    report.dependentWithoutOwnAuth,
+    report.transitiveDependentDenied,
+    report.mobileToWebPhoneRoundTrip,
+    report.webToMobileApplicationRoundTrip,
+    report.unrelatedPatientDenied,
+    report.applicationSnapshotsPresent,
+    report.stockDecremented,
+    report.testApplicationVoided,
+    report.voidFieldsPresent,
+    report.stockRestored,
+    report.secondVoidRejected,
+    report.secondVoidDidNotRestock,
+    report.mobileAfterVoidHidden || report.mobileAfterVoidMarkedVoided,
+  ]
+  if (requiredChecks.some((passed) => !passed)) {
+    throw new Error('Uma ou mais verificacoes obrigatorias do smoke falharam.')
+  }
   report.status = 'passed'
 } catch (error) {
   report.status = 'failed'

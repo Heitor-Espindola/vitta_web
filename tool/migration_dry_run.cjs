@@ -212,6 +212,10 @@ async function verifyIntegrity(db) {
 async function main() {
   const db = new PGlite();
   try {
+    await db.exec(
+      `CREATE ROLE "firebasereader_vitta-5ec1e-database_public";
+       CREATE ROLE "firebasewriter_vitta-5ec1e-database_public";`,
+    );
     await reconstructProduction(db);
     const before = await db.query(
       'SELECT count(*)::int AS count FROM "public"."application"',
