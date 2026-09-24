@@ -5,7 +5,7 @@ import {
   deletePatient,
   deleteUser,
   getPatientByUser,
-  getPatientRef,
+  getPatient,
   getUserByCpf,
   getUserByEmail,
   listPatientsRef,
@@ -72,7 +72,7 @@ export function watchPatients(onData, onError) {
 }
 
 export async function getPatientById(id) {
-  const result = await getPatientRef({ id });
+  const result = await getPatient({ id });
   const patient = result?.data?.patient;
 
   if (!patient) {
