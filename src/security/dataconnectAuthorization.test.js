@@ -21,6 +21,11 @@ const schema = readProjectFile(
   'Firebase_SQL_Connect/dataconnect/schema/schema.gql',
 )
 const authService = readProjectFile('src/services/authService.js')
+const patientService = readProjectFile('src/services/patientService.js')
+const vaccinationService = readProjectFile('src/services/vaccinationService.js')
+const applicationForm = readProjectFile('src/components/ApplicationForm.jsx')
+const dashboard = readProjectFile('src/pages/Dashboard.jsx')
+const reports = readProjectFile('src/pages/Relatorios.jsx')
 
 describe('Data Connect authorization contract', () => {
   test('mobile connector is scoped by auth.uid and has no administrative operation', () => {
@@ -197,5 +202,60 @@ describe('Data Connect authorization contract', () => {
     expect(operation).toMatch(/\$doseLabel: String/)
     expect(operation).toMatch(/\$nextDoseAt: Timestamp/)
     expect(operation).toMatch(/\$notes: String/)
+  })
+
+  test('patient lookup executes the protected query instead of returning a reference', () => {
+    expect(patientService).toContain('await getPatient({ id })')
+    expect(patientService).not.toContain('getPatientRef')
+  })
+
+  test('professional identity is resolved only by auth.uid, never by email', () => {
+    expect(vaccinationService).toContain('firebaseUser?.uid')
+    expect(vaccinationService).toContain('getCurrentPortalUser')
+    expect(vaccinationService).not.toMatch(/getUserByEmail|firebaseUser\?\.email/)
+  })
+
+  test('new applications require a matching batch with stock and decrement it once', () => {
+    const operation = webMutations.match(
+      /mutation CreateApplication[\s\S]*?(?=\nmutation UpdateApplication)/,
+    )?.[0]
+
+    expect(operation).toMatch(/\$batchId: UUID!/)
+    expect(operation).toContain('this == vars.vaccineId')
+    expect(operation).toContain('currentQuantity: { gt: 0 }')
+    expect(operation).toContain('currentQuantity_update: { dec: 1 }')
+    expect(operation).toContain('expr: "this == 1"')
+    expect(applicationForm).toContain('(!editing && !form.batchId)')
+  })
+
+  test('voiding preserves history and restores stock exactly once', () => {
+    const operation = webMutations.match(
+      /mutation VoidApplication[\s\S]*?(?=\nmutation VoidLegacyApplication)/,
+    )?.[0]
+    const professionalHistory = webQueries.match(
+      /query ListCurrentProfessionalApplications[\s\S]*?(?=\nquery GetApplication)/,
+    )?.[0]
+
+    expect(operation).toContain('expr: "this == null"')
+    expect(operation).toContain('currentQuantity_update: { inc: 1 }')
+    expect(operation).toContain('expr: "this == 1"')
+    expect(operation).not.toContain('application_delete')
+    expect(professionalHistory).not.toContain('voidedAt: { isNull: true }')
+  })
+
+  test('legacy applications without a batch can only be voided, never deleted', () => {
+    const operation = webMutations.match(
+      /mutation VoidLegacyApplication[\s\S]*$/,
+    )?.[0]
+
+    expect(operation).toContain('expr: "this == null"')
+    expect(operation).toContain('application_update')
+    expect(operation).not.toContain('application_delete')
+    expect(vaccinationService).toContain('voidLegacyApplication')
+  })
+
+  test('voided applications are excluded from dashboard and report metrics', () => {
+    expect(dashboard).toContain('records.filter(isEffectiveApplication)')
+    expect(reports).toContain('isEffectiveApplication(record)')
   })
 })

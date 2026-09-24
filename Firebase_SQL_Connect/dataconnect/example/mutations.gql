@@ -394,7 +394,7 @@ mutation DeleteAppointment($id: UUID!)
 mutation CreateApplication(
   $patientId: UUID!
   $vaccineId: UUID!
-  $batchId: UUID
+  $batchId: UUID!
   $appointmentId: UUID
   $professionalId: UUID!
   $ubsId: UUID!
@@ -449,9 +449,14 @@ mutation CreateApplication(
         @check(expr: "this == true", message: "UBS inativa ou arquivada.")
       name
     }
-    batch(id: $batchId) @check(optional: true) {
+    batch(id: $batchId) @check(message: "Lote não encontrado.") {
       manufacturer
       batchCode
+      currentQuantity
+        @check(
+          expr: "this > 0"
+          message: "Lote sem estoque disponível."
+        )
       vaccine {
         id
           @check(
@@ -504,6 +509,19 @@ mutation CreateApplication(
       updatedAt_expr: "request.time"
     }
   )
+  batch_updateMany(
+    where: {
+      _and: [
+        { id: { eq: $batchId } }
+        { currentQuantity: { gt: 0 } }
+      ]
+    }
+    data: { currentQuantity_update: { dec: 1 } }
+  )
+    @check(
+      expr: "this == 1"
+      message: "Lote sem estoque disponível."
+    )
 }
 mutation UpdateApplication(
   $id: UUID!
@@ -523,9 +541,62 @@ mutation UpdateApplication(
     }
   ) @check(message: "Aplicação não encontrada.")
 }
-mutation VoidApplication($id: UUID!, $reason: String!)
+mutation VoidApplication($id: UUID!, $batchId: UUID!, $reason: String!)
   @auth(expr: "auth.token.admin == true")
   @transaction {
+  query @redact {
+    application(id: $id) @check(message: "Aplicação não encontrada.") {
+      voidedAt
+        @check(
+          expr: "this == null"
+          message: "A aplicação já está anulada."
+        )
+      batch @check(message: "A aplicação não possui lote associado.") {
+        id
+          @check(
+            expr: "this == vars.batchId"
+            message: "O lote não corresponde à aplicação."
+          )
+      }
+    }
+  }
+  application_update(
+    id: $id
+    data: {
+      voidedAt_expr: "request.time"
+      voidedByAuthUid_expr: "auth.uid"
+      voidReason: $reason
+      updatedAt_expr: "request.time"
+    }
+  ) @check(message: "Aplicação não encontrada.")
+  batch_updateMany(
+    where: { id: { eq: $batchId } }
+    data: { currentQuantity_update: { inc: 1 } }
+  )
+    @check(
+      expr: "this == 1"
+      message: "O estoque do lote não pôde ser restaurado."
+    )
+}
+mutation VoidLegacyApplication($id: UUID!, $reason: String!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  query @redact {
+    application(id: $id) @check(message: "Aplicação não encontrada.") {
+      voidedAt
+        @check(
+          expr: "this == null"
+          message: "A aplicação já está anulada."
+        )
+      batch
+        @check(
+          expr: "this == null"
+          message: "A aplicação possui lote e exige restauração de estoque."
+        ) {
+        id
+      }
+    }
+  }
   application_update(
     id: $id
     data: {

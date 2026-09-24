@@ -67,6 +67,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*CreateApplication*](#createapplication)
   - [*UpdateApplication*](#updateapplication)
   - [*VoidApplication*](#voidapplication)
+  - [*VoidLegacyApplication*](#voidlegacyapplication)
 
 # Accessing the connector
 A connector is a collection of Queries and Mutations. One SDK is generated for each connector - this SDK is generated for the connector `example`. You can find more information about connectors in the [Data Connect documentation](https://firebase.google.com/docs/data-connect#how-does).
@@ -275,7 +276,7 @@ import { connectorConfig, getUser, GetUserVariables } from '@dataconnect/generat
 
 // The `GetUser` query requires an argument of type `GetUserVariables`:
 const getUserVars: GetUserVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getUser()` function to execute the query.
@@ -305,7 +306,7 @@ import { connectorConfig, getUserRef, GetUserVariables } from '@dataconnect/gene
 
 // The `GetUser` query requires an argument of type `GetUserVariables`:
 const getUserVars: GetUserVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getUserRef()` function to get a reference to the query.
@@ -518,7 +519,7 @@ import { connectorConfig, getAdminPatientByCpf, GetAdminPatientByCpfVariables } 
 
 // The `GetAdminPatientByCpf` query requires an argument of type `GetAdminPatientByCpfVariables`:
 const getAdminPatientByCpfVars: GetAdminPatientByCpfVariables = {
-  cpf: ...,
+  cpf: ..., 
 };
 
 // Call the `getAdminPatientByCpf()` function to execute the query.
@@ -548,7 +549,7 @@ import { connectorConfig, getAdminPatientByCpfRef, GetAdminPatientByCpfVariables
 
 // The `GetAdminPatientByCpf` query requires an argument of type `GetAdminPatientByCpfVariables`:
 const getAdminPatientByCpfVars: GetAdminPatientByCpfVariables = {
-  cpf: ...,
+  cpf: ..., 
 };
 
 // Call the `getAdminPatientByCpfRef()` function to get a reference to the query.
@@ -635,7 +636,7 @@ import { connectorConfig, getUserByEmail, GetUserByEmailVariables } from '@datac
 
 // The `GetUserByEmail` query requires an argument of type `GetUserByEmailVariables`:
 const getUserByEmailVars: GetUserByEmailVariables = {
-  email: ...,
+  email: ..., 
 };
 
 // Call the `getUserByEmail()` function to execute the query.
@@ -665,7 +666,7 @@ import { connectorConfig, getUserByEmailRef, GetUserByEmailVariables } from '@da
 
 // The `GetUserByEmail` query requires an argument of type `GetUserByEmailVariables`:
 const getUserByEmailVars: GetUserByEmailVariables = {
-  email: ...,
+  email: ..., 
 };
 
 // Call the `getUserByEmailRef()` function to get a reference to the query.
@@ -993,7 +994,7 @@ import { connectorConfig, getAuthorizedPatientByCpf, GetAuthorizedPatientByCpfVa
 
 // The `GetAuthorizedPatientByCpf` query requires an argument of type `GetAuthorizedPatientByCpfVariables`:
 const getAuthorizedPatientByCpfVars: GetAuthorizedPatientByCpfVariables = {
-  cpf: ...,
+  cpf: ..., 
 };
 
 // Call the `getAuthorizedPatientByCpf()` function to execute the query.
@@ -1023,7 +1024,7 @@ import { connectorConfig, getAuthorizedPatientByCpfRef, GetAuthorizedPatientByCp
 
 // The `GetAuthorizedPatientByCpf` query requires an argument of type `GetAuthorizedPatientByCpfVariables`:
 const getAuthorizedPatientByCpfVars: GetAuthorizedPatientByCpfVariables = {
-  cpf: ...,
+  cpf: ..., 
 };
 
 // Call the `getAuthorizedPatientByCpfRef()` function to get a reference to the query.
@@ -1123,7 +1124,7 @@ import { connectorConfig, getPatient, GetPatientVariables } from '@dataconnect/g
 
 // The `GetPatient` query requires an argument of type `GetPatientVariables`:
 const getPatientVars: GetPatientVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getPatient()` function to execute the query.
@@ -1153,7 +1154,7 @@ import { connectorConfig, getPatientRef, GetPatientVariables } from '@dataconnec
 
 // The `GetPatient` query requires an argument of type `GetPatientVariables`:
 const getPatientVars: GetPatientVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getPatientRef()` function to get a reference to the query.
@@ -1253,7 +1254,7 @@ import { connectorConfig, getAdminPatient, GetAdminPatientVariables } from '@dat
 
 // The `GetAdminPatient` query requires an argument of type `GetAdminPatientVariables`:
 const getAdminPatientVars: GetAdminPatientVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getAdminPatient()` function to execute the query.
@@ -1283,7 +1284,7 @@ import { connectorConfig, getAdminPatientRef, GetAdminPatientVariables } from '@
 
 // The `GetAdminPatient` query requires an argument of type `GetAdminPatientVariables`:
 const getAdminPatientVars: GetAdminPatientVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getAdminPatientRef()` function to get a reference to the query.
@@ -1383,7 +1384,7 @@ import { connectorConfig, getPatientByUser, GetPatientByUserVariables } from '@d
 
 // The `GetPatientByUser` query requires an argument of type `GetPatientByUserVariables`:
 const getPatientByUserVars: GetPatientByUserVariables = {
-  userId: ...,
+  userId: ..., 
 };
 
 // Call the `getPatientByUser()` function to execute the query.
@@ -1413,7 +1414,7 @@ import { connectorConfig, getPatientByUserRef, GetPatientByUserVariables } from 
 
 // The `GetPatientByUser` query requires an argument of type `GetPatientByUserVariables`:
 const getPatientByUserVars: GetPatientByUserVariables = {
-  userId: ...,
+  userId: ..., 
 };
 
 // Call the `getPatientByUserRef()` function to get a reference to the query.
@@ -1599,7 +1600,7 @@ import { connectorConfig, getUbs, GetUbsVariables } from '@dataconnect/generated
 
 // The `GetUbs` query requires an argument of type `GetUbsVariables`:
 const getUbsVars: GetUbsVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getUbs()` function to execute the query.
@@ -1629,7 +1630,7 @@ import { connectorConfig, getUbsRef, GetUbsVariables } from '@dataconnect/genera
 
 // The `GetUbs` query requires an argument of type `GetUbsVariables`:
 const getUbsVars: GetUbsVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getUbsRef()` function to get a reference to the query.
@@ -1716,7 +1717,7 @@ import { connectorConfig, searchUbsByName, SearchUbsByNameVariables } from '@dat
 
 // The `SearchUbsByName` query requires an argument of type `SearchUbsByNameVariables`:
 const searchUbsByNameVars: SearchUbsByNameVariables = {
-  name: ...,
+  name: ..., 
 };
 
 // Call the `searchUbsByName()` function to execute the query.
@@ -1746,7 +1747,7 @@ import { connectorConfig, searchUbsByNameRef, SearchUbsByNameVariables } from '@
 
 // The `SearchUbsByName` query requires an argument of type `SearchUbsByNameVariables`:
 const searchUbsByNameVars: SearchUbsByNameVariables = {
-  name: ...,
+  name: ..., 
 };
 
 // Call the `searchUbsByNameRef()` function to get a reference to the query.
@@ -1957,7 +1958,7 @@ import { connectorConfig, getProfessional, GetProfessionalVariables } from '@dat
 
 // The `GetProfessional` query requires an argument of type `GetProfessionalVariables`:
 const getProfessionalVars: GetProfessionalVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getProfessional()` function to execute the query.
@@ -1987,7 +1988,7 @@ import { connectorConfig, getProfessionalRef, GetProfessionalVariables } from '@
 
 // The `GetProfessional` query requires an argument of type `GetProfessionalVariables`:
 const getProfessionalVars: GetProfessionalVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getProfessionalRef()` function to get a reference to the query.
@@ -2080,7 +2081,7 @@ import { connectorConfig, getProfessionalByUser, GetProfessionalByUserVariables 
 
 // The `GetProfessionalByUser` query requires an argument of type `GetProfessionalByUserVariables`:
 const getProfessionalByUserVars: GetProfessionalByUserVariables = {
-  userId: ...,
+  userId: ..., 
 };
 
 // Call the `getProfessionalByUser()` function to execute the query.
@@ -2110,7 +2111,7 @@ import { connectorConfig, getProfessionalByUserRef, GetProfessionalByUserVariabl
 
 // The `GetProfessionalByUser` query requires an argument of type `GetProfessionalByUserVariables`:
 const getProfessionalByUserVars: GetProfessionalByUserVariables = {
-  userId: ...,
+  userId: ..., 
 };
 
 // Call the `getProfessionalByUserRef()` function to get a reference to the query.
@@ -2290,7 +2291,7 @@ import { connectorConfig, getVaccine, GetVaccineVariables } from '@dataconnect/g
 
 // The `GetVaccine` query requires an argument of type `GetVaccineVariables`:
 const getVaccineVars: GetVaccineVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getVaccine()` function to execute the query.
@@ -2320,7 +2321,7 @@ import { connectorConfig, getVaccineRef, GetVaccineVariables } from '@dataconnec
 
 // The `GetVaccine` query requires an argument of type `GetVaccineVariables`:
 const getVaccineVars: GetVaccineVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getVaccineRef()` function to get a reference to the query.
@@ -2404,7 +2405,7 @@ import { connectorConfig, searchVaccinesByName, SearchVaccinesByNameVariables } 
 
 // The `SearchVaccinesByName` query requires an argument of type `SearchVaccinesByNameVariables`:
 const searchVaccinesByNameVars: SearchVaccinesByNameVariables = {
-  name: ...,
+  name: ..., 
 };
 
 // Call the `searchVaccinesByName()` function to execute the query.
@@ -2434,7 +2435,7 @@ import { connectorConfig, searchVaccinesByNameRef, SearchVaccinesByNameVariables
 
 // The `SearchVaccinesByName` query requires an argument of type `SearchVaccinesByNameVariables`:
 const searchVaccinesByNameVars: SearchVaccinesByNameVariables = {
-  name: ...,
+  name: ..., 
 };
 
 // Call the `searchVaccinesByNameRef()` function to get a reference to the query.
@@ -2631,7 +2632,7 @@ import { connectorConfig, getBatch, GetBatchVariables } from '@dataconnect/gener
 
 // The `GetBatch` query requires an argument of type `GetBatchVariables`:
 const getBatchVars: GetBatchVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getBatch()` function to execute the query.
@@ -2661,7 +2662,7 @@ import { connectorConfig, getBatchRef, GetBatchVariables } from '@dataconnect/ge
 
 // The `GetBatch` query requires an argument of type `GetBatchVariables`:
 const getBatchVars: GetBatchVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getBatchRef()` function to get a reference to the query.
@@ -2752,7 +2753,7 @@ import { connectorConfig, listBatchesByVaccine, ListBatchesByVaccineVariables } 
 
 // The `ListBatchesByVaccine` query requires an argument of type `ListBatchesByVaccineVariables`:
 const listBatchesByVaccineVars: ListBatchesByVaccineVariables = {
-  vaccineId: ...,
+  vaccineId: ..., 
 };
 
 // Call the `listBatchesByVaccine()` function to execute the query.
@@ -2782,7 +2783,7 @@ import { connectorConfig, listBatchesByVaccineRef, ListBatchesByVaccineVariables
 
 // The `ListBatchesByVaccine` query requires an argument of type `ListBatchesByVaccineVariables`:
 const listBatchesByVaccineVars: ListBatchesByVaccineVariables = {
-  vaccineId: ...,
+  vaccineId: ..., 
 };
 
 // Call the `listBatchesByVaccineRef()` function to get a reference to the query.
@@ -3125,7 +3126,7 @@ import { connectorConfig, getAppointment, GetAppointmentVariables } from '@datac
 
 // The `GetAppointment` query requires an argument of type `GetAppointmentVariables`:
 const getAppointmentVars: GetAppointmentVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getAppointment()` function to execute the query.
@@ -3155,7 +3156,7 @@ import { connectorConfig, getAppointmentRef, GetAppointmentVariables } from '@da
 
 // The `GetAppointment` query requires an argument of type `GetAppointmentVariables`:
 const getAppointmentVars: GetAppointmentVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getAppointmentRef()` function to get a reference to the query.
@@ -3256,7 +3257,7 @@ import { connectorConfig, listAppointmentsByPatient, ListAppointmentsByPatientVa
 
 // The `ListAppointmentsByPatient` query requires an argument of type `ListAppointmentsByPatientVariables`:
 const listAppointmentsByPatientVars: ListAppointmentsByPatientVariables = {
-  patientId: ...,
+  patientId: ..., 
 };
 
 // Call the `listAppointmentsByPatient()` function to execute the query.
@@ -3286,7 +3287,7 @@ import { connectorConfig, listAppointmentsByPatientRef, ListAppointmentsByPatien
 
 // The `ListAppointmentsByPatient` query requires an argument of type `ListAppointmentsByPatientVariables`:
 const listAppointmentsByPatientVars: ListAppointmentsByPatientVariables = {
-  patientId: ...,
+  patientId: ..., 
 };
 
 // Call the `listAppointmentsByPatientRef()` function to get a reference to the query.
@@ -3386,7 +3387,7 @@ import { connectorConfig, listAppointmentsByStatus, ListAppointmentsByStatusVari
 
 // The `ListAppointmentsByStatus` query requires an argument of type `ListAppointmentsByStatusVariables`:
 const listAppointmentsByStatusVars: ListAppointmentsByStatusVariables = {
-  status: ...,
+  status: ..., 
 };
 
 // Call the `listAppointmentsByStatus()` function to execute the query.
@@ -3416,7 +3417,7 @@ import { connectorConfig, listAppointmentsByStatusRef, ListAppointmentsByStatusV
 
 // The `ListAppointmentsByStatus` query requires an argument of type `ListAppointmentsByStatusVariables`:
 const listAppointmentsByStatusVars: ListAppointmentsByStatusVariables = {
-  status: ...,
+  status: ..., 
 };
 
 // Call the `listAppointmentsByStatusRef()` function to get a reference to the query.
@@ -3861,7 +3862,7 @@ import { connectorConfig, getApplication, GetApplicationVariables } from '@datac
 
 // The `GetApplication` query requires an argument of type `GetApplicationVariables`:
 const getApplicationVars: GetApplicationVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getApplication()` function to execute the query.
@@ -3891,7 +3892,7 @@ import { connectorConfig, getApplicationRef, GetApplicationVariables } from '@da
 
 // The `GetApplication` query requires an argument of type `GetApplicationVariables`:
 const getApplicationVars: GetApplicationVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `getApplicationRef()` function to get a reference to the query.
@@ -4027,7 +4028,7 @@ import { connectorConfig, listApplicationsByPatient, ListApplicationsByPatientVa
 
 // The `ListApplicationsByPatient` query requires an argument of type `ListApplicationsByPatientVariables`:
 const listApplicationsByPatientVars: ListApplicationsByPatientVariables = {
-  patientId: ...,
+  patientId: ..., 
 };
 
 // Call the `listApplicationsByPatient()` function to execute the query.
@@ -4057,7 +4058,7 @@ import { connectorConfig, listApplicationsByPatientRef, ListApplicationsByPatien
 
 // The `ListApplicationsByPatient` query requires an argument of type `ListApplicationsByPatientVariables`:
 const listApplicationsByPatientVars: ListApplicationsByPatientVariables = {
-  patientId: ...,
+  patientId: ..., 
 };
 
 // Call the `listApplicationsByPatientRef()` function to get a reference to the query.
@@ -4193,7 +4194,7 @@ import { connectorConfig, listAdminApplicationsByPatient, ListAdminApplicationsB
 
 // The `ListAdminApplicationsByPatient` query requires an argument of type `ListAdminApplicationsByPatientVariables`:
 const listAdminApplicationsByPatientVars: ListAdminApplicationsByPatientVariables = {
-  patientId: ...,
+  patientId: ..., 
 };
 
 // Call the `listAdminApplicationsByPatient()` function to execute the query.
@@ -4223,7 +4224,7 @@ import { connectorConfig, listAdminApplicationsByPatientRef, ListAdminApplicatio
 
 // The `ListAdminApplicationsByPatient` query requires an argument of type `ListAdminApplicationsByPatientVariables`:
 const listAdminApplicationsByPatientVars: ListAdminApplicationsByPatientVariables = {
-  patientId: ...,
+  patientId: ..., 
 };
 
 // Call the `listAdminApplicationsByPatientRef()` function to get a reference to the query.
@@ -4335,7 +4336,7 @@ import { connectorConfig, listApplicationsByVaccine, ListApplicationsByVaccineVa
 
 // The `ListApplicationsByVaccine` query requires an argument of type `ListApplicationsByVaccineVariables`:
 const listApplicationsByVaccineVars: ListApplicationsByVaccineVariables = {
-  vaccineId: ...,
+  vaccineId: ..., 
 };
 
 // Call the `listApplicationsByVaccine()` function to execute the query.
@@ -4365,7 +4366,7 @@ import { connectorConfig, listApplicationsByVaccineRef, ListApplicationsByVaccin
 
 // The `ListApplicationsByVaccine` query requires an argument of type `ListApplicationsByVaccineVariables`:
 const listApplicationsByVaccineVars: ListApplicationsByVaccineVariables = {
-  vaccineId: ...,
+  vaccineId: ..., 
 };
 
 // Call the `listApplicationsByVaccineRef()` function to get a reference to the query.
@@ -4464,11 +4465,11 @@ import { connectorConfig, createUser, CreateUserVariables } from '@dataconnect/g
 
 // The `CreateUser` mutation requires an argument of type `CreateUserVariables`:
 const createUserVars: CreateUserVariables = {
-  name: ...,
-  birthDate: ...,
-  email: ...,
-  status: ...,
-  cpf: ...,
+  name: ..., 
+  birthDate: ..., 
+  email: ..., 
+  status: ..., 
+  cpf: ..., 
   sex: ..., // optional
 };
 
@@ -4499,11 +4500,11 @@ import { connectorConfig, createUserRef, CreateUserVariables } from '@dataconnec
 
 // The `CreateUser` mutation requires an argument of type `CreateUserVariables`:
 const createUserVars: CreateUserVariables = {
-  name: ...,
-  birthDate: ...,
-  email: ...,
-  status: ...,
-  cpf: ...,
+  name: ..., 
+  birthDate: ..., 
+  email: ..., 
+  status: ..., 
+  cpf: ..., 
   sex: ..., // optional
 };
 
@@ -4589,7 +4590,7 @@ import { connectorConfig, updateUser, UpdateUserVariables } from '@dataconnect/g
 
 // The `UpdateUser` mutation requires an argument of type `UpdateUserVariables`:
 const updateUserVars: UpdateUserVariables = {
-  id: ...,
+  id: ..., 
   name: ..., // optional
   birthDate: ..., // optional
   email: ..., // optional
@@ -4625,7 +4626,7 @@ import { connectorConfig, updateUserRef, UpdateUserVariables } from '@dataconnec
 
 // The `UpdateUser` mutation requires an argument of type `UpdateUserVariables`:
 const updateUserVars: UpdateUserVariables = {
-  id: ...,
+  id: ..., 
   name: ..., // optional
   birthDate: ..., // optional
   email: ..., // optional
@@ -4710,7 +4711,7 @@ import { connectorConfig, deleteUnlinkedUser, DeleteUnlinkedUserVariables } from
 
 // The `DeleteUnlinkedUser` mutation requires an argument of type `DeleteUnlinkedUserVariables`:
 const deleteUnlinkedUserVars: DeleteUnlinkedUserVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `deleteUnlinkedUser()` function to execute the mutation.
@@ -4740,7 +4741,7 @@ import { connectorConfig, deleteUnlinkedUserRef, DeleteUnlinkedUserVariables } f
 
 // The `DeleteUnlinkedUser` mutation requires an argument of type `DeleteUnlinkedUserVariables`:
 const deleteUnlinkedUserVars: DeleteUnlinkedUserVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `deleteUnlinkedUserRef()` function to get a reference to the mutation.
@@ -4822,8 +4823,8 @@ import { connectorConfig, createPatient, CreatePatientVariables } from '@datacon
 
 // The `CreatePatient` mutation requires an argument of type `CreatePatientVariables`:
 const createPatientVars: CreatePatientVariables = {
-  userId: ...,
-  patientType: ...,
+  userId: ..., 
+  patientType: ..., 
   responsibleId: ..., // optional
   motherName: ..., // optional
 };
@@ -4855,8 +4856,8 @@ import { connectorConfig, createPatientRef, CreatePatientVariables } from '@data
 
 // The `CreatePatient` mutation requires an argument of type `CreatePatientVariables`:
 const createPatientVars: CreatePatientVariables = {
-  userId: ...,
-  patientType: ...,
+  userId: ..., 
+  patientType: ..., 
   responsibleId: ..., // optional
   motherName: ..., // optional
 };
@@ -4940,7 +4941,7 @@ import { connectorConfig, updatePatient, UpdatePatientVariables } from '@datacon
 
 // The `UpdatePatient` mutation requires an argument of type `UpdatePatientVariables`:
 const updatePatientVars: UpdatePatientVariables = {
-  id: ...,
+  id: ..., 
   patientType: ..., // optional
   responsibleId: ..., // optional
   motherName: ..., // optional
@@ -4973,7 +4974,7 @@ import { connectorConfig, updatePatientRef, UpdatePatientVariables } from '@data
 
 // The `UpdatePatient` mutation requires an argument of type `UpdatePatientVariables`:
 const updatePatientVars: UpdatePatientVariables = {
-  id: ...,
+  id: ..., 
   patientType: ..., // optional
   responsibleId: ..., // optional
   motherName: ..., // optional
@@ -5055,7 +5056,7 @@ import { connectorConfig, archivePatient, ArchivePatientVariables } from '@datac
 
 // The `ArchivePatient` mutation requires an argument of type `ArchivePatientVariables`:
 const archivePatientVars: ArchivePatientVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `archivePatient()` function to execute the mutation.
@@ -5085,7 +5086,7 @@ import { connectorConfig, archivePatientRef, ArchivePatientVariables } from '@da
 
 // The `ArchivePatient` mutation requires an argument of type `ArchivePatientVariables`:
 const archivePatientVars: ArchivePatientVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `archivePatientRef()` function to get a reference to the mutation.
@@ -5169,7 +5170,7 @@ import { connectorConfig, createUbs, CreateUbsVariables } from '@dataconnect/gen
 
 // The `CreateUbs` mutation requires an argument of type `CreateUbsVariables`:
 const createUbsVars: CreateUbsVariables = {
-  name: ...,
+  name: ..., 
   logradouro: ..., // optional
   numero: ..., // optional
   bairro: ..., // optional
@@ -5204,7 +5205,7 @@ import { connectorConfig, createUbsRef, CreateUbsVariables } from '@dataconnect/
 
 // The `CreateUbs` mutation requires an argument of type `CreateUbsVariables`:
 const createUbsVars: CreateUbsVariables = {
-  name: ...,
+  name: ..., 
   logradouro: ..., // optional
   numero: ..., // optional
   bairro: ..., // optional
@@ -5294,7 +5295,7 @@ import { connectorConfig, updateUbs, UpdateUbsVariables } from '@dataconnect/gen
 
 // The `UpdateUbs` mutation requires an argument of type `UpdateUbsVariables`:
 const updateUbsVars: UpdateUbsVariables = {
-  id: ...,
+  id: ..., 
   name: ..., // optional
   logradouro: ..., // optional
   numero: ..., // optional
@@ -5330,7 +5331,7 @@ import { connectorConfig, updateUbsRef, UpdateUbsVariables } from '@dataconnect/
 
 // The `UpdateUbs` mutation requires an argument of type `UpdateUbsVariables`:
 const updateUbsVars: UpdateUbsVariables = {
-  id: ...,
+  id: ..., 
   name: ..., // optional
   logradouro: ..., // optional
   numero: ..., // optional
@@ -5415,7 +5416,7 @@ import { connectorConfig, archiveUbs, ArchiveUbsVariables } from '@dataconnect/g
 
 // The `ArchiveUbs` mutation requires an argument of type `ArchiveUbsVariables`:
 const archiveUbsVars: ArchiveUbsVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `archiveUbs()` function to execute the mutation.
@@ -5445,7 +5446,7 @@ import { connectorConfig, archiveUbsRef, ArchiveUbsVariables } from '@dataconnec
 
 // The `ArchiveUbs` mutation requires an argument of type `ArchiveUbsVariables`:
 const archiveUbsVars: ArchiveUbsVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `archiveUbsRef()` function to get a reference to the mutation.
@@ -5527,8 +5528,8 @@ import { connectorConfig, createProfessional, CreateProfessionalVariables } from
 
 // The `CreateProfessional` mutation requires an argument of type `CreateProfessionalVariables`:
 const createProfessionalVars: CreateProfessionalVariables = {
-  userId: ...,
-  professionalType: ...,
+  userId: ..., 
+  professionalType: ..., 
   professionalRegistration: ..., // optional
   ubsId: ..., // optional
 };
@@ -5560,8 +5561,8 @@ import { connectorConfig, createProfessionalRef, CreateProfessionalVariables } f
 
 // The `CreateProfessional` mutation requires an argument of type `CreateProfessionalVariables`:
 const createProfessionalVars: CreateProfessionalVariables = {
-  userId: ...,
-  professionalType: ...,
+  userId: ..., 
+  professionalType: ..., 
   professionalRegistration: ..., // optional
   ubsId: ..., // optional
 };
@@ -5645,7 +5646,7 @@ import { connectorConfig, updateProfessional, UpdateProfessionalVariables } from
 
 // The `UpdateProfessional` mutation requires an argument of type `UpdateProfessionalVariables`:
 const updateProfessionalVars: UpdateProfessionalVariables = {
-  id: ...,
+  id: ..., 
   professionalType: ..., // optional
   professionalRegistration: ..., // optional
   ubsId: ..., // optional
@@ -5678,7 +5679,7 @@ import { connectorConfig, updateProfessionalRef, UpdateProfessionalVariables } f
 
 // The `UpdateProfessional` mutation requires an argument of type `UpdateProfessionalVariables`:
 const updateProfessionalVars: UpdateProfessionalVariables = {
-  id: ...,
+  id: ..., 
   professionalType: ..., // optional
   professionalRegistration: ..., // optional
   ubsId: ..., // optional
@@ -5760,7 +5761,7 @@ import { connectorConfig, archiveProfessional, ArchiveProfessionalVariables } fr
 
 // The `ArchiveProfessional` mutation requires an argument of type `ArchiveProfessionalVariables`:
 const archiveProfessionalVars: ArchiveProfessionalVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `archiveProfessional()` function to execute the mutation.
@@ -5790,7 +5791,7 @@ import { connectorConfig, archiveProfessionalRef, ArchiveProfessionalVariables }
 
 // The `ArchiveProfessional` mutation requires an argument of type `ArchiveProfessionalVariables`:
 const archiveProfessionalVars: ArchiveProfessionalVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `archiveProfessionalRef()` function to get a reference to the mutation.
@@ -5871,9 +5872,9 @@ import { connectorConfig, createVaccine, CreateVaccineVariables } from '@datacon
 
 // The `CreateVaccine` mutation requires an argument of type `CreateVaccineVariables`:
 const createVaccineVars: CreateVaccineVariables = {
-  name: ...,
+  name: ..., 
   description: ..., // optional
-  requiredDoses: ...,
+  requiredDoses: ..., 
 };
 
 // Call the `createVaccine()` function to execute the mutation.
@@ -5903,9 +5904,9 @@ import { connectorConfig, createVaccineRef, CreateVaccineVariables } from '@data
 
 // The `CreateVaccine` mutation requires an argument of type `CreateVaccineVariables`:
 const createVaccineVars: CreateVaccineVariables = {
-  name: ...,
+  name: ..., 
   description: ..., // optional
-  requiredDoses: ...,
+  requiredDoses: ..., 
 };
 
 // Call the `createVaccineRef()` function to get a reference to the mutation.
@@ -5987,7 +5988,7 @@ import { connectorConfig, updateVaccine, UpdateVaccineVariables } from '@datacon
 
 // The `UpdateVaccine` mutation requires an argument of type `UpdateVaccineVariables`:
 const updateVaccineVars: UpdateVaccineVariables = {
-  id: ...,
+  id: ..., 
   name: ..., // optional
   description: ..., // optional
   requiredDoses: ..., // optional
@@ -6020,7 +6021,7 @@ import { connectorConfig, updateVaccineRef, UpdateVaccineVariables } from '@data
 
 // The `UpdateVaccine` mutation requires an argument of type `UpdateVaccineVariables`:
 const updateVaccineVars: UpdateVaccineVariables = {
-  id: ...,
+  id: ..., 
   name: ..., // optional
   description: ..., // optional
   requiredDoses: ..., // optional
@@ -6102,7 +6103,7 @@ import { connectorConfig, archiveVaccine, ArchiveVaccineVariables } from '@datac
 
 // The `ArchiveVaccine` mutation requires an argument of type `ArchiveVaccineVariables`:
 const archiveVaccineVars: ArchiveVaccineVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `archiveVaccine()` function to execute the mutation.
@@ -6132,7 +6133,7 @@ import { connectorConfig, archiveVaccineRef, ArchiveVaccineVariables } from '@da
 
 // The `ArchiveVaccine` mutation requires an argument of type `ArchiveVaccineVariables`:
 const archiveVaccineVars: ArchiveVaccineVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `archiveVaccineRef()` function to get a reference to the mutation.
@@ -6217,13 +6218,13 @@ import { connectorConfig, createBatch, CreateBatchVariables } from '@dataconnect
 
 // The `CreateBatch` mutation requires an argument of type `CreateBatchVariables`:
 const createBatchVars: CreateBatchVariables = {
-  vaccineId: ...,
-  manufacturer: ...,
-  batchCode: ...,
-  initialQuantity: ...,
-  currentQuantity: ...,
+  vaccineId: ..., 
+  manufacturer: ..., 
+  batchCode: ..., 
+  initialQuantity: ..., 
+  currentQuantity: ..., 
   manufacturingDate: ..., // optional
-  expirationDate: ...,
+  expirationDate: ..., 
 };
 
 // Call the `createBatch()` function to execute the mutation.
@@ -6253,13 +6254,13 @@ import { connectorConfig, createBatchRef, CreateBatchVariables } from '@dataconn
 
 // The `CreateBatch` mutation requires an argument of type `CreateBatchVariables`:
 const createBatchVars: CreateBatchVariables = {
-  vaccineId: ...,
-  manufacturer: ...,
-  batchCode: ...,
-  initialQuantity: ...,
-  currentQuantity: ...,
+  vaccineId: ..., 
+  manufacturer: ..., 
+  batchCode: ..., 
+  initialQuantity: ..., 
+  currentQuantity: ..., 
   manufacturingDate: ..., // optional
-  expirationDate: ...,
+  expirationDate: ..., 
 };
 
 // Call the `createBatchRef()` function to get a reference to the mutation.
@@ -6345,7 +6346,7 @@ import { connectorConfig, updateBatch, UpdateBatchVariables } from '@dataconnect
 
 // The `UpdateBatch` mutation requires an argument of type `UpdateBatchVariables`:
 const updateBatchVars: UpdateBatchVariables = {
-  id: ...,
+  id: ..., 
   vaccineId: ..., // optional
   manufacturer: ..., // optional
   batchCode: ..., // optional
@@ -6382,7 +6383,7 @@ import { connectorConfig, updateBatchRef, UpdateBatchVariables } from '@dataconn
 
 // The `UpdateBatch` mutation requires an argument of type `UpdateBatchVariables`:
 const updateBatchVars: UpdateBatchVariables = {
-  id: ...,
+  id: ..., 
   vaccineId: ..., // optional
   manufacturer: ..., // optional
   batchCode: ..., // optional
@@ -6468,7 +6469,7 @@ import { connectorConfig, deleteBatch, DeleteBatchVariables } from '@dataconnect
 
 // The `DeleteBatch` mutation requires an argument of type `DeleteBatchVariables`:
 const deleteBatchVars: DeleteBatchVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `deleteBatch()` function to execute the mutation.
@@ -6498,7 +6499,7 @@ import { connectorConfig, deleteBatchRef, DeleteBatchVariables } from '@dataconn
 
 // The `DeleteBatch` mutation requires an argument of type `DeleteBatchVariables`:
 const deleteBatchVars: DeleteBatchVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `deleteBatchRef()` function to get a reference to the mutation.
@@ -6583,12 +6584,12 @@ import { connectorConfig, createAppointment, CreateAppointmentVariables } from '
 
 // The `CreateAppointment` mutation requires an argument of type `CreateAppointmentVariables`:
 const createAppointmentVars: CreateAppointmentVariables = {
-  patientId: ...,
-  vaccineId: ...,
+  patientId: ..., 
+  vaccineId: ..., 
   ubsId: ..., // optional
-  createdAt: ...,
-  scheduledAt: ...,
-  status: ...,
+  createdAt: ..., 
+  scheduledAt: ..., 
+  status: ..., 
   notes: ..., // optional
 };
 
@@ -6619,12 +6620,12 @@ import { connectorConfig, createAppointmentRef, CreateAppointmentVariables } fro
 
 // The `CreateAppointment` mutation requires an argument of type `CreateAppointmentVariables`:
 const createAppointmentVars: CreateAppointmentVariables = {
-  patientId: ...,
-  vaccineId: ...,
+  patientId: ..., 
+  vaccineId: ..., 
   ubsId: ..., // optional
-  createdAt: ...,
-  scheduledAt: ...,
-  status: ...,
+  createdAt: ..., 
+  scheduledAt: ..., 
+  status: ..., 
   notes: ..., // optional
 };
 
@@ -6711,7 +6712,7 @@ import { connectorConfig, updateAppointment, UpdateAppointmentVariables } from '
 
 // The `UpdateAppointment` mutation requires an argument of type `UpdateAppointmentVariables`:
 const updateAppointmentVars: UpdateAppointmentVariables = {
-  id: ...,
+  id: ..., 
   patientId: ..., // optional
   vaccineId: ..., // optional
   ubsId: ..., // optional
@@ -6748,7 +6749,7 @@ import { connectorConfig, updateAppointmentRef, UpdateAppointmentVariables } fro
 
 // The `UpdateAppointment` mutation requires an argument of type `UpdateAppointmentVariables`:
 const updateAppointmentVars: UpdateAppointmentVariables = {
-  id: ...,
+  id: ..., 
   patientId: ..., // optional
   vaccineId: ..., // optional
   ubsId: ..., // optional
@@ -6834,7 +6835,7 @@ import { connectorConfig, deleteAppointment, DeleteAppointmentVariables } from '
 
 // The `DeleteAppointment` mutation requires an argument of type `DeleteAppointmentVariables`:
 const deleteAppointmentVars: DeleteAppointmentVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `deleteAppointment()` function to execute the mutation.
@@ -6864,7 +6865,7 @@ import { connectorConfig, deleteAppointmentRef, DeleteAppointmentVariables } fro
 
 // The `DeleteAppointment` mutation requires an argument of type `DeleteAppointmentVariables`:
 const deleteAppointmentVars: DeleteAppointmentVariables = {
-  id: ...,
+  id: ..., 
 };
 
 // Call the `deleteAppointmentRef()` function to get a reference to the mutation.
@@ -6925,7 +6926,7 @@ The `CreateApplication` mutation requires an argument of type `CreateApplication
 export interface CreateApplicationVariables {
   patientId: UUIDString;
   vaccineId: UUIDString;
-  batchId?: UUIDString | null;
+  batchId: UUIDString;
   appointmentId?: UUIDString | null;
   professionalId: UUIDString;
   ubsId: UUIDString;
@@ -6941,6 +6942,7 @@ The `data` property is an object of type `CreateApplicationData`, which is defin
 ```typescript
 export interface CreateApplicationData {
   application_insert: Application_Key;
+  batch_updateMany: number;
 }
 ```
 ### Using `CreateApplication`'s action shortcut function
@@ -6951,13 +6953,13 @@ import { connectorConfig, createApplication, CreateApplicationVariables } from '
 
 // The `CreateApplication` mutation requires an argument of type `CreateApplicationVariables`:
 const createApplicationVars: CreateApplicationVariables = {
-  patientId: ...,
-  vaccineId: ...,
-  batchId: ..., // optional
+  patientId: ..., 
+  vaccineId: ..., 
+  batchId: ..., 
   appointmentId: ..., // optional
-  professionalId: ...,
-  ubsId: ...,
-  applicationDate: ...,
+  professionalId: ..., 
+  ubsId: ..., 
+  applicationDate: ..., 
   doseNumber: ..., // optional
   notes: ..., // optional
 };
@@ -6973,11 +6975,13 @@ const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createApplication(dataConnect, createApplicationVars);
 
 console.log(data.application_insert);
+console.log(data.batch_updateMany);
 
 // Or, you can use the `Promise` API.
 createApplication(createApplicationVars).then((response) => {
   const data = response.data;
   console.log(data.application_insert);
+  console.log(data.batch_updateMany);
 });
 ```
 
@@ -6989,13 +6993,13 @@ import { connectorConfig, createApplicationRef, CreateApplicationVariables } fro
 
 // The `CreateApplication` mutation requires an argument of type `CreateApplicationVariables`:
 const createApplicationVars: CreateApplicationVariables = {
-  patientId: ...,
-  vaccineId: ...,
-  batchId: ..., // optional
+  patientId: ..., 
+  vaccineId: ..., 
+  batchId: ..., 
   appointmentId: ..., // optional
-  professionalId: ...,
-  ubsId: ...,
-  applicationDate: ...,
+  professionalId: ..., 
+  ubsId: ..., 
+  applicationDate: ..., 
   doseNumber: ..., // optional
   notes: ..., // optional
 };
@@ -7014,11 +7018,13 @@ const ref = createApplicationRef(dataConnect, createApplicationVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.application_insert);
+console.log(data.batch_updateMany);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.application_insert);
+  console.log(data.batch_updateMany);
 });
 ```
 
@@ -7080,7 +7086,7 @@ import { connectorConfig, updateApplication, UpdateApplicationVariables } from '
 
 // The `UpdateApplication` mutation requires an argument of type `UpdateApplicationVariables`:
 const updateApplicationVars: UpdateApplicationVariables = {
-  id: ...,
+  id: ..., 
   doseNumber: ..., // optional
   doseLabel: ..., // optional
   nextDoseAt: ..., // optional
@@ -7114,7 +7120,7 @@ import { connectorConfig, updateApplicationRef, UpdateApplicationVariables } fro
 
 // The `UpdateApplication` mutation requires an argument of type `UpdateApplicationVariables`:
 const updateApplicationVars: UpdateApplicationVariables = {
-  id: ...,
+  id: ..., 
   doseNumber: ..., // optional
   doseLabel: ..., // optional
   nextDoseAt: ..., // optional
@@ -7178,6 +7184,7 @@ The `VoidApplication` mutation requires an argument of type `VoidApplicationVari
 ```typescript
 export interface VoidApplicationVariables {
   id: UUIDString;
+  batchId: UUIDString;
   reason: string;
 }
 ```
@@ -7188,6 +7195,7 @@ The `data` property is an object of type `VoidApplicationData`, which is defined
 ```typescript
 export interface VoidApplicationData {
   application_update?: Application_Key | null;
+  batch_updateMany: number;
 }
 ```
 ### Using `VoidApplication`'s action shortcut function
@@ -7198,26 +7206,29 @@ import { connectorConfig, voidApplication, VoidApplicationVariables } from '@dat
 
 // The `VoidApplication` mutation requires an argument of type `VoidApplicationVariables`:
 const voidApplicationVars: VoidApplicationVariables = {
-  id: ...,
-  reason: ...,
+  id: ..., 
+  batchId: ..., 
+  reason: ..., 
 };
 
 // Call the `voidApplication()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await voidApplication(voidApplicationVars);
 // Variables can be defined inline as well.
-const { data } = await voidApplication({ id: ..., reason: ..., });
+const { data } = await voidApplication({ id: ..., batchId: ..., reason: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await voidApplication(dataConnect, voidApplicationVars);
 
 console.log(data.application_update);
+console.log(data.batch_updateMany);
 
 // Or, you can use the `Promise` API.
 voidApplication(voidApplicationVars).then((response) => {
   const data = response.data;
   console.log(data.application_update);
+  console.log(data.batch_updateMany);
 });
 ```
 
@@ -7229,18 +7240,133 @@ import { connectorConfig, voidApplicationRef, VoidApplicationVariables } from '@
 
 // The `VoidApplication` mutation requires an argument of type `VoidApplicationVariables`:
 const voidApplicationVars: VoidApplicationVariables = {
-  id: ...,
-  reason: ...,
+  id: ..., 
+  batchId: ..., 
+  reason: ..., 
 };
 
 // Call the `voidApplicationRef()` function to get a reference to the mutation.
 const ref = voidApplicationRef(voidApplicationVars);
 // Variables can be defined inline as well.
-const ref = voidApplicationRef({ id: ..., reason: ..., });
+const ref = voidApplicationRef({ id: ..., batchId: ..., reason: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
 const ref = voidApplicationRef(dataConnect, voidApplicationVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.application_update);
+console.log(data.batch_updateMany);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.application_update);
+  console.log(data.batch_updateMany);
+});
+```
+
+## VoidLegacyApplication
+You can execute the `VoidLegacyApplication` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
+```typescript
+voidLegacyApplication(vars: VoidLegacyApplicationVariables): MutationPromise<VoidLegacyApplicationData, VoidLegacyApplicationVariables>;
+
+interface VoidLegacyApplicationRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: VoidLegacyApplicationVariables): MutationRef<VoidLegacyApplicationData, VoidLegacyApplicationVariables>;
+}
+export const voidLegacyApplicationRef: VoidLegacyApplicationRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+voidLegacyApplication(dc: DataConnect, vars: VoidLegacyApplicationVariables): MutationPromise<VoidLegacyApplicationData, VoidLegacyApplicationVariables>;
+
+interface VoidLegacyApplicationRef {
+  ...
+  (dc: DataConnect, vars: VoidLegacyApplicationVariables): MutationRef<VoidLegacyApplicationData, VoidLegacyApplicationVariables>;
+}
+export const voidLegacyApplicationRef: VoidLegacyApplicationRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the voidLegacyApplicationRef:
+```typescript
+const name = voidLegacyApplicationRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `VoidLegacyApplication` mutation requires an argument of type `VoidLegacyApplicationVariables`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface VoidLegacyApplicationVariables {
+  id: UUIDString;
+  reason: string;
+}
+```
+### Return Type
+Recall that executing the `VoidLegacyApplication` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `VoidLegacyApplicationData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface VoidLegacyApplicationData {
+  application_update?: Application_Key | null;
+}
+```
+### Using `VoidLegacyApplication`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, voidLegacyApplication, VoidLegacyApplicationVariables } from '@dataconnect/generated';
+
+// The `VoidLegacyApplication` mutation requires an argument of type `VoidLegacyApplicationVariables`:
+const voidLegacyApplicationVars: VoidLegacyApplicationVariables = {
+  id: ..., 
+  reason: ..., 
+};
+
+// Call the `voidLegacyApplication()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await voidLegacyApplication(voidLegacyApplicationVars);
+// Variables can be defined inline as well.
+const { data } = await voidLegacyApplication({ id: ..., reason: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await voidLegacyApplication(dataConnect, voidLegacyApplicationVars);
+
+console.log(data.application_update);
+
+// Or, you can use the `Promise` API.
+voidLegacyApplication(voidLegacyApplicationVars).then((response) => {
+  const data = response.data;
+  console.log(data.application_update);
+});
+```
+
+### Using `VoidLegacyApplication`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, voidLegacyApplicationRef, VoidLegacyApplicationVariables } from '@dataconnect/generated';
+
+// The `VoidLegacyApplication` mutation requires an argument of type `VoidLegacyApplicationVariables`:
+const voidLegacyApplicationVars: VoidLegacyApplicationVariables = {
+  id: ..., 
+  reason: ..., 
+};
+
+// Call the `voidLegacyApplicationRef()` function to get a reference to the mutation.
+const ref = voidLegacyApplicationRef(voidLegacyApplicationVars);
+// Variables can be defined inline as well.
+const ref = voidLegacyApplicationRef({ id: ..., reason: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = voidLegacyApplicationRef(dataConnect, voidLegacyApplicationVars);
 
 // Call `executeMutation()` on the reference to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
@@ -7254,3 +7380,4 @@ executeMutation(ref).then((response) => {
   console.log(data.application_update);
 });
 ```
+

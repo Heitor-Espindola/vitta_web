@@ -387,6 +387,20 @@ exports.voidApplication = function voidApplication(dcOrVars, vars) {
 }
 ;
 
+const voidLegacyApplicationRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'VoidLegacyApplication', inputVars);
+}
+voidLegacyApplicationRef.operationName = 'VoidLegacyApplication';
+exports.voidLegacyApplicationRef = voidLegacyApplicationRef;
+
+exports.voidLegacyApplication = function voidLegacyApplication(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(voidLegacyApplicationRef(dcInstance, inputVars));
+}
+;
+
 const listUsersRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();
@@ -396,7 +410,7 @@ listUsersRef.operationName = 'ListUsers';
 exports.listUsersRef = listUsersRef;
 
 exports.listUsers = function listUsers(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listUsersRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -411,7 +425,7 @@ getUserRef.operationName = 'GetUser';
 exports.getUserRef = getUserRef;
 
 exports.getUser = function getUser(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getUserRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -426,7 +440,7 @@ getCurrentPortalUserRef.operationName = 'GetCurrentPortalUser';
 exports.getCurrentPortalUserRef = getCurrentPortalUserRef;
 
 exports.getCurrentPortalUser = function getCurrentPortalUser(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(getCurrentPortalUserRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -441,7 +455,7 @@ getAdminPatientByCpfRef.operationName = 'GetAdminPatientByCpf';
 exports.getAdminPatientByCpfRef = getAdminPatientByCpfRef;
 
 exports.getAdminPatientByCpf = function getAdminPatientByCpf(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getAdminPatientByCpfRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -456,7 +470,7 @@ getUserByEmailRef.operationName = 'GetUserByEmail';
 exports.getUserByEmailRef = getUserByEmailRef;
 
 exports.getUserByEmail = function getUserByEmail(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getUserByEmailRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -471,7 +485,7 @@ listPatientsRef.operationName = 'ListPatients';
 exports.listPatientsRef = listPatientsRef;
 
 exports.listPatients = function listPatients(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listPatientsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -486,7 +500,7 @@ listAccessiblePatientsRef.operationName = 'ListAccessiblePatients';
 exports.listAccessiblePatientsRef = listAccessiblePatientsRef;
 
 exports.listAccessiblePatients = function listAccessiblePatients(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listAccessiblePatientsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -501,7 +515,7 @@ getAuthorizedPatientByCpfRef.operationName = 'GetAuthorizedPatientByCpf';
 exports.getAuthorizedPatientByCpfRef = getAuthorizedPatientByCpfRef;
 
 exports.getAuthorizedPatientByCpf = function getAuthorizedPatientByCpf(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getAuthorizedPatientByCpfRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -516,7 +530,7 @@ getPatientRef.operationName = 'GetPatient';
 exports.getPatientRef = getPatientRef;
 
 exports.getPatient = function getPatient(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getPatientRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -531,7 +545,7 @@ getAdminPatientRef.operationName = 'GetAdminPatient';
 exports.getAdminPatientRef = getAdminPatientRef;
 
 exports.getAdminPatient = function getAdminPatient(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getAdminPatientRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -546,7 +560,7 @@ getPatientByUserRef.operationName = 'GetPatientByUser';
 exports.getPatientByUserRef = getPatientByUserRef;
 
 exports.getPatientByUser = function getPatientByUser(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getPatientByUserRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -561,7 +575,7 @@ listUbsRef.operationName = 'ListUbs';
 exports.listUbsRef = listUbsRef;
 
 exports.listUbs = function listUbs(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listUbsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -576,7 +590,7 @@ getUbsRef.operationName = 'GetUbs';
 exports.getUbsRef = getUbsRef;
 
 exports.getUbs = function getUbs(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getUbsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -591,7 +605,7 @@ searchUbsByNameRef.operationName = 'SearchUbsByName';
 exports.searchUbsByNameRef = searchUbsByNameRef;
 
 exports.searchUbsByName = function searchUbsByName(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(searchUbsByNameRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -606,7 +620,7 @@ listProfessionalsRef.operationName = 'ListProfessionals';
 exports.listProfessionalsRef = listProfessionalsRef;
 
 exports.listProfessionals = function listProfessionals(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listProfessionalsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -621,7 +635,7 @@ getProfessionalRef.operationName = 'GetProfessional';
 exports.getProfessionalRef = getProfessionalRef;
 
 exports.getProfessional = function getProfessional(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getProfessionalRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -636,7 +650,7 @@ getProfessionalByUserRef.operationName = 'GetProfessionalByUser';
 exports.getProfessionalByUserRef = getProfessionalByUserRef;
 
 exports.getProfessionalByUser = function getProfessionalByUser(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getProfessionalByUserRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -651,7 +665,7 @@ listVaccinesRef.operationName = 'ListVaccines';
 exports.listVaccinesRef = listVaccinesRef;
 
 exports.listVaccines = function listVaccines(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listVaccinesRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -666,7 +680,7 @@ getVaccineRef.operationName = 'GetVaccine';
 exports.getVaccineRef = getVaccineRef;
 
 exports.getVaccine = function getVaccine(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getVaccineRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -681,7 +695,7 @@ searchVaccinesByNameRef.operationName = 'SearchVaccinesByName';
 exports.searchVaccinesByNameRef = searchVaccinesByNameRef;
 
 exports.searchVaccinesByName = function searchVaccinesByName(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(searchVaccinesByNameRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -696,7 +710,7 @@ listBatchesRef.operationName = 'ListBatches';
 exports.listBatchesRef = listBatchesRef;
 
 exports.listBatches = function listBatches(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listBatchesRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -711,7 +725,7 @@ getBatchRef.operationName = 'GetBatch';
 exports.getBatchRef = getBatchRef;
 
 exports.getBatch = function getBatch(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getBatchRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -726,7 +740,7 @@ listBatchesByVaccineRef.operationName = 'ListBatchesByVaccine';
 exports.listBatchesByVaccineRef = listBatchesByVaccineRef;
 
 exports.listBatchesByVaccine = function listBatchesByVaccine(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listBatchesByVaccineRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -741,7 +755,7 @@ listAppointmentsRef.operationName = 'ListAppointments';
 exports.listAppointmentsRef = listAppointmentsRef;
 
 exports.listAppointments = function listAppointments(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listAppointmentsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -756,7 +770,7 @@ listAccessibleAppointmentsRef.operationName = 'ListAccessibleAppointments';
 exports.listAccessibleAppointmentsRef = listAccessibleAppointmentsRef;
 
 exports.listAccessibleAppointments = function listAccessibleAppointments(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listAccessibleAppointmentsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -771,7 +785,7 @@ getAppointmentRef.operationName = 'GetAppointment';
 exports.getAppointmentRef = getAppointmentRef;
 
 exports.getAppointment = function getAppointment(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getAppointmentRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -786,7 +800,7 @@ listAppointmentsByPatientRef.operationName = 'ListAppointmentsByPatient';
 exports.listAppointmentsByPatientRef = listAppointmentsByPatientRef;
 
 exports.listAppointmentsByPatient = function listAppointmentsByPatient(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listAppointmentsByPatientRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -801,7 +815,7 @@ listAppointmentsByStatusRef.operationName = 'ListAppointmentsByStatus';
 exports.listAppointmentsByStatusRef = listAppointmentsByStatusRef;
 
 exports.listAppointmentsByStatus = function listAppointmentsByStatus(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listAppointmentsByStatusRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -816,7 +830,7 @@ listApplicationsRef.operationName = 'ListApplications';
 exports.listApplicationsRef = listApplicationsRef;
 
 exports.listApplications = function listApplications(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listApplicationsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -831,7 +845,7 @@ listCurrentProfessionalApplicationsRef.operationName = 'ListCurrentProfessionalA
 exports.listCurrentProfessionalApplicationsRef = listCurrentProfessionalApplicationsRef;
 
 exports.listCurrentProfessionalApplications = function listCurrentProfessionalApplications(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listCurrentProfessionalApplicationsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -846,7 +860,7 @@ getApplicationRef.operationName = 'GetApplication';
 exports.getApplicationRef = getApplicationRef;
 
 exports.getApplication = function getApplication(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getApplicationRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -861,7 +875,7 @@ listApplicationsByPatientRef.operationName = 'ListApplicationsByPatient';
 exports.listApplicationsByPatientRef = listApplicationsByPatientRef;
 
 exports.listApplicationsByPatient = function listApplicationsByPatient(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listApplicationsByPatientRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -876,7 +890,7 @@ listAdminApplicationsByPatientRef.operationName = 'ListAdminApplicationsByPatien
 exports.listAdminApplicationsByPatientRef = listAdminApplicationsByPatientRef;
 
 exports.listAdminApplicationsByPatient = function listAdminApplicationsByPatient(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listAdminApplicationsByPatientRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -891,7 +905,7 @@ listApplicationsByVaccineRef.operationName = 'ListApplicationsByVaccine';
 exports.listApplicationsByVaccineRef = listApplicationsByVaccineRef;
 
 exports.listApplicationsByVaccine = function listApplicationsByVaccine(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listApplicationsByVaccineRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }

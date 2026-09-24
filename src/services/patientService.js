@@ -7,8 +7,8 @@ import {
   getAdminPatient,
   getAdminPatientByCpf,
   getAuthorizedPatientByCpf,
+  getPatient,
   getPatientByUser,
-  getPatientRef,
   getUserByEmail,
   listAccessiblePatientsRef,
   listPatientsRef,
@@ -81,7 +81,7 @@ export function watchPatients(onData, onError, { isAdmin = false } = {}) {
 export async function getPatientById(id, { isAdmin = false } = {}) {
   const result = isAdmin
     ? await getAdminPatient({ id })
-    : await getPatientRef({ id });
+    : await getPatient({ id });
   const patient = result?.data?.patient;
 
   if (!patient) {

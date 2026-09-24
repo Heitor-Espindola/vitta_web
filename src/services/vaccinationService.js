@@ -1,7 +1,8 @@
-import { subscribe } from "firebase/data-connect";
+import { QueryFetchPolicy, subscribe } from "firebase/data-connect";
 import { asDate } from "../utils/dates";
 import {
   createApplication,
+  getApplication,
   getCurrentPortalUser,
   listAdminApplicationsByPatientRef,
   listApplicationsRef,
@@ -9,6 +10,7 @@ import {
   listCurrentProfessionalApplicationsRef,
   updateApplication,
   voidApplication,
+  voidLegacyApplication,
 } from "@dataconnect/generated";
 
 function textOrNull(value) {
@@ -63,16 +65,22 @@ export function mapApplication(application) {
         : "Dose não informada"),
     nextDoseAt: application?.nextDoseAt || null,
     voidedAt: application?.voidedAt || null,
+    voidedByAuthUid: application?.voidedByAuthUid || "",
     voidReason: application?.voidReason || "",
     notes: application?.notes || "",
     source: "sql_connect",
   };
 }
 
+export function isEffectiveApplication(application) {
+  return !application?.voidedAt;
+}
+
 function sortApplications(items) {
   return [...items].sort((a, b) => {
     const dateA = asDate(a.applicationDate)?.getTime() || 0;
     const dateB = asDate(b.applicationDate)?.getTime() || 0;
+
     return dateB - dateA;
   });
 }
@@ -82,6 +90,7 @@ export function watchApplications(onData, onError, { isAdmin = false } = {}) {
     isAdmin ? listApplicationsRef() : listCurrentProfessionalApplicationsRef(),
     (result) => {
       const applications = result?.data?.applications || [];
+
       onData(sortApplications(applications.map(mapApplication)));
     },
     onError,
@@ -100,6 +109,7 @@ export function watchPatientRecords(
       : listApplicationsByPatientRef({ patientId }),
     (result) => {
       const applications = result?.data?.applications || [];
+
       onData(sortApplications(applications.map(mapApplication)));
     },
     onError,
@@ -110,15 +120,20 @@ export async function resolveCurrentProfessional(firebaseUser) {
   if (!firebaseUser?.uid) {
     throw new Error("A sessão profissional não está autenticada.");
   }
+
   const result = await getCurrentPortalUser();
   const user = result?.data?.users?.[0];
+
   if (!user?.id || user.authUid !== firebaseUser.uid) {
     throw new Error("O usuário autenticado não possui cadastro no Vitta SQL.");
   }
+
   const professional = user.professional_on_user;
+
   if (!professional?.id || professional.active !== true) {
-    throw new Error("A conta autenticada não possui cadastro profissional.");
+    throw new Error("A conta autenticada não possui cadastro profissional ativo.");
   }
+
   if (!professional.ubs?.id) {
     throw new Error("O profissional autenticado não possui uma UBS vinculada.");
   }
@@ -130,7 +145,26 @@ function timestampFromDateInput(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     throw new Error("Informe uma data de aplicação válida.");
   }
+
   return new Date(`${value}T12:00:00-03:00`).toISOString();
+}
+
+async function getFreshApplication(id) {
+  if (!id) {
+    throw new Error("A aplicação selecionada é inválida.");
+  }
+
+  const result = await getApplication(
+    { id },
+    { fetchPolicy: QueryFetchPolicy.SERVER_ONLY },
+  );
+  const application = result?.data?.application;
+
+  if (!application) {
+    throw new Error("A aplicação não foi encontrada.");
+  }
+
+  return application;
 }
 
 export async function registerVaccination({
@@ -146,12 +180,20 @@ export async function registerVaccination({
     throw new Error("Selecione o paciente e a vacina.");
   }
 
+  if (!batchId) {
+    throw new Error("Selecione um lote antes de registrar a aplicação.");
+  }
+
+  if (!applicationDate) {
+    throw new Error("Informe a data da aplicação.");
+  }
+
   const professional = await resolveCurrentProfessional(firebaseUser);
 
   return createApplication({
     patientId,
     vaccineId,
-    batchId: batchId || null,
+    batchId,
     appointmentId: null,
     professionalId: professional.id,
     ubsId: professional.ubs.id,
@@ -163,13 +205,12 @@ export async function registerVaccination({
 
 export async function editApplication(
   id,
-  {
-    doseNumber,
-    doseLabel,
-    nextDoseAt,
-    notes,
-  },
+  { doseNumber, doseLabel, nextDoseAt, notes },
 ) {
+  if (!id) {
+    throw new Error("A aplicação selecionada é inválida.");
+  }
+
   return updateApplication({
     id,
     doseNumber: doseNumber ? Number(doseNumber) : null,
@@ -181,8 +222,28 @@ export async function editApplication(
 
 export async function removeApplication(id, reason) {
   const cleanReason = String(reason ?? "").trim();
+
+  if (!id) {
+    throw new Error("A aplicação selecionada é inválida.");
+  }
+
   if (!cleanReason) {
     throw new Error("Informe o motivo da anulação.");
   }
-  return voidApplication({ id, reason: cleanReason });
+
+  const currentApplication = await getFreshApplication(id);
+
+  if (currentApplication.voidedAt) {
+    return { alreadyVoided: true };
+  }
+
+  if (!currentApplication.batch?.id) {
+    return voidLegacyApplication({ id, reason: cleanReason });
+  }
+
+  return voidApplication({
+    id,
+    batchId: currentApplication.batch.id,
+    reason: cleanReason,
+  });
 }

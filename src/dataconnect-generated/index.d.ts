@@ -92,12 +92,13 @@ export interface Batch_Key {
 
 export interface CreateApplicationData {
   application_insert: Application_Key;
+  batch_updateMany: number;
 }
 
 export interface CreateApplicationVariables {
   patientId: UUIDString;
   vaccineId: UUIDString;
-  batchId?: UUIDString | null;
+  batchId: UUIDString;
   appointmentId?: UUIDString | null;
   professionalId: UUIDString;
   ubsId: UUIDString;
@@ -1374,9 +1375,20 @@ export interface Vaccine_Key {
 
 export interface VoidApplicationData {
   application_update?: Application_Key | null;
+  batch_updateMany: number;
 }
 
 export interface VoidApplicationVariables {
+  id: UUIDString;
+  batchId: UUIDString;
+  reason: string;
+}
+
+export interface VoidLegacyApplicationData {
+  application_update?: Application_Key | null;
+}
+
+export interface VoidLegacyApplicationVariables {
   id: UUIDString;
   reason: string;
 }
@@ -1668,6 +1680,18 @@ export const voidApplicationRef: VoidApplicationRef;
 
 export function voidApplication(vars: VoidApplicationVariables): MutationPromise<VoidApplicationData, VoidApplicationVariables>;
 export function voidApplication(dc: DataConnect, vars: VoidApplicationVariables): MutationPromise<VoidApplicationData, VoidApplicationVariables>;
+
+interface VoidLegacyApplicationRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: VoidLegacyApplicationVariables): MutationRef<VoidLegacyApplicationData, VoidLegacyApplicationVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: VoidLegacyApplicationVariables): MutationRef<VoidLegacyApplicationData, VoidLegacyApplicationVariables>;
+  operationName: string;
+}
+export const voidLegacyApplicationRef: VoidLegacyApplicationRef;
+
+export function voidLegacyApplication(vars: VoidLegacyApplicationVariables): MutationPromise<VoidLegacyApplicationData, VoidLegacyApplicationVariables>;
+export function voidLegacyApplication(dc: DataConnect, vars: VoidLegacyApplicationVariables): MutationPromise<VoidLegacyApplicationData, VoidLegacyApplicationVariables>;
 
 interface ListUsersRef {
   /* Allow users to create refs without passing in DataConnect */

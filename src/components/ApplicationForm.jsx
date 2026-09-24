@@ -114,8 +114,8 @@ export default function ApplicationForm({
         event.preventDefault();
         if (saving) return;
 
-        if (!form.patientId || !form.vaccineId || !form.applicationDate) {
-            setError("Paciente, vacina e data da aplicação são obrigatórios.");
+        if (!form.patientId || !form.vaccineId || !form.applicationDate || (!editing && !form.batchId)) {
+            setError("Paciente, vacina, lote e data da aplicação são obrigatórios.");
             return;
         }
 
@@ -218,15 +218,19 @@ export default function ApplicationForm({
 
                 {form.vaccineId ? (
                     <label className="field field--span-2">
-                        <span>Lote</span>
+                        <span>Lote *</span>
                         <select
                             value={form.batchId}
                             onChange={(event) => update("batchId", event.target.value)}
                             disabled={editing || loadingOptions || saving}
                         >
-                            <option value="">Sem lote informado</option>
+                            <option value="">Selecione o lote</option>
                             {batches
-                                .filter((item) => item.vaccine?.id === form.vaccineId)
+                                .filter(
+                                    (item) =>
+                                        item.vaccine?.id === form.vaccineId &&
+                                        (editing || Number(item.currentQuantity) > 0),
+                                )
                                 .map((item) => (
                                     <option value={item.id} key={item.id}>
                                         {item.batchCode} — {item.currentQuantity} un.

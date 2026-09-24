@@ -41,6 +41,8 @@ export default function VaccinationDetail({ record }) {
       ) : null}
       {record.voidedAt ? (
         <div className="record-detail__notes">
+          <strong>Data da anulação</strong>
+          <p>{formatDateTime(record.voidedAt)}</p>
           <strong>Motivo da anulação</strong>
           <p>{record.voidReason || "Não informado"}</p>
         </div>

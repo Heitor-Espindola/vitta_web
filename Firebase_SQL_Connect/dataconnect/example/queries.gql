@@ -866,6 +866,7 @@ query ListApplications
   @refresh(onMutationExecuted: { operation: "CreateApplication" })
   @refresh(onMutationExecuted: { operation: "UpdateApplication" })
   @refresh(onMutationExecuted: { operation: "VoidApplication" })
+  @refresh(onMutationExecuted: { operation: "VoidLegacyApplication" })
   @refresh(onMutationExecuted: { operation: "CreateVaccine" })
   @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
   @refresh(onMutationExecuted: { operation: "ArchiveVaccine" })
@@ -947,12 +948,7 @@ query ListCurrentProfessionalApplications @auth(level: USER) {
     id
   }
   applications(
-    where: {
-      _and: [
-        { professional: { user: { authUid: { eq_expr: "auth.uid" } } } }
-        { voidedAt: { isNull: true } }
-      ]
-    }
+    where: { professional: { user: { authUid: { eq_expr: "auth.uid" } } } }
     orderBy: { applicationDate: DESC }
   ) {
     id
@@ -1098,6 +1094,7 @@ query ListApplicationsByPatient($patientId: UUID!)
   @refresh(onMutationExecuted: { operation: "CreateApplication" })
   @refresh(onMutationExecuted: { operation: "UpdateApplication" })
   @refresh(onMutationExecuted: { operation: "VoidApplication" })
+  @refresh(onMutationExecuted: { operation: "VoidLegacyApplication" })
   @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
   @refresh(onMutationExecuted: { operation: "UpdateBatch" })
   @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
@@ -1259,7 +1256,8 @@ query ListApplicationsByVaccine($vaccineId: UUID!)
   @refresh(onMutationExecuted: { operation: "DeleteBatch" })
   @refresh(onMutationExecuted: { operation: "CreateApplication" })
   @refresh(onMutationExecuted: { operation: "UpdateApplication" })
-  @refresh(onMutationExecuted: { operation: "VoidApplication" }) {
+  @refresh(onMutationExecuted: { operation: "VoidApplication" })
+  @refresh(onMutationExecuted: { operation: "VoidLegacyApplication" }) {
   applications(where: { vaccineId: { eq: $vaccineId } }) {
     id
     patientIdSnapshot
