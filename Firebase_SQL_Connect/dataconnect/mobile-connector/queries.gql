@@ -1,0 +1,237 @@
+# Operações de leitura exclusivas do aplicativo Mobile.
+# Nenhuma operação expõe listagem global de pessoas, pacientes ou aplicações.
+
+query GetMobileCurrentPerson @auth(level: USER) {
+  users(where: { authUid: { eq_expr: "auth.uid" } }) @check {
+    id
+    name
+    birthDate
+    email
+    authUid
+    status
+    cpf
+    sex
+    phone
+    photoUrl
+    createdAt
+    updatedAt
+    lastLoginAt
+    patient_on_user {
+      id
+      active
+        @check(
+          expr: "this == true"
+          message: "Carteira inativa ou arquivada."
+        )
+      patientType
+      legacyPersonId
+    }
+  }
+}
+
+query GetAccessibleFamilyMembers @auth(level: USER) {
+  patientAccesses(
+    where: {
+      _and: [
+        { granteeAuthUid: { eq_expr: "auth.uid" } }
+        { consentStatus: { eq: GRANTED } }
+        { viewProfile: { eq: true } }
+        { patient: { active: { eq: true } } }
+        {
+          _or: [
+            { validUntil: { isNull: true } }
+            { validUntil: { gt_expr: "request.time" } }
+          ]
+        }
+      ]
+    }
+  ) {
+    accessKind
+    receiveNotifications
+    validUntil
+    patient {
+      id
+      patientType
+      legacyPersonId
+      user {
+        id
+        name
+        birthDate
+        email
+        status
+        cpf
+        sex
+        phone
+        photoUrl
+      }
+    }
+  }
+}
+
+query GetAccessiblePatientProfile($patientId: UUID!) @auth(level: USER) {
+  patientAccess(
+    key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
+  ) @redact {
+    consentStatus
+      @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+    viewProfile
+      @check(expr: "this == true", message: "Perfil não autorizado.")
+    validUntil
+      @check(
+        expr: "this == null || this > request.time"
+        message: "Acesso expirado."
+      )
+  }
+  patient(id: $patientId) {
+    id
+    active
+      @check(
+        expr: "this == true"
+        message: "Carteira inativa ou arquivada."
+      )
+    patientType
+    legacyPersonId
+    user {
+      id
+      name
+      birthDate
+      email
+      status
+      cpf
+      sex
+      phone
+      photoUrl
+    }
+  }
+}
+
+query GetAccessiblePatientVaccinations($patientId: UUID!)
+  @auth(level: USER) {
+  patientAccess(
+    key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
+  ) @redact {
+    consentStatus
+      @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+    viewVaccination
+      @check(expr: "this == true", message: "Carteira não autorizada.")
+    validUntil
+      @check(
+        expr: "this == null || this > request.time"
+        message: "Acesso expirado."
+      )
+  }
+  activePatient: patient(id: $patientId) @redact {
+    active
+      @check(
+        expr: "this == true"
+        message: "Carteira inativa ou arquivada."
+      )
+  }
+  applications(
+    where: { patientId: { eq: $patientId } }
+    orderBy: { applicationDate: DESC }
+  ) {
+    id
+    legacyRecordId
+    patientIdSnapshot
+    patientLegacyPersonIdSnapshot
+    patientNameSnapshot
+    vaccineNameSnapshot
+    applicationDate
+    nextDoseAt
+    doseNumber
+    doseLabel
+    lotSnapshot
+    manufacturerSnapshot
+    facilityNameSnapshot
+    professionalNameSnapshot
+    professionalRegistrationSnapshot
+    source
+    voidedAt
+    voidReason
+    notes
+    vaccine {
+      id
+      legacyVaccineId
+      name
+      description
+      requiredDoses
+    }
+    batch {
+      id
+      manufacturer
+      batchCode
+      expirationDate
+    }
+    professional {
+      id
+      user {
+        name
+      }
+    }
+    ubs {
+      id
+      name
+    }
+  }
+}
+
+query GetMobileVaccines @auth(level: USER) {
+  users(where: { authUid: { eq_expr: "auth.uid" } }) @redact @check {
+    id
+  }
+  vaccines(where: { active: { eq: true } }, orderBy: { name: ASC }) {
+    id
+    legacyVaccineId
+    name
+    shortName
+    description
+    recommendedAge
+    requiredDoses
+    intervalDays
+    prevents
+    targetGroups
+    doseSchedule
+    expectedReactions
+    warningSigns
+    contraindications
+    sourceName
+    sourceUrl
+    sourceUpdatedAt
+    calendarVersion
+    active
+  }
+}
+
+query GetAccessibleEmergencyContact($patientId: UUID!) @auth(level: USER) {
+  patientAccess(
+    key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
+  ) @redact {
+    consentStatus
+      @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+    viewProfile
+      @check(expr: "this == true", message: "Perfil não autorizado.")
+    validUntil
+      @check(
+        expr: "this == null || this > request.time"
+        message: "Acesso expirado."
+      )
+  }
+  activePatient: patient(id: $patientId) @redact {
+    active
+      @check(
+        expr: "this == true"
+        message: "Carteira inativa ou arquivada."
+      )
+  }
+  patient(id: $patientId) {
+    user {
+      emergencyContact_on_user {
+        name
+        phone
+        relationship
+        updatedAt
+      }
+    }
+  }
+}

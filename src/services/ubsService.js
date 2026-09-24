@@ -1,7 +1,7 @@
 import { subscribe } from "firebase/data-connect";
 import {
+  archiveUbs,
   createUbs,
-  deleteUbs,
   listUbsRef,
   updateUbs,
 } from "@dataconnect/generated";
@@ -55,5 +55,5 @@ export function editUBS(id, data) {
 }
 
 export function removeUBS(id) {
-  return deleteUbs({ id });
+  return archiveUbs({ id });
 }

@@ -1,6 +1,7 @@
 import { ArrowRight, Search, UserRoundCheck } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "../context/ToastContext";
+import { useAuth } from "../context/AuthContext";
 import { authorizePatientLookup, formatPatientCpf } from "../services/patientService";
 import { formatDate, ageFromBirthDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
@@ -8,6 +9,7 @@ import { isValidCpf } from "../utils/cpf";
 
 export default function PatientLookup({ onFound, compact = false }) {
   const { showToast } = useToast();
+  const { isAdmin } = useAuth();
   const [cpf, setCpf] = useState("");
   const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -25,7 +27,7 @@ export default function PatientLookup({ onFound, compact = false }) {
 
     setLoading(true);
     try {
-      const result = await authorizePatientLookup({ cpf });
+      const result = await authorizePatientLookup({ cpf, isAdmin });
       setPatient(result);
       showToast({
         tone: "success",

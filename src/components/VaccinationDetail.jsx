@@ -20,7 +20,9 @@ export default function VaccinationDetail({ record }) {
   return (
     <div className="record-detail">
       <div className="record-detail__status">
-        <StatusBadge status="active">Registrada</StatusBadge>
+        <StatusBadge status={record.voidedAt ? "danger" : "active"}>
+          {record.voidedAt ? "Anulada" : "Registrada"}
+        </StatusBadge>
         <span>Registro do SQL Connect</span>
       </div>
       <dl>
@@ -35,6 +37,14 @@ export default function VaccinationDetail({ record }) {
         <div className="record-detail__notes">
           <strong>Observações</strong>
           <p>{record.notes}</p>
+        </div>
+      ) : null}
+      {record.voidedAt ? (
+        <div className="record-detail__notes">
+          <strong>Data da anulação</strong>
+          <p>{formatDateTime(record.voidedAt)}</p>
+          <strong>Motivo da anulação</strong>
+          <p>{record.voidReason || "Não informado"}</p>
         </div>
       ) : null}
       <p className="record-detail__audit">

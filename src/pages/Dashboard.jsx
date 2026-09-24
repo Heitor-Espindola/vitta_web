@@ -10,7 +10,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { PageHeader, SkeletonRows, StatCard, StatePanel } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
-import { watchApplications } from "../services/vaccinationService";
+import {
+  isEffectiveApplication,
+  watchApplications,
+} from "../services/vaccinationService";
 import { watchVaccines } from "../services/vaccineService";
 import { asDate, formatDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
@@ -23,7 +26,7 @@ function greeting() {
 }
 
 export default function Dashboard() {
-  const { profile } = useAuth();
+  const { profile, isAdmin } = useAuth();
   const [records, setRecords] = useState([]);
   const [vaccines, setVaccines] = useState([]);
   const [recordsLoading, setRecordsLoading] = useState(true);
@@ -40,6 +43,7 @@ export default function Dashboard() {
         setError(friendlyFirebaseError(watchError, watchError.message));
         setRecordsLoading(false);
       },
+      { isAdmin },
     );
     const unsubscribeVaccines = watchVaccines(
       (data) => {
@@ -55,18 +59,19 @@ export default function Dashboard() {
       unsubscribeRecords?.();
       unsubscribeVaccines?.();
     };
-  }, []);
+  }, [isAdmin]);
 
   const metrics = useMemo(() => {
     const today = new Date();
+    const effectiveRecords = records.filter(isEffectiveApplication);
     const isToday = (value) => {
       const date = asDate(value);
       return date && date.toDateString() === today.toDateString();
     };
     return {
-      patients: new Set(records.map((record) => record.patientId)).size,
-      applications: records.length,
-      today: records.filter((record) => isToday(record.applicationDate)).length,
+      patients: new Set(effectiveRecords.map((record) => record.patientId)).size,
+      applications: effectiveRecords.length,
+      today: effectiveRecords.filter((record) => isToday(record.applicationDate)).length,
       vaccines: vaccines.filter((vaccine) => vaccine.active).length,
     };
   }, [records, vaccines]);
@@ -120,7 +125,7 @@ export default function Dashboard() {
               <table className="data-table">
                 <thead><tr><th>Paciente</th><th>Vacina</th><th>Dose</th><th>Data</th></tr></thead>
                 <tbody>
-                  {records.slice(0, 6).map((record) => (
+                  {records.filter(isEffectiveApplication).slice(0, 6).map((record) => (
                     <tr key={record.id}>
                       <td><strong>{record.patientName}</strong><small>{record.patientCpf || "CPF não informado"}</small></td>
                       <td>{record.vaccineName}</td>

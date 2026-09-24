@@ -11,4 +11,4 @@ schemas:
           instanceId: "vitta-5ec1e-instance"
           schemaValidation: "COMPATIBLE"
 
-connectorDirs: ["./example"]
+connectorDirs: ["./example", "./mobile-connector"]

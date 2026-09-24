@@ -1,10 +1,10 @@
+import { getCurrentPortalUser } from "@dataconnect/generated";
 import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db, firebaseReady } from "./firebase";
+import { auth, firebaseReady } from "./firebase";
 
 const professionalRoles = new Set(["health_professional", "admin"]);
 
@@ -20,14 +20,13 @@ export function isAuthorizedProfessional(profile = {}) {
 }
 
 export async function resolveProfessional(firebaseUser) {
-  const authLink = await getDoc(doc(db, "auth_links", firebaseUser.uid));
-  const linkedPersonId = authLink.exists()
-    ? String(authLink.data().personId || "").trim()
-    : "";
-  const personId = linkedPersonId || firebaseUser.uid;
-  const profileSnapshot = await getDoc(doc(db, "users", personId));
+  const [profileResult, tokenResult] = await Promise.all([
+    getCurrentPortalUser(),
+    firebaseUser.getIdTokenResult(),
+  ]);
+  const sqlUser = profileResult?.data?.users?.[0];
 
-  if (!profileSnapshot.exists()) {
+  if (!sqlUser) {
     return {
       status: "unauthorized",
       reason: "O perfil profissional desta conta não foi encontrado.",
@@ -36,18 +35,33 @@ export async function resolveProfessional(firebaseUser) {
     };
   }
 
+  const sqlProfessional = sqlUser.professional_on_user || null;
+  const isAdmin = tokenResult?.claims?.admin === true;
+  const isActive = sqlUser.status === "ACTIVE";
+  const hasProfessionalRole = sqlUser.portalRole === "PROFESSIONAL";
+  const hasActiveProfessional = sqlProfessional?.active === true;
+  const authorized =
+    isActive &&
+    ((isAdmin && ["PROFESSIONAL", "ADMIN"].includes(sqlUser.portalRole)) ||
+      (hasProfessionalRole && hasActiveProfessional));
+
   const profile = {
-    ...profileSnapshot.data(),
-    personId,
+    ...sqlUser,
+    personId: sqlUser.id,
     authUid: firebaseUser.uid,
-    roles: profileRoles(profileSnapshot.data()),
+    accountStatus: isActive ? "active" : "inactive",
+    fullName: sqlUser.name,
+    roles: [
+      ...(hasProfessionalRole ? ["health_professional"] : []),
+      ...(isAdmin ? ["admin"] : []),
+    ],
+    professional: sqlProfessional,
   };
 
-  if (!isAuthorizedProfessional(profile)) {
-    const isBlocked = profile.accountStatus !== "active";
+  if (!authorized || !isAuthorizedProfessional(profile)) {
     return {
       status: "unauthorized",
-      reason: isBlocked
+      reason: !isActive
         ? "Esta conta profissional não está ativa."
         : "Esta conta não possui perfil profissional autorizado.",
       firebaseUser,

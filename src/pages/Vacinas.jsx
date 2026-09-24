@@ -367,7 +367,7 @@ export default function Vacinas() {
 
   const handleDeleteVaccine = async (vaccine) => {
     const confirmed = window.confirm(
-      `Excluir a vacina "${vaccine.name}"?\n\nEssa ação pode falhar caso existam lotes ou outros registros relacionados a ela.`,
+      `Arquivar a vacina "${vaccine.name}"? O histórico de aplicações será preservado.`,
     );
 
     if (!confirmed) return;
@@ -553,8 +553,8 @@ export default function Vacinas() {
                   <button
                     className="icon-button icon-button--small"
                     type="button"
-                    title={`Excluir ${vaccine.name}`}
-                    aria-label={`Excluir ${vaccine.name}`}
+                    title={`Arquivar ${vaccine.name}`}
+                    aria-label={`Arquivar ${vaccine.name}`}
                     onClick={() => handleDeleteVaccine(vaccine)}
                     disabled={deletingId === vaccine.id}
                   >

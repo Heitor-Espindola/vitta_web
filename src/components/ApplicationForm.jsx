@@ -36,7 +36,7 @@ export default function ApplicationForm({
     onCancel,
     onSaved,
 }) {
-    const { firebaseUser } = useAuth();
+    const { firebaseUser, isAdmin } = useAuth();
     const { showToast } = useToast();
     const [patients, setPatients] = useState([]);
     const [vaccines, setVaccines] = useState([]);
@@ -47,7 +47,7 @@ export default function ApplicationForm({
     const [saving, setSaving] = useState(false);
 
     const editing = Boolean(initialApplication?.id);
-    const fixedPatient = Boolean(patient?.id || patient?.personId) && !editing;
+    const fixedPatient = Boolean(patient?.id || patient?.personId) || editing;
 
     useEffect(() => {
         let patientsReady = false;
@@ -71,6 +71,7 @@ export default function ApplicationForm({
                 patientsReady = true;
                 checkReady();
             },
+            { isAdmin },
         );
         const unsubscribeVaccines = watchVaccines(
             (data) => {
@@ -102,7 +103,7 @@ export default function ApplicationForm({
             unsubscribeVaccines?.();
             unsubscribeBatches?.();
         };
-    }, []);
+    }, [isAdmin]);
 
     function update(field, value) {
         setForm((current) => ({ ...current, [field]: value }));
@@ -113,8 +114,8 @@ export default function ApplicationForm({
         event.preventDefault();
         if (saving) return;
 
-        if (!form.patientId || !form.vaccineId || !form.applicationDate) {
-            setError("Paciente, vacina e data da aplicação são obrigatórios.");
+        if (!form.patientId || !form.vaccineId || !form.applicationDate || (!editing && !form.batchId)) {
+            setError("Paciente, vacina, lote e data da aplicação são obrigatórios.");
             return;
         }
 
@@ -129,14 +130,10 @@ export default function ApplicationForm({
         try {
             if (editing) {
                 await editApplication(initialApplication.id, {
-                    patientId: form.patientId,
-                    vaccineId: form.vaccineId,
-                    batchId: form.batchId,
-                    appointmentId: initialApplication.appointmentId,
-                    professionalId: initialApplication.professionalId,
-                    ubsId: initialApplication.ubsId,
-                    applicationDate: form.applicationDate,
                     doseNumber: form.doseNumber,
+                    doseLabel: form.doseNumber
+                        ? `${Number(form.doseNumber)}ª dose`
+                        : null,
                     notes: form.notes,
                 });
                 showToast({
@@ -208,7 +205,7 @@ export default function ApplicationForm({
                             }));
                             setError("");
                         }}
-                        disabled={loadingOptions || saving}
+                        disabled={editing || loadingOptions || saving}
                     >
                         <option value="">Selecione a vacina</option>
                         {vaccines.map((item) => (
@@ -221,15 +218,19 @@ export default function ApplicationForm({
 
                 {form.vaccineId ? (
                     <label className="field field--span-2">
-                        <span>Lote</span>
+                        <span>Lote *</span>
                         <select
                             value={form.batchId}
                             onChange={(event) => update("batchId", event.target.value)}
-                            disabled={loadingOptions || saving}
+                            disabled={editing || loadingOptions || saving}
                         >
-                            <option value="">Sem lote informado</option>
+                            <option value="">Selecione o lote</option>
                             {batches
-                                .filter((item) => item.vaccine?.id === form.vaccineId)
+                                .filter(
+                                    (item) =>
+                                        item.vaccine?.id === form.vaccineId &&
+                                        (editing || Number(item.currentQuantity) > 0),
+                                )
                                 .map((item) => (
                                     <option value={item.id} key={item.id}>
                                         {item.batchCode} — {item.currentQuantity} un.
@@ -246,7 +247,7 @@ export default function ApplicationForm({
                         value={form.applicationDate}
                         max={today}
                         onChange={(event) => update("applicationDate", event.target.value)}
-                        disabled={saving}
+                        disabled={editing || saving}
                     />
                 </label>
 

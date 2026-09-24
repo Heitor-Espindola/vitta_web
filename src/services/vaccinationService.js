@@ -1,13 +1,16 @@
-import { subscribe } from "firebase/data-connect";
+import { QueryFetchPolicy, subscribe } from "firebase/data-connect";
 import { asDate } from "../utils/dates";
 import {
   createApplication,
-  deleteApplication,
-  getProfessionalByUser,
-  getUserByEmail,
+  getApplication,
+  getCurrentPortalUser,
+  listAdminApplicationsByPatientRef,
   listApplicationsRef,
   listApplicationsByPatientRef,
+  listCurrentProfessionalApplicationsRef,
   updateApplication,
+  voidApplication,
+  voidLegacyApplication,
 } from "@dataconnect/generated";
 
 function textOrNull(value) {
@@ -26,58 +29,87 @@ export function mapApplication(application) {
 
   return {
     id: application?.id || "",
-    patientId: patient.id || "",
-    patientName: user.name || "Paciente não informado",
+    patientId: patient.id || application?.patientIdSnapshot || "",
+    patientName:
+      user.name || application?.patientNameSnapshot || "Paciente não informado",
     patientCpf: user.cpf || "",
     vaccineId: vaccine.id || "",
-    vaccineName: vaccine.name || "Vacina não informada",
+    vaccineName:
+      vaccine.name || application?.vaccineNameSnapshot || "Vacina não informada",
     vaccineRequiredDoses: vaccine.requiredDoses ?? null,
     batchId: batch?.id || "",
-    batchCode: batch?.batchCode || "",
-    manufacturer: batch?.manufacturer || "",
+    batchCode: batch?.batchCode || application?.lotSnapshot || "",
+    manufacturer:
+      batch?.manufacturer || application?.manufacturerSnapshot || "",
     expirationDate: batch?.expirationDate || null,
     appointmentId: application?.appointment?.id || "",
     professionalId: professional.id || "",
-    professionalName: professionalUser.name || "Profissional não informado",
+    professionalName:
+      professionalUser.name ||
+      application?.professionalNameSnapshot ||
+      "Profissional não informado",
     professionalType: professional.professionalType || "OTHER",
-    professionalRegistration: professional.professionalRegistration || "",
+    professionalRegistration:
+      professional.professionalRegistration ||
+      application?.professionalRegistrationSnapshot ||
+      "",
     ubsId: ubs.id || "",
-    ubsName: ubs.name || "UBS não informada",
+    ubsName:
+      ubs.name || application?.facilityNameSnapshot || "UBS não informada",
     applicationDate: application?.applicationDate || null,
     doseNumber: application?.doseNumber ?? null,
     doseLabel:
-      application?.doseNumber != null
+      application?.doseLabel ||
+      (application?.doseNumber != null
         ? `${application.doseNumber}ª dose`
-        : "Dose não informada",
+        : "Dose não informada"),
+    nextDoseAt: application?.nextDoseAt || null,
+    voidedAt: application?.voidedAt || null,
+    voidedByAuthUid: application?.voidedByAuthUid || "",
+    voidReason: application?.voidReason || "",
     notes: application?.notes || "",
     source: "sql_connect",
   };
+}
+
+export function isEffectiveApplication(application) {
+  return !application?.voidedAt;
 }
 
 function sortApplications(items) {
   return [...items].sort((a, b) => {
     const dateA = asDate(a.applicationDate)?.getTime() || 0;
     const dateB = asDate(b.applicationDate)?.getTime() || 0;
+
     return dateB - dateA;
   });
 }
 
-export function watchApplications(onData, onError) {
+export function watchApplications(onData, onError, { isAdmin = false } = {}) {
   return subscribe(
-    listApplicationsRef(),
+    isAdmin ? listApplicationsRef() : listCurrentProfessionalApplicationsRef(),
     (result) => {
       const applications = result?.data?.applications || [];
+
       onData(sortApplications(applications.map(mapApplication)));
     },
     onError,
   );
 }
 
-export function watchPatientRecords(patientId, onData, onError) {
+export function watchPatientRecords(
+  patientId,
+  onData,
+  onError,
+  { isAdmin = false } = {},
+) {
   return subscribe(
-    listApplicationsByPatientRef({ patientId }),
+    isAdmin
+      ? listAdminApplicationsByPatientRef({ patientId })
+      : listApplicationsByPatientRef({ patientId }),
     (result) => {
       const applications = result?.data?.applications || [];
+
       onData(sortApplications(applications.map(mapApplication)));
     },
     onError,
@@ -85,22 +117,23 @@ export function watchPatientRecords(patientId, onData, onError) {
 }
 
 export async function resolveCurrentProfessional(firebaseUser) {
-  const email = String(firebaseUser?.email || "").trim().toLowerCase();
-  if (!email) {
-    throw new Error("A conta autenticada não possui um e-mail válido.");
+  if (!firebaseUser?.uid) {
+    throw new Error("A sessão profissional não está autenticada.");
   }
 
-  const userResult = await getUserByEmail({ email });
-  const user = userResult?.data?.users?.[0];
-  if (!user?.id) {
+  const result = await getCurrentPortalUser();
+  const user = result?.data?.users?.[0];
+
+  if (!user?.id || user.authUid !== firebaseUser.uid) {
     throw new Error("O usuário autenticado não possui cadastro no Vitta SQL.");
   }
 
-  const professionalResult = await getProfessionalByUser({ userId: user.id });
-  const professional = professionalResult?.data?.professionals?.[0];
-  if (!professional?.id) {
-    throw new Error("A conta autenticada não possui cadastro profissional.");
+  const professional = user.professional_on_user;
+
+  if (!professional?.id || professional.active !== true) {
+    throw new Error("A conta autenticada não possui cadastro profissional ativo.");
   }
+
   if (!professional.ubs?.id) {
     throw new Error("O profissional autenticado não possui uma UBS vinculada.");
   }
@@ -112,7 +145,26 @@ function timestampFromDateInput(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     throw new Error("Informe uma data de aplicação válida.");
   }
+
   return new Date(`${value}T12:00:00-03:00`).toISOString();
+}
+
+async function getFreshApplication(id) {
+  if (!id) {
+    throw new Error("A aplicação selecionada é inválida.");
+  }
+
+  const result = await getApplication(
+    { id },
+    { fetchPolicy: QueryFetchPolicy.SERVER_ONLY },
+  );
+  const application = result?.data?.application;
+
+  if (!application) {
+    throw new Error("A aplicação não foi encontrada.");
+  }
+
+  return application;
 }
 
 export async function registerVaccination({
@@ -128,12 +180,20 @@ export async function registerVaccination({
     throw new Error("Selecione o paciente e a vacina.");
   }
 
+  if (!batchId) {
+    throw new Error("Selecione um lote antes de registrar a aplicação.");
+  }
+
+  if (!applicationDate) {
+    throw new Error("Informe a data da aplicação.");
+  }
+
   const professional = await resolveCurrentProfessional(firebaseUser);
 
   return createApplication({
     patientId,
     vaccineId,
-    batchId: batchId || null,
+    batchId,
     appointmentId: null,
     professionalId: professional.id,
     ubsId: professional.ubs.id,
@@ -145,32 +205,45 @@ export async function registerVaccination({
 
 export async function editApplication(
   id,
-  {
-    patientId,
-    vaccineId,
-    batchId,
-    appointmentId,
-    professionalId,
-    ubsId,
-    applicationDate,
-    doseNumber,
-    notes,
-  },
+  { doseNumber, doseLabel, nextDoseAt, notes },
 ) {
+  if (!id) {
+    throw new Error("A aplicação selecionada é inválida.");
+  }
+
   return updateApplication({
     id,
-    patientId,
-    vaccineId,
-    batchId: batchId || null,
-    appointmentId: appointmentId || null,
-    professionalId,
-    ubsId,
-    applicationDate: timestampFromDateInput(applicationDate),
     doseNumber: doseNumber ? Number(doseNumber) : null,
+    doseLabel: textOrNull(doseLabel),
+    nextDoseAt: nextDoseAt || null,
     notes: textOrNull(notes),
   });
 }
 
-export async function removeApplication(id) {
-  return deleteApplication({ id });
+export async function removeApplication(id, reason) {
+  const cleanReason = String(reason ?? "").trim();
+
+  if (!id) {
+    throw new Error("A aplicação selecionada é inválida.");
+  }
+
+  if (!cleanReason) {
+    throw new Error("Informe o motivo da anulação.");
+  }
+
+  const currentApplication = await getFreshApplication(id);
+
+  if (currentApplication.voidedAt) {
+    return { alreadyVoided: true };
+  }
+
+  if (!currentApplication.batch?.id) {
+    return voidLegacyApplication({ id, reason: cleanReason });
+  }
+
+  return voidApplication({
+    id,
+    batchId: currentApplication.batch.id,
+    reason: cleanReason,
+  });
 }

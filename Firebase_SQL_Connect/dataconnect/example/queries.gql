@@ -3,10 +3,10 @@
 # ============================================================
 
 query ListUsers
-  @auth(level: USER)
+  @auth(expr: "auth.token.admin == true")
   @refresh(onMutationExecuted: { operation: "CreateUser" })
   @refresh(onMutationExecuted: { operation: "UpdateUser" })
-  @refresh(onMutationExecuted: { operation: "DeleteUser" }) {
+  @refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" }) {
   users {
     id
     name
@@ -18,7 +18,7 @@ query ListUsers
   }
 }
 
-query GetUser($id: UUID!) @auth(level: USER) {
+query GetUser($id: UUID!) @auth(expr: "auth.token.admin == true") {
   user(id: $id) {
     id
     name
@@ -27,10 +27,48 @@ query GetUser($id: UUID!) @auth(level: USER) {
     status
     cpf
     sex
+    phone
   }
 }
 
-query GetUserByCpf($cpf: String!) @auth(level: USER) {
+query GetCurrentPortalUser @auth(level: USER) {
+  users(where: { authUid: { eq_expr: "auth.uid" } }) {
+    id
+    name
+    birthDate
+    email
+    authUid
+    status
+    cpf
+    sex
+    phone
+    photoUrl
+    portalRole
+    professional_on_user {
+      id
+      active
+      professionalType
+      professionalRegistration
+      ubs {
+        id
+        name
+      }
+    }
+  }
+}
+
+# Compatibilidade temporária para versões antigas do SDK. A operação foi
+# retirada do SDK novo e restringida a administrador para não manter a busca
+# global por CPF disponível ao papel profissional.
+query GetUserByCpf($cpf: String!)
+  @auth(expr: "auth.token.admin == true")
+  @retired {
+  professionals(where: { user: { authUid: { eq_expr: "auth.uid" } } })
+    @retired
+    @redact
+    @check(message: "Acesso restrito ao portal profissional.") {
+    id
+  }
   users(where: { cpf: { eq: $cpf } }) {
     id
     name
@@ -42,7 +80,40 @@ query GetUserByCpf($cpf: String!) @auth(level: USER) {
   }
 }
 
-query GetUserByEmail($email: String!) @auth(level: USER) {
+query GetAdminPatientByCpf($cpf: String!)
+  @auth(expr: "auth.token.admin == true") {
+  patients(
+    where: {
+      _and: [
+        { active: { eq: true } }
+        { user: { cpf: { eq: $cpf } } }
+      ]
+    }
+  ) {
+    id
+    motherName
+    patientType
+    user {
+      id
+      name
+      birthDate
+      email
+      cpf
+      sex
+      status
+    }
+    responsible {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+  }
+}
+
+query GetUserByEmail($email: String!) @auth(expr: "auth.token.admin == true") {
   users(where: { email: { eq: $email } }) {
     id
     name
@@ -59,14 +130,14 @@ query GetUserByEmail($email: String!) @auth(level: USER) {
 # ============================================================
 
 query ListPatients
-  @auth(level: USER)
+  @auth(expr: "auth.token.admin == true")
   @refresh(onMutationExecuted: { operation: "CreateUser" })
   @refresh(onMutationExecuted: { operation: "UpdateUser" })
-  @refresh(onMutationExecuted: { operation: "DeleteUser" })
+  @refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
   @refresh(onMutationExecuted: { operation: "CreatePatient" })
   @refresh(onMutationExecuted: { operation: "UpdatePatient" })
-  @refresh(onMutationExecuted: { operation: "DeletePatient" }) {
-  patients {
+  @refresh(onMutationExecuted: { operation: "ArchivePatient" }) {
+  patients(where: { active: { eq: true } }) {
     id
     motherName
     user {
@@ -90,7 +161,125 @@ query ListPatients
   }
 }
 
+query ListAccessiblePatients @auth(level: USER) {
+  users(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        { portalRole: { eq: PROFESSIONAL } }
+      ]
+    }
+  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+    id
+  }
+  patientAccesses(
+    where: {
+      _and: [
+        { granteeAuthUid: { eq_expr: "auth.uid" } }
+        { accessKind: { eq: PROFESSIONAL } }
+        { consentStatus: { eq: GRANTED } }
+        { viewProfile: { eq: true } }
+        { patient: { active: { eq: true } } }
+        {
+          _or: [
+            { validUntil: { isNull: true } }
+            { validUntil: { gt_expr: "request.time" } }
+          ]
+        }
+      ]
+    }
+  ) {
+    patient {
+      id
+      motherName
+      patientType
+      user {
+        id
+        name
+        birthDate
+        email
+        cpf
+        sex
+        status
+      }
+      responsible {
+        id
+        user {
+          id
+          name
+          cpf
+        }
+      }
+    }
+  }
+}
+
+query GetAuthorizedPatientByCpf($cpf: String!) @auth(level: USER) {
+  users(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        { portalRole: { eq: PROFESSIONAL } }
+      ]
+    }
+  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+    id
+  }
+  patientAccesses(
+    where: {
+      _and: [
+        { granteeAuthUid: { eq_expr: "auth.uid" } }
+        { accessKind: { eq: PROFESSIONAL } }
+        { consentStatus: { eq: GRANTED } }
+        { viewProfile: { eq: true } }
+        { patient: { active: { eq: true }, user: { cpf: { eq: $cpf } } } }
+        {
+          _or: [
+            { validUntil: { isNull: true } }
+            { validUntil: { gt_expr: "request.time" } }
+          ]
+        }
+      ]
+    }
+  ) {
+    patient {
+      id
+      motherName
+      patientType
+      user {
+        id
+        name
+        birthDate
+        email
+        cpf
+        sex
+        status
+      }
+      responsible {
+        id
+        user {
+          id
+          name
+          cpf
+        }
+      }
+    }
+  }
+}
+
 query GetPatient($id: UUID!) @auth(level: USER) {
+  patientAccess(key: { granteeAuthUid_expr: "auth.uid", patientId: $id })
+    @redact {
+    consentStatus
+      @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+    viewProfile
+      @check(expr: "this == true", message: "Perfil não autorizado.")
+    validUntil
+      @check(
+        expr: "this == null || this > request.time"
+        message: "Acesso expirado."
+      )
+  }
   patient(id: $id) {
     id
     motherName
@@ -115,7 +304,34 @@ query GetPatient($id: UUID!) @auth(level: USER) {
   }
 }
 
-query GetPatientByUser($userId: UUID!) @auth(level: USER) {
+query GetAdminPatient($id: UUID!)
+  @auth(expr: "auth.token.admin == true") {
+  patient(id: $id) {
+    id
+    motherName
+    user {
+      id
+      name
+      birthDate
+      email
+      cpf
+      sex
+      status
+    }
+    patientType
+    responsible {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+  }
+}
+
+query GetPatientByUser($userId: UUID!)
+  @auth(expr: "auth.token.admin == true") {
   patients(where: { userId: { eq: $userId } }) {
     id
     motherName
@@ -148,8 +364,23 @@ query ListUbs
   @auth(level: USER)
   @refresh(onMutationExecuted: { operation: "CreateUbs" })
   @refresh(onMutationExecuted: { operation: "UpdateUbs" })
-  @refresh(onMutationExecuted: { operation: "DeleteUbs" }) {
-  uBSs {
+  @refresh(onMutationExecuted: { operation: "ArchiveUbs" }) {
+  users(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        {
+          _or: [
+            { portalRole: { eq: PROFESSIONAL } }
+            { portalRole: { eq: ADMIN } }
+          ]
+        }
+      ]
+    }
+  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+    id
+  }
+  uBSs(where: { active: { eq: true } }) {
     id
     name
     logradouro
@@ -161,6 +392,11 @@ query ListUbs
 }
 
 query GetUbs($id: UUID!) @auth(level: USER) {
+  users(where: { authUid: { eq_expr: "auth.uid" } })
+    @redact
+    @check(message: "Conta autenticada não vinculada ao SQL.") {
+    id
+  }
   uBS(id: $id) {
     id
     name
@@ -173,6 +409,11 @@ query GetUbs($id: UUID!) @auth(level: USER) {
 }
 
 query SearchUbsByName($name: String!) @auth(level: USER) {
+  users(where: { authUid: { eq_expr: "auth.uid" } })
+    @redact
+    @check(message: "Conta autenticada não vinculada ao SQL.") {
+    id
+  }
   uBSs(where: { name: { contains: $name } }) {
     id
     name
@@ -189,11 +430,11 @@ query SearchUbsByName($name: String!) @auth(level: USER) {
 # ============================================================
 
 query ListProfessionals
-  @auth(level: USER)
+  @auth(expr: "auth.token.admin == true")
   @refresh(onMutationExecuted: { operation: "CreateProfessional" })
   @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
-  @refresh(onMutationExecuted: { operation: "DeleteProfessional" }) {
-  professionals {
+  @refresh(onMutationExecuted: { operation: "ArchiveProfessional" }) {
+  professionals(where: { active: { eq: true } }) {
     id
     user {
       id
@@ -215,7 +456,7 @@ query ListProfessionals
   }
 }
 
-query GetProfessional($id: UUID!) @auth(level: USER) {
+query GetProfessional($id: UUID!) @auth(expr: "auth.token.admin == true") {
   professional(id: $id) {
     id
     user {
@@ -241,7 +482,8 @@ query GetProfessional($id: UUID!) @auth(level: USER) {
   }
 }
 
-query GetProfessionalByUser($userId: UUID!) @auth(level: USER) {
+query GetProfessionalByUser($userId: UUID!)
+  @auth(expr: "auth.token.admin == true") {
   professionals(where: { userId: { eq: $userId } }) {
     id
     user {
@@ -267,8 +509,13 @@ query ListVaccines
   @auth(level: USER)
   @refresh(onMutationExecuted: { operation: "CreateVaccine" })
   @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
-  @refresh(onMutationExecuted: { operation: "DeleteVaccine" }) {
-  vaccines {
+  @refresh(onMutationExecuted: { operation: "ArchiveVaccine" }) {
+  users(where: { authUid: { eq_expr: "auth.uid" } })
+    @redact
+    @check(message: "Conta autenticada não vinculada ao SQL.") {
+    id
+  }
+  vaccines(where: { active: { eq: true } }) {
     id
     name
     description
@@ -277,6 +524,11 @@ query ListVaccines
 }
 
 query GetVaccine($id: UUID!) @auth(level: USER) {
+  users(where: { authUid: { eq_expr: "auth.uid" } })
+    @redact
+    @check(message: "Conta autenticada não vinculada ao SQL.") {
+    id
+  }
   vaccine(id: $id) {
     id
     name
@@ -286,6 +538,11 @@ query GetVaccine($id: UUID!) @auth(level: USER) {
 }
 
 query SearchVaccinesByName($name: String!) @auth(level: USER) {
+  users(where: { authUid: { eq_expr: "auth.uid" } })
+    @redact
+    @check(message: "Conta autenticada não vinculada ao SQL.") {
+    id
+  }
   vaccines(where: { name: { contains: $name } }) {
     id
     name
@@ -305,7 +562,22 @@ query ListBatches
   @refresh(onMutationExecuted: { operation: "DeleteBatch" })
   @refresh(onMutationExecuted: { operation: "CreateVaccine" })
   @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
-  @refresh(onMutationExecuted: { operation: "DeleteVaccine" }) {
+  @refresh(onMutationExecuted: { operation: "ArchiveVaccine" }) {
+  users(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        {
+          _or: [
+            { portalRole: { eq: PROFESSIONAL } }
+            { portalRole: { eq: ADMIN } }
+          ]
+        }
+      ]
+    }
+  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+    id
+  }
   batches {
     id
     vaccine {
@@ -323,6 +595,21 @@ query ListBatches
 }
 
 query GetBatch($id: UUID!) @auth(level: USER) {
+  users(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        {
+          _or: [
+            { portalRole: { eq: PROFESSIONAL } }
+            { portalRole: { eq: ADMIN } }
+          ]
+        }
+      ]
+    }
+  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+    id
+  }
   batch(id: $id) {
     id
     vaccine {
@@ -341,6 +628,21 @@ query GetBatch($id: UUID!) @auth(level: USER) {
 }
 
 query ListBatchesByVaccine($vaccineId: UUID!) @auth(level: USER) {
+  users(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        {
+          _or: [
+            { portalRole: { eq: PROFESSIONAL } }
+            { portalRole: { eq: ADMIN } }
+          ]
+        }
+      ]
+    }
+  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+    id
+  }
   batches(where: { vaccineId: { eq: $vaccineId } }) {
     id
     vaccine {
@@ -361,7 +663,7 @@ query ListBatchesByVaccine($vaccineId: UUID!) @auth(level: USER) {
 # ============================================================
 
 query ListAppointments
-  @auth(level: USER)
+  @auth(expr: "auth.token.admin == true")
   @refresh(onMutationExecuted: { operation: "CreateAppointment" })
   @refresh(onMutationExecuted: { operation: "UpdateAppointment" })
   @refresh(onMutationExecuted: { operation: "DeleteAppointment" }) {
@@ -392,7 +694,65 @@ query ListAppointments
   }
 }
 
-query GetAppointment($id: UUID!) @auth(level: USER) {
+query ListAccessibleAppointments @auth(level: USER) {
+  users(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        { portalRole: { eq: PROFESSIONAL } }
+      ]
+    }
+  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+    id
+  }
+  patientAccesses(
+    where: {
+      _and: [
+        { granteeAuthUid: { eq_expr: "auth.uid" } }
+        { accessKind: { eq: PROFESSIONAL } }
+        { consentStatus: { eq: GRANTED } }
+        { viewVaccination: { eq: true } }
+        { patient: { active: { eq: true } } }
+        {
+          _or: [
+            { validUntil: { isNull: true } }
+            { validUntil: { gt_expr: "request.time" } }
+          ]
+        }
+      ]
+    }
+  ) {
+    patient {
+      appointments: appointments_on_patient(orderBy: { scheduledAt: ASC }) {
+        id
+        patient {
+          id
+          user {
+            id
+            name
+            cpf
+          }
+        }
+        vaccine {
+          id
+          name
+          requiredDoses
+        }
+        ubs {
+          id
+          name
+          cidade
+        }
+        createdAt
+        scheduledAt
+        status
+        notes
+      }
+    }
+  }
+}
+
+query GetAppointment($id: UUID!) @auth(expr: "auth.token.admin == true") {
   appointment(id: $id) {
     id
     patient {
@@ -427,6 +787,19 @@ query GetAppointment($id: UUID!) @auth(level: USER) {
 }
 
 query ListAppointmentsByPatient($patientId: UUID!) @auth(level: USER) {
+  patientAccess(
+    key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
+  ) @redact {
+    consentStatus
+      @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+    viewVaccination
+      @check(expr: "this == true", message: "Agenda não autorizada.")
+    validUntil
+      @check(
+        expr: "this == null || this > request.time"
+        message: "Acesso expirado."
+      )
+  }
   appointments(where: { patientId: { eq: $patientId } }) {
     id
     patient {
@@ -452,7 +825,8 @@ query ListAppointmentsByPatient($patientId: UUID!) @auth(level: USER) {
   }
 }
 
-query ListAppointmentsByStatus($status: AppointmentStatus!) @auth(level: USER) {
+query ListAppointmentsByStatus($status: AppointmentStatus!)
+  @auth(expr: "auth.token.admin == true") {
   appointments(where: { status: { eq: $status } }) {
     id
     patient {
@@ -482,19 +856,20 @@ query ListAppointmentsByStatus($status: AppointmentStatus!) @auth(level: USER) {
 # ============================================================
 
 query ListApplications
-  @auth(level: USER)
+  @auth(expr: "auth.token.admin == true")
   @refresh(onMutationExecuted: { operation: "CreateUser" })
   @refresh(onMutationExecuted: { operation: "UpdateUser" })
-  @refresh(onMutationExecuted: { operation: "DeleteUser" })
+  @refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
   @refresh(onMutationExecuted: { operation: "CreatePatient" })
   @refresh(onMutationExecuted: { operation: "UpdatePatient" })
-  @refresh(onMutationExecuted: { operation: "DeletePatient" })
+  @refresh(onMutationExecuted: { operation: "ArchivePatient" })
   @refresh(onMutationExecuted: { operation: "CreateApplication" })
   @refresh(onMutationExecuted: { operation: "UpdateApplication" })
-  @refresh(onMutationExecuted: { operation: "DeleteApplication" })
+  @refresh(onMutationExecuted: { operation: "VoidApplication" })
+  @refresh(onMutationExecuted: { operation: "VoidLegacyApplication" })
   @refresh(onMutationExecuted: { operation: "CreateVaccine" })
   @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
-  @refresh(onMutationExecuted: { operation: "DeleteVaccine" })
+  @refresh(onMutationExecuted: { operation: "ArchiveVaccine" })
   @refresh(onMutationExecuted: { operation: "CreateBatch" })
   @refresh(onMutationExecuted: { operation: "UpdateBatch" })
   @refresh(onMutationExecuted: { operation: "DeleteBatch" })
@@ -502,6 +877,21 @@ query ListApplications
   @refresh(onMutationExecuted: { operation: "UpdateUbs" }) {
   applications {
     id
+    patientIdSnapshot
+    patientLegacyPersonIdSnapshot
+    patientNameSnapshot
+    vaccineNameSnapshot
+    lotSnapshot
+    manufacturerSnapshot
+    facilityNameSnapshot
+    professionalNameSnapshot
+    professionalRegistrationSnapshot
+    doseLabel
+    nextDoseAt
+    source
+    voidedAt
+    voidedByAuthUid
+    voidReason
     patient {
       id
       user {
@@ -546,9 +936,99 @@ query ListApplications
   }
 }
 
-query GetApplication($id: UUID!) @auth(level: USER) {
+query ListCurrentProfessionalApplications @auth(level: USER) {
+  users(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        { portalRole: { eq: PROFESSIONAL } }
+      ]
+    }
+  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+    id
+  }
+  applications(
+    where: { professional: { user: { authUid: { eq_expr: "auth.uid" } } } }
+    orderBy: { applicationDate: DESC }
+  ) {
+    id
+    patientIdSnapshot
+    patientLegacyPersonIdSnapshot
+    patientNameSnapshot
+    vaccineNameSnapshot
+    lotSnapshot
+    manufacturerSnapshot
+    facilityNameSnapshot
+    professionalNameSnapshot
+    professionalRegistrationSnapshot
+    doseLabel
+    nextDoseAt
+    source
+    voidedAt
+    voidedByAuthUid
+    voidReason
+    patient {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+    vaccine {
+      id
+      name
+      requiredDoses
+    }
+    batch {
+      id
+      manufacturer
+      batchCode
+      expirationDate
+    }
+    appointment {
+      id
+      scheduledAt
+      status
+    }
+    professional {
+      id
+      user {
+        id
+        name
+      }
+      professionalType
+      professionalRegistration
+    }
+    ubs {
+      id
+      name
+      cidade
+    }
+    applicationDate
+    doseNumber
+    notes
+  }
+}
+
+query GetApplication($id: UUID!) @auth(expr: "auth.token.admin == true") {
   application(id: $id) {
     id
+    patientIdSnapshot
+    patientLegacyPersonIdSnapshot
+    patientNameSnapshot
+    vaccineNameSnapshot
+    lotSnapshot
+    manufacturerSnapshot
+    facilityNameSnapshot
+    professionalNameSnapshot
+    professionalRegistrationSnapshot
+    doseLabel
+    nextDoseAt
+    source
+    voidedAt
+    voidedByAuthUid
+    voidReason
     patient {
       id
       user {
@@ -607,19 +1087,48 @@ query ListApplicationsByPatient($patientId: UUID!)
   @auth(level: USER)
   @refresh(onMutationExecuted: { operation: "CreateUser" })
   @refresh(onMutationExecuted: { operation: "UpdateUser" })
-  @refresh(onMutationExecuted: { operation: "DeleteUser" })
+  @refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
   @refresh(onMutationExecuted: { operation: "CreatePatient" })
   @refresh(onMutationExecuted: { operation: "UpdatePatient" })
-  @refresh(onMutationExecuted: { operation: "DeletePatient" })
+  @refresh(onMutationExecuted: { operation: "ArchivePatient" })
   @refresh(onMutationExecuted: { operation: "CreateApplication" })
   @refresh(onMutationExecuted: { operation: "UpdateApplication" })
-  @refresh(onMutationExecuted: { operation: "DeleteApplication" })
+  @refresh(onMutationExecuted: { operation: "VoidApplication" })
+  @refresh(onMutationExecuted: { operation: "VoidLegacyApplication" })
   @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
   @refresh(onMutationExecuted: { operation: "UpdateBatch" })
   @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
   @refresh(onMutationExecuted: { operation: "UpdateUbs" }) {
+  patientAccess(
+    key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
+  ) @redact {
+    consentStatus
+      @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+    viewVaccination
+      @check(expr: "this == true", message: "Carteira não autorizada.")
+    validUntil
+      @check(
+        expr: "this == null || this > request.time"
+        message: "Acesso expirado."
+      )
+  }
   applications(where: { patientId: { eq: $patientId } }) {
     id
+    patientIdSnapshot
+    patientLegacyPersonIdSnapshot
+    patientNameSnapshot
+    vaccineNameSnapshot
+    lotSnapshot
+    manufacturerSnapshot
+    facilityNameSnapshot
+    professionalNameSnapshot
+    professionalRegistrationSnapshot
+    doseLabel
+    nextDoseAt
+    source
+    voidedAt
+    voidedByAuthUid
+    voidReason
     vaccine {
       id
       name
@@ -663,27 +1172,103 @@ query ListApplicationsByPatient($patientId: UUID!)
   }
 }
 
-query ListApplicationsByVaccine($vaccineId: UUID!) @auth(level: USER)
+query ListAdminApplicationsByPatient($patientId: UUID!)
+  @auth(expr: "auth.token.admin == true") {
+  applications(
+    where: { patientId: { eq: $patientId } }
+    orderBy: { applicationDate: DESC }
+  ) {
+    id
+    patientIdSnapshot
+    patientLegacyPersonIdSnapshot
+    patientNameSnapshot
+    vaccineNameSnapshot
+    lotSnapshot
+    manufacturerSnapshot
+    facilityNameSnapshot
+    professionalNameSnapshot
+    professionalRegistrationSnapshot
+    doseLabel
+    nextDoseAt
+    source
+    voidedAt
+    voidedByAuthUid
+    voidReason
+    vaccine {
+      id
+      name
+      requiredDoses
+    }
+    batch {
+      id
+      manufacturer
+      batchCode
+      expirationDate
+    }
+    appointment {
+      id
+      scheduledAt
+      status
+    }
+    professional {
+      id
+      user {
+        id
+        name
+      }
+      professionalType
+      professionalRegistration
+    }
+    ubs {
+      id
+      name
+    }
+    patient {
+      id
+      user {
+        id
+        name
+        cpf
+      }
+    }
+    applicationDate
+    doseNumber
+    notes
+  }
+}
+
+query ListApplicationsByVaccine($vaccineId: UUID!)
+  @auth(expr: "auth.token.admin == true")
   @refresh(onMutationExecuted: { operation: "CreateUser" })
   @refresh(onMutationExecuted: { operation: "UpdateUser" })
-  @refresh(onMutationExecuted: { operation: "DeleteUser" })
+  @refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
   @refresh(onMutationExecuted: { operation: "CreateProfessional" })
   @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
-  @refresh(onMutationExecuted: { operation: "DeleteProfessional" })
+  @refresh(onMutationExecuted: { operation: "ArchiveProfessional" })
   @refresh(onMutationExecuted: { operation: "CreateUbs" })
   @refresh(onMutationExecuted: { operation: "UpdateUbs" })
-  @refresh(onMutationExecuted: { operation: "DeleteUbs" })
+  @refresh(onMutationExecuted: { operation: "ArchiveUbs" })
   @refresh(onMutationExecuted: { operation: "CreateVaccine" })
   @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
-  @refresh(onMutationExecuted: { operation: "DeleteVaccine" })
+  @refresh(onMutationExecuted: { operation: "ArchiveVaccine" })
   @refresh(onMutationExecuted: { operation: "CreateBatch" })
   @refresh(onMutationExecuted: { operation: "UpdateBatch" })
   @refresh(onMutationExecuted: { operation: "DeleteBatch" })
   @refresh(onMutationExecuted: { operation: "CreateApplication" })
   @refresh(onMutationExecuted: { operation: "UpdateApplication" })
-  @refresh(onMutationExecuted: { operation: "DeleteApplication" }) {
+  @refresh(onMutationExecuted: { operation: "VoidApplication" })
+  @refresh(onMutationExecuted: { operation: "VoidLegacyApplication" }) {
   applications(where: { vaccineId: { eq: $vaccineId } }) {
     id
+    patientIdSnapshot
+    patientLegacyPersonIdSnapshot
+    patientNameSnapshot
+    vaccineNameSnapshot
+    facilityNameSnapshot
+    professionalNameSnapshot
+    professionalRegistrationSnapshot
+    voidedAt
+    voidReason
     patient {
       id
       user {

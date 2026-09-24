@@ -1,11 +1,16 @@
 import { BarChart3, CalendarDays, Syringe, UsersRound } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { PageHeader, SkeletonRows, StatCard, StatePanel } from "../components/ui";
-import { watchApplications } from "../services/vaccinationService";
+import { useAuth } from "../context/AuthContext";
+import {
+  isEffectiveApplication,
+  watchApplications,
+} from "../services/vaccinationService";
 import { asDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
 
 export default function Relatorios() {
+  const { isAdmin } = useAuth();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -20,15 +25,16 @@ export default function Relatorios() {
         setError(friendlyFirebaseError(watchError, watchError.message));
         setLoading(false);
       },
+      { isAdmin },
     );
-  }, []);
+  }, [isAdmin]);
 
   const report = useMemo(() => {
     const now = new Date();
     const last30 = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
     const recent = records.filter((record) => {
       const date = asDate(record.applicationDate);
-      return date && date >= last30;
+      return isEffectiveApplication(record) && date && date >= last30;
     });
     const counts = new Map();
     recent.forEach((record) => {

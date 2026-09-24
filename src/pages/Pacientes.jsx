@@ -12,6 +12,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PatientLookup from "../components/PatientLookup";
 import { Modal, PageHeader, StatePanel, StatusBadge } from "../components/ui";
+import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import {
   addPatient,
@@ -46,6 +47,7 @@ function cpfDigits(value) {
 
 export default function Pacientes() {
   const { showToast } = useToast();
+  const { isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const [patients, setPatients] = useState([]);
@@ -77,8 +79,9 @@ export default function Pacientes() {
         );
         setLoading(false);
       },
+      { isAdmin },
     );
-  }, []);
+  }, [isAdmin]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLocaleLowerCase("pt-BR");
@@ -320,7 +323,7 @@ export default function Pacientes() {
     if (deletingId) return;
 
     const confirmed = window.confirm(
-      `Excluir o cadastro de ${patient.name}? Essa ação remove o paciente e o usuário relacionado.`,
+      `Arquivar o cadastro de ${patient.name}? O histórico vacinal será preservado.`,
     );
 
     if (!confirmed) return;
@@ -332,18 +335,18 @@ export default function Pacientes() {
 
       showToast({
         tone: "success",
-        title: "Paciente excluído",
-        message: "O cadastro foi removido do banco SQL.",
+        title: "Paciente arquivado",
+        message: "O cadastro saiu da lista ativa e o histórico foi preservado.",
       });
     } catch (deleteError) {
       const message = friendlyFirebaseError(
         deleteError,
-        "Não foi possível excluir. Verifique se existem registros relacionados.",
+        "Não foi possível arquivar o paciente.",
       );
 
       showToast({
         tone: "error",
-        title: "Exclusão bloqueada",
+        title: "Arquivamento bloqueado",
         message,
       });
     } finally {
@@ -356,16 +359,18 @@ export default function Pacientes() {
       <PageHeader
         eyebrow="Cadastro profissional"
         title="Pacientes"
-        description="Cadastre, consulte, altere e remova pacientes diretamente do banco SQL do Vitta."
+        description={isAdmin
+          ? "Cadastre, consulte e arquive pacientes diretamente no banco SQL do Vitta."
+          : "Consulte somente os pacientes com acesso profissional direto concedido."}
         actions={
-          <button
+          isAdmin ? <button
             className="button button--primary"
             type="button"
             onClick={openCreate}
           >
             <Plus size={18} />
             Novo paciente
-          </button>
+          </button> : null
         }
       />
 
@@ -417,7 +422,7 @@ export default function Pacientes() {
                 : "Cadastre o primeiro paciente para começar."
             }
             action={
-              !patients.length ? (
+              isAdmin && !patients.length ? (
                 <button
                   className="button button--primary"
                   type="button"
@@ -494,7 +499,7 @@ export default function Pacientes() {
                           <Eye size={17} />
                         </Link>
 
-                        <button
+                        {isAdmin ? <button
                           className="icon-button"
                           type="button"
                           onClick={() =>
@@ -504,9 +509,9 @@ export default function Pacientes() {
                           title="Editar"
                         >
                           <Pencil size={17} />
-                        </button>
+                        </button> : null}
 
-                        <button
+                        {isAdmin ? <button
                           className="icon-button"
                           type="button"
                           onClick={() =>
@@ -515,15 +520,15 @@ export default function Pacientes() {
                           disabled={
                             deletingId === patient.id
                           }
-                          aria-label={`Excluir ${patient.name}`}
-                          title="Excluir"
+                          aria-label={`Arquivar ${patient.name}`}
+                          title="Arquivar"
                         >
                           {deletingId === patient.id ? (
                             <span className="button-spinner" />
                           ) : (
                             <Trash2 size={17} />
                           )}
-                        </button>
+                        </button> : null}
                       </div>
                     </td>
                   </tr>

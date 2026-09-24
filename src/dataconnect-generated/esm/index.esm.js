@@ -12,6 +12,12 @@ export const PatientType = {
   CHILD: "CHILD",
 }
 
+export const PortalRole = {
+  PATIENT: "PATIENT",
+  PROFESSIONAL: "PROFESSIONAL",
+  ADMIN: "ADMIN",
+}
+
 export const ProfessionalType = {
   NURSE: "NURSE",
   DOCTOR: "DOCTOR",
@@ -61,16 +67,16 @@ export function updateUser(dcOrVars, vars) {
   return executeMutation(updateUserRef(dcInstance, inputVars));
 }
 
-export const deleteUserRef = (dcOrVars, vars) => {
+export const deleteUnlinkedUserRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'DeleteUser', inputVars);
+  return mutationRef(dcInstance, 'DeleteUnlinkedUser', inputVars);
 }
-deleteUserRef.operationName = 'DeleteUser';
+deleteUnlinkedUserRef.operationName = 'DeleteUnlinkedUser';
 
-export function deleteUser(dcOrVars, vars) {
+export function deleteUnlinkedUser(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(deleteUserRef(dcInstance, inputVars));
+  return executeMutation(deleteUnlinkedUserRef(dcInstance, inputVars));
 }
 
 export const createPatientRef = (dcOrVars, vars) => {
@@ -97,16 +103,16 @@ export function updatePatient(dcOrVars, vars) {
   return executeMutation(updatePatientRef(dcInstance, inputVars));
 }
 
-export const deletePatientRef = (dcOrVars, vars) => {
+export const archivePatientRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'DeletePatient', inputVars);
+  return mutationRef(dcInstance, 'ArchivePatient', inputVars);
 }
-deletePatientRef.operationName = 'DeletePatient';
+archivePatientRef.operationName = 'ArchivePatient';
 
-export function deletePatient(dcOrVars, vars) {
+export function archivePatient(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(deletePatientRef(dcInstance, inputVars));
+  return executeMutation(archivePatientRef(dcInstance, inputVars));
 }
 
 export const createUbsRef = (dcOrVars, vars) => {
@@ -133,16 +139,16 @@ export function updateUbs(dcOrVars, vars) {
   return executeMutation(updateUbsRef(dcInstance, inputVars));
 }
 
-export const deleteUbsRef = (dcOrVars, vars) => {
+export const archiveUbsRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'DeleteUbs', inputVars);
+  return mutationRef(dcInstance, 'ArchiveUbs', inputVars);
 }
-deleteUbsRef.operationName = 'DeleteUbs';
+archiveUbsRef.operationName = 'ArchiveUbs';
 
-export function deleteUbs(dcOrVars, vars) {
+export function archiveUbs(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(deleteUbsRef(dcInstance, inputVars));
+  return executeMutation(archiveUbsRef(dcInstance, inputVars));
 }
 
 export const createProfessionalRef = (dcOrVars, vars) => {
@@ -169,16 +175,16 @@ export function updateProfessional(dcOrVars, vars) {
   return executeMutation(updateProfessionalRef(dcInstance, inputVars));
 }
 
-export const deleteProfessionalRef = (dcOrVars, vars) => {
+export const archiveProfessionalRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'DeleteProfessional', inputVars);
+  return mutationRef(dcInstance, 'ArchiveProfessional', inputVars);
 }
-deleteProfessionalRef.operationName = 'DeleteProfessional';
+archiveProfessionalRef.operationName = 'ArchiveProfessional';
 
-export function deleteProfessional(dcOrVars, vars) {
+export function archiveProfessional(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(deleteProfessionalRef(dcInstance, inputVars));
+  return executeMutation(archiveProfessionalRef(dcInstance, inputVars));
 }
 
 export const createVaccineRef = (dcOrVars, vars) => {
@@ -205,16 +211,16 @@ export function updateVaccine(dcOrVars, vars) {
   return executeMutation(updateVaccineRef(dcInstance, inputVars));
 }
 
-export const deleteVaccineRef = (dcOrVars, vars) => {
+export const archiveVaccineRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'DeleteVaccine', inputVars);
+  return mutationRef(dcInstance, 'ArchiveVaccine', inputVars);
 }
-deleteVaccineRef.operationName = 'DeleteVaccine';
+archiveVaccineRef.operationName = 'ArchiveVaccine';
 
-export function deleteVaccine(dcOrVars, vars) {
+export function archiveVaccine(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(deleteVaccineRef(dcInstance, inputVars));
+  return executeMutation(archiveVaccineRef(dcInstance, inputVars));
 }
 
 export const createBatchRef = (dcOrVars, vars) => {
@@ -313,16 +319,28 @@ export function updateApplication(dcOrVars, vars) {
   return executeMutation(updateApplicationRef(dcInstance, inputVars));
 }
 
-export const deleteApplicationRef = (dcOrVars, vars) => {
+export const voidApplicationRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'DeleteApplication', inputVars);
+  return mutationRef(dcInstance, 'VoidApplication', inputVars);
 }
-deleteApplicationRef.operationName = 'DeleteApplication';
+voidApplicationRef.operationName = 'VoidApplication';
 
-export function deleteApplication(dcOrVars, vars) {
+export function voidApplication(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(deleteApplicationRef(dcInstance, inputVars));
+  return executeMutation(voidApplicationRef(dcInstance, inputVars));
+}
+
+export const voidLegacyApplicationRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'VoidLegacyApplication', inputVars);
+}
+voidLegacyApplicationRef.operationName = 'VoidLegacyApplication';
+
+export function voidLegacyApplication(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(voidLegacyApplicationRef(dcInstance, inputVars));
 }
 
 export const listUsersRef = (dc) => {
@@ -351,17 +369,30 @@ export function getUser(dcOrVars, varsOrOptions, options) {
   return executeQuery(getUserRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
-export const getUserByCpfRef = (dcOrVars, vars) => {
+export const getCurrentPortalUserRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetCurrentPortalUser');
+}
+getCurrentPortalUserRef.operationName = 'GetCurrentPortalUser';
+
+export function getCurrentPortalUser(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(getCurrentPortalUserRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
+export const getAdminPatientByCpfRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'GetUserByCpf', inputVars);
+  return queryRef(dcInstance, 'GetAdminPatientByCpf', inputVars);
 }
-getUserByCpfRef.operationName = 'GetUserByCpf';
+getAdminPatientByCpfRef.operationName = 'GetAdminPatientByCpf';
 
-export function getUserByCpf(dcOrVars, varsOrOptions, options) {
+export function getAdminPatientByCpf(dcOrVars, varsOrOptions, options) {
   
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
-  return executeQuery(getUserByCpfRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+  return executeQuery(getAdminPatientByCpfRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
 export const getUserByEmailRef = (dcOrVars, vars) => {
@@ -390,6 +421,32 @@ export function listPatients(dcOrOptions, options) {
   return executeQuery(listPatientsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
+export const listAccessiblePatientsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListAccessiblePatients');
+}
+listAccessiblePatientsRef.operationName = 'ListAccessiblePatients';
+
+export function listAccessiblePatients(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listAccessiblePatientsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
+export const getAuthorizedPatientByCpfRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetAuthorizedPatientByCpf', inputVars);
+}
+getAuthorizedPatientByCpfRef.operationName = 'GetAuthorizedPatientByCpf';
+
+export function getAuthorizedPatientByCpf(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getAuthorizedPatientByCpfRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
 export const getPatientRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -401,6 +458,19 @@ export function getPatient(dcOrVars, varsOrOptions, options) {
   
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getPatientRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
+export const getAdminPatientRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetAdminPatient', inputVars);
+}
+getAdminPatientRef.operationName = 'GetAdminPatient';
+
+export function getAdminPatient(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getAdminPatientRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
 export const getPatientByUserRef = (dcOrVars, vars) => {
@@ -585,6 +655,19 @@ export function listAppointments(dcOrOptions, options) {
   return executeQuery(listAppointmentsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
+export const listAccessibleAppointmentsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListAccessibleAppointments');
+}
+listAccessibleAppointmentsRef.operationName = 'ListAccessibleAppointments';
+
+export function listAccessibleAppointments(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listAccessibleAppointmentsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
 export const getAppointmentRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -637,6 +720,19 @@ export function listApplications(dcOrOptions, options) {
   return executeQuery(listApplicationsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
+export const listCurrentProfessionalApplicationsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListCurrentProfessionalApplications');
+}
+listCurrentProfessionalApplicationsRef.operationName = 'ListCurrentProfessionalApplications';
+
+export function listCurrentProfessionalApplications(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listCurrentProfessionalApplicationsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
 export const getApplicationRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -661,6 +757,19 @@ export function listApplicationsByPatient(dcOrVars, varsOrOptions, options) {
   
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listApplicationsByPatientRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
+export const listAdminApplicationsByPatientRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListAdminApplicationsByPatient', inputVars);
+}
+listAdminApplicationsByPatientRef.operationName = 'ListAdminApplicationsByPatient';
+
+export function listAdminApplicationsByPatient(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(listAdminApplicationsByPatientRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
 export const listApplicationsByVaccineRef = (dcOrVars, vars) => {

@@ -8,7 +8,7 @@ mutation CreateUser(
   $status: UserStatus!
   $cpf: String!
   $sex: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   user_insert(
     data: {
       name: $name
@@ -28,7 +28,7 @@ mutation UpdateUser(
   $status: UserStatus
   $cpf: String
   $sex: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   user_update(
     id: $id
     data: {
@@ -41,8 +41,26 @@ mutation UpdateUser(
     }
   )
 }
-mutation DeleteUser($id: UUID!) @auth(level: USER) {
-  user_delete(id: $id)
+mutation DeleteUnlinkedUser($id: UUID!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  query @redact {
+    patients(where: { userId: { eq: $id } })
+      @check(
+        expr: "this.size() == 0"
+        message: "Usuário vinculado a paciente não pode ser excluído."
+      ) {
+      id
+    }
+    professionals(where: { userId: { eq: $id } })
+      @check(
+        expr: "this.size() == 0"
+        message: "Usuário vinculado a profissional não pode ser excluído."
+      ) {
+      id
+    }
+  }
+  user_delete(id: $id) @check(message: "Usuário não encontrado.")
 }
 
 # ============================================================
@@ -53,7 +71,7 @@ mutation CreatePatient(
   $patientType: PatientType!
   $responsibleId: UUID
   $motherName: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   patient_insert(
     data: {
       userId: $userId
@@ -68,7 +86,7 @@ mutation UpdatePatient(
   $patientType: PatientType
   $responsibleId: UUID
   $motherName: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   patient_update(
     id: $id
     data: {
@@ -78,8 +96,17 @@ mutation UpdatePatient(
     }
   )
 }
-mutation DeletePatient($id: UUID!) @auth(level: USER) {
-  patient_delete(id: $id)
+mutation ArchivePatient($id: UUID!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  patient_update(
+    id: $id
+    data: {
+      active: false
+      archivedAt_expr: "request.time"
+      archivedByAuthUid_expr: "auth.uid"
+    }
+  ) @check(message: "Paciente não encontrado.")
 }
 
 # ============================================================
@@ -92,7 +119,7 @@ mutation CreateUbs(
   $bairro: String
   $cidade: String
   $cep: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   uBS_insert(
     data: {
       name: $name
@@ -112,7 +139,7 @@ mutation UpdateUbs(
   $bairro: String
   $cidade: String
   $cep: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   uBS_update(
     id: $id
     data: {
@@ -125,8 +152,17 @@ mutation UpdateUbs(
     }
   )
 }
-mutation DeleteUbs($id: UUID!) @auth(level: USER) {
-  uBS_delete(id: $id)
+mutation ArchiveUbs($id: UUID!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  uBS_update(
+    id: $id
+    data: {
+      active: false
+      archivedAt_expr: "request.time"
+      archivedByAuthUid_expr: "auth.uid"
+    }
+  ) @check(message: "UBS não encontrada.")
 }
 
 # ============================================================
@@ -137,7 +173,7 @@ mutation CreateProfessional(
   $professionalType: ProfessionalType!
   $professionalRegistration: String
   $ubsId: UUID
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   professional_insert(
     data: {
       userId: $userId
@@ -152,7 +188,7 @@ mutation UpdateProfessional(
   $professionalType: ProfessionalType
   $professionalRegistration: String
   $ubsId: UUID
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   professional_update(
     id: $id
     data: {
@@ -162,8 +198,17 @@ mutation UpdateProfessional(
     }
   )
 }
-mutation DeleteProfessional($id: UUID!) @auth(level: USER) {
-  professional_delete(id: $id)
+mutation ArchiveProfessional($id: UUID!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  professional_update(
+    id: $id
+    data: {
+      active: false
+      archivedAt_expr: "request.time"
+      archivedByAuthUid_expr: "auth.uid"
+    }
+  ) @check(message: "Profissional não encontrado.")
 }
 
 # ============================================================
@@ -173,7 +218,7 @@ mutation CreateVaccine(
   $name: String!
   $description: String
   $requiredDoses: Int!
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   vaccine_insert(
     data: {
       name: $name
@@ -187,7 +232,7 @@ mutation UpdateVaccine(
   $name: String
   $description: String
   $requiredDoses: Int
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   vaccine_update(
     id: $id
     data: {
@@ -197,8 +242,17 @@ mutation UpdateVaccine(
     }
   )
 }
-mutation DeleteVaccine($id: UUID!) @auth(level: USER) {
-  vaccine_delete(id: $id)
+mutation ArchiveVaccine($id: UUID!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  vaccine_update(
+    id: $id
+    data: {
+      active: false
+      archivedAt_expr: "request.time"
+      archivedByAuthUid_expr: "auth.uid"
+    }
+  ) @check(message: "Vacina não encontrada.")
 }
 
 # ============================================================
@@ -212,7 +266,7 @@ mutation CreateBatch(
   $currentQuantity: Int!
   $manufacturingDate: Date
   $expirationDate: Date!
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   batch_insert(
     data: {
       vaccineId: $vaccineId
@@ -234,7 +288,7 @@ mutation UpdateBatch(
   $currentQuantity: Int
   $manufacturingDate: Date
   $expirationDate: Date
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   batch_update(
     id: $id
     data: {
@@ -248,7 +302,7 @@ mutation UpdateBatch(
     }
   )
 }
-mutation DeleteBatch($id: UUID!) @auth(level: USER) {
+mutation DeleteBatch($id: UUID!) @auth(expr: "auth.token.admin == true") {
   batch_delete(id: $id)
 }
 
@@ -263,7 +317,37 @@ mutation CreateAppointment(
   $scheduledAt: Timestamp!
   $status: AppointmentStatus!
   $notes: String
-) @auth(level: USER) {
+) @auth(level: USER) @transaction {
+  query @redact {
+    users(
+      where: {
+        _and: [
+          { authUid: { eq_expr: "auth.uid" } }
+          { portalRole: { eq: PROFESSIONAL } }
+        ]
+      }
+    ) @check(message: "Ação restrita a profissional autenticado.") {
+      id
+    }
+    patientAccess(
+      key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
+    ) {
+      accessKind
+        @check(
+          expr: "this == 'PROFESSIONAL'"
+          message: "Grant profissional obrigatório."
+        )
+      consentStatus
+        @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+      viewVaccination
+        @check(expr: "this == true", message: "Agenda não autorizada.")
+      validUntil
+        @check(
+          expr: "this == null || this > request.time"
+          message: "Acesso expirado."
+        )
+    }
+  }
   appointment_insert(
     data: {
       patientId: $patientId
@@ -285,7 +369,7 @@ mutation UpdateAppointment(
   $scheduledAt: Timestamp
   $status: AppointmentStatus
   $notes: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") {
   appointment_update(
     id: $id
     data: {
@@ -299,7 +383,8 @@ mutation UpdateAppointment(
     }
   )
 }
-mutation DeleteAppointment($id: UUID!) @auth(level: USER) {
+mutation DeleteAppointment($id: UUID!)
+  @auth(expr: "auth.token.admin == true") {
   appointment_delete(id: $id)
 }
 
@@ -309,14 +394,96 @@ mutation DeleteAppointment($id: UUID!) @auth(level: USER) {
 mutation CreateApplication(
   $patientId: UUID!
   $vaccineId: UUID!
-  $batchId: UUID
+  $batchId: UUID!
   $appointmentId: UUID
   $professionalId: UUID!
   $ubsId: UUID!
   $applicationDate: Timestamp!
   $doseNumber: Int
   $notes: String
-) @auth(level: USER) {
+) @auth(level: USER) @transaction {
+  query @redact {
+    professional(id: $professionalId)
+      @check(message: "Profissional não encontrado.") {
+      active
+        @check(
+          expr: "this == true"
+          message: "Profissional inativo ou arquivado."
+        )
+      professionalRegistration
+      user {
+        name
+        authUid
+          @check(
+            expr: "this == auth.uid"
+            message: "O profissional deve corresponder ao usuário autenticado."
+          )
+        portalRole
+          @check(
+            expr: "this == 'PROFESSIONAL'"
+            message: "Papel profissional obrigatório."
+          )
+      }
+    }
+    patient(id: $patientId) @check(message: "Paciente não encontrado.") {
+      active
+        @check(
+          expr: "this == true"
+          message: "Paciente inativo ou arquivado."
+        )
+      legacyPersonId
+      user {
+        name
+      }
+    }
+    vaccine(id: $vaccineId) @check(message: "Vacina não encontrada.") {
+      active
+        @check(
+          expr: "this == true"
+          message: "Vacina inativa ou arquivada."
+        )
+      name
+    }
+    uBS(id: $ubsId) @check(message: "UBS não encontrada.") {
+      active
+        @check(expr: "this == true", message: "UBS inativa ou arquivada.")
+      name
+    }
+    batch(id: $batchId) @check(message: "Lote não encontrado.") {
+      manufacturer
+      batchCode
+      currentQuantity
+        @check(
+          expr: "this > 0"
+          message: "Lote sem estoque disponível."
+        )
+      vaccine {
+        id
+          @check(
+            expr: "this == vars.vaccineId"
+            message: "O lote não pertence à vacina informada."
+          )
+      }
+    }
+    patientAccess(
+      key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
+    ) {
+      accessKind
+        @check(
+          expr: "this == 'PROFESSIONAL'"
+          message: "Grant profissional obrigatório."
+        )
+      consentStatus
+        @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+      viewVaccination
+        @check(expr: "this == true", message: "Carteira não autorizada.")
+      validUntil
+        @check(
+          expr: "this == null || this > request.time"
+          message: "Acesso expirado."
+        )
+    }
+  }
   application_insert(
     data: {
       patientId: $patientId
@@ -327,37 +494,116 @@ mutation CreateApplication(
       ubsId: $ubsId
       applicationDate: $applicationDate
       doseNumber: $doseNumber
+      patientIdSnapshot: $patientId
+      patientLegacyPersonIdSnapshot_expr: "response.query.patient.legacyPersonId"
+      patientNameSnapshot_expr: "response.query.patient.user.name"
+      vaccineNameSnapshot_expr: "response.query.vaccine.name"
+      lotSnapshot_expr: "response.query.batch.batchCode"
+      manufacturerSnapshot_expr: "response.query.batch.manufacturer"
+      facilityNameSnapshot_expr: "response.query.uBS.name"
+      professionalNameSnapshot_expr: "response.query.professional.user.name"
+      professionalRegistrationSnapshot_expr: "response.query.professional.professionalRegistration"
+      source: "WEB_PORTAL"
       notes: $notes
+      createdAt_expr: "request.time"
+      updatedAt_expr: "request.time"
     }
   )
+  batch_updateMany(
+    where: {
+      _and: [
+        { id: { eq: $batchId } }
+        { currentQuantity: { gt: 0 } }
+      ]
+    }
+    data: { currentQuantity_update: { dec: 1 } }
+  )
+    @check(
+      expr: "this == 1"
+      message: "Lote sem estoque disponível."
+    )
 }
 mutation UpdateApplication(
   $id: UUID!
-  $patientId: UUID
-  $vaccineId: UUID
-  $batchId: UUID
-  $appointmentId: UUID
-  $professionalId: UUID
-  $ubsId: UUID
-  $applicationDate: Timestamp
   $doseNumber: Int
+  $doseLabel: String
+  $nextDoseAt: Timestamp
   $notes: String
-) @auth(level: USER) {
+) @auth(expr: "auth.token.admin == true") @transaction {
   application_update(
     id: $id
     data: {
-      patientId: $patientId
-      vaccineId: $vaccineId
-      batchId: $batchId
-      appointmentId: $appointmentId
-      professionalId: $professionalId
-      ubsId: $ubsId
-      applicationDate: $applicationDate
       doseNumber: $doseNumber
+      doseLabel: $doseLabel
+      nextDoseAt: $nextDoseAt
       notes: $notes
+      updatedAt_expr: "request.time"
     }
-  )
+  ) @check(message: "Aplicação não encontrada.")
 }
-mutation DeleteApplication($id: UUID!) @auth(level: USER) {
-  application_delete(id: $id)
+mutation VoidApplication($id: UUID!, $batchId: UUID!, $reason: String!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  query @redact {
+    application(id: $id) @check(message: "Aplicação não encontrada.") {
+      voidedAt
+        @check(
+          expr: "this == null"
+          message: "A aplicação já está anulada."
+        )
+      batch @check(message: "A aplicação não possui lote associado.") {
+        id
+          @check(
+            expr: "this == vars.batchId"
+            message: "O lote não corresponde à aplicação."
+          )
+      }
+    }
+  }
+  application_update(
+    id: $id
+    data: {
+      voidedAt_expr: "request.time"
+      voidedByAuthUid_expr: "auth.uid"
+      voidReason: $reason
+      updatedAt_expr: "request.time"
+    }
+  ) @check(message: "Aplicação não encontrada.")
+  batch_updateMany(
+    where: { id: { eq: $batchId } }
+    data: { currentQuantity_update: { inc: 1 } }
+  )
+    @check(
+      expr: "this == 1"
+      message: "O estoque do lote não pôde ser restaurado."
+    )
+}
+mutation VoidLegacyApplication($id: UUID!, $reason: String!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  query @redact {
+    application(id: $id) @check(message: "Aplicação não encontrada.") {
+      voidedAt
+        @check(
+          expr: "this == null"
+          message: "A aplicação já está anulada."
+        )
+      batch
+        @check(
+          expr: "this == null"
+          message: "A aplicação possui lote e exige restauração de estoque."
+        ) {
+        id
+      }
+    }
+  }
+  application_update(
+    id: $id
+    data: {
+      voidedAt_expr: "request.time"
+      voidedByAuthUid_expr: "auth.uid"
+      voidReason: $reason
+      updatedAt_expr: "request.time"
+    }
+  ) @check(message: "Aplicação não encontrada.")
 }

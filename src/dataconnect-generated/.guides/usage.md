@@ -14,7 +14,7 @@ If a user is not using a supported framework, they can use the generated SDK dir
 Here's an example of how to use it with the first 5 operations:
 
 ```js
-import { createUser, updateUser, deleteUser, createPatient, updatePatient, deletePatient, createUbs, updateUbs, deleteUbs, createProfessional } from '@dataconnect/generated';
+import { createUser, updateUser, deleteUnlinkedUser, createPatient, updatePatient, archivePatient, createUbs, updateUbs, archiveUbs, createProfessional } from '@dataconnect/generated';
 
 
 // Operation CreateUser:  For variables, look at type CreateUserVars in ../index.d.ts
@@ -23,8 +23,8 @@ const { data } = await CreateUser(dataConnect, createUserVars);
 // Operation UpdateUser:  For variables, look at type UpdateUserVars in ../index.d.ts
 const { data } = await UpdateUser(dataConnect, updateUserVars);
 
-// Operation DeleteUser:  For variables, look at type DeleteUserVars in ../index.d.ts
-const { data } = await DeleteUser(dataConnect, deleteUserVars);
+// Operation DeleteUnlinkedUser:  For variables, look at type DeleteUnlinkedUserVars in ../index.d.ts
+const { data } = await DeleteUnlinkedUser(dataConnect, deleteUnlinkedUserVars);
 
 // Operation CreatePatient:  For variables, look at type CreatePatientVars in ../index.d.ts
 const { data } = await CreatePatient(dataConnect, createPatientVars);
@@ -32,8 +32,8 @@ const { data } = await CreatePatient(dataConnect, createPatientVars);
 // Operation UpdatePatient:  For variables, look at type UpdatePatientVars in ../index.d.ts
 const { data } = await UpdatePatient(dataConnect, updatePatientVars);
 
-// Operation DeletePatient:  For variables, look at type DeletePatientVars in ../index.d.ts
-const { data } = await DeletePatient(dataConnect, deletePatientVars);
+// Operation ArchivePatient:  For variables, look at type ArchivePatientVars in ../index.d.ts
+const { data } = await ArchivePatient(dataConnect, archivePatientVars);
 
 // Operation CreateUbs:  For variables, look at type CreateUbsVars in ../index.d.ts
 const { data } = await CreateUbs(dataConnect, createUbsVars);
@@ -41,8 +41,8 @@ const { data } = await CreateUbs(dataConnect, createUbsVars);
 // Operation UpdateUbs:  For variables, look at type UpdateUbsVars in ../index.d.ts
 const { data } = await UpdateUbs(dataConnect, updateUbsVars);
 
-// Operation DeleteUbs:  For variables, look at type DeleteUbsVars in ../index.d.ts
-const { data } = await DeleteUbs(dataConnect, deleteUbsVars);
+// Operation ArchiveUbs:  For variables, look at type ArchiveUbsVars in ../index.d.ts
+const { data } = await ArchiveUbs(dataConnect, archiveUbsVars);
 
 // Operation CreateProfessional:  For variables, look at type CreateProfessionalVars in ../index.d.ts
 const { data } = await CreateProfessional(dataConnect, createProfessionalVars);
