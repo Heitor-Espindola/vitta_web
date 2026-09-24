@@ -2,6 +2,7 @@ import { subscribe } from "firebase/data-connect";
 import {
   createAppointment,
   deleteAppointment,
+  listAccessibleAppointmentsRef,
   listAppointmentsRef,
   updateAppointment,
 } from "@dataconnect/generated";
@@ -32,11 +33,16 @@ export function mapAppointment(item) {
   };
 }
 
-export function watchAppointments(onData, onError) {
+export function watchAppointments(onData, onError, { isAdmin = false } = {}) {
   return subscribe(
-    listAppointmentsRef(),
+    isAdmin ? listAppointmentsRef() : listAccessibleAppointmentsRef(),
     (result) => {
-      const items = (result?.data?.appointments || [])
+      const source = isAdmin
+        ? result?.data?.appointments || []
+        : (result?.data?.patientAccesses || []).flatMap(
+            (access) => access?.patient?.appointments || [],
+          );
+      const items = source
         .map(mapAppointment)
         .sort(
           (a, b) =>

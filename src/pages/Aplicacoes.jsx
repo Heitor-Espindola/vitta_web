@@ -11,12 +11,14 @@ import {
   StatusBadge,
 } from "../components/ui";
 import { useToast } from "../context/ToastContext";
+import { useAuth } from "../context/AuthContext";
 import { removeApplication, watchApplications } from "../services/vaccinationService";
 import { formatDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
 
 export default function Aplicacoes() {
   const { showToast } = useToast();
+  const { isAdmin } = useAuth();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -37,8 +39,9 @@ export default function Aplicacoes() {
         setError(friendlyFirebaseError(watchError, watchError.message));
         setLoading(false);
       },
+      { isAdmin },
     );
-  }, []);
+  }, [isAdmin]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLocaleLowerCase("pt-BR");
@@ -74,23 +77,25 @@ export default function Aplicacoes() {
 
   async function handleDelete(record) {
     if (deletingId) return;
-    if (!window.confirm(`Excluir o registro de ${record.vaccineName} de ${record.patientName}?`)) {
+    if (!window.confirm(`Anular o registro de ${record.vaccineName} de ${record.patientName}? O histórico será preservado.`)) {
       return;
     }
+    const reason = window.prompt("Informe o motivo da anulação:");
+    if (reason === null) return;
 
     setDeletingId(record.id);
     try {
-      await removeApplication(record.id);
+      await removeApplication(record.id, reason);
       showToast({
         tone: "success",
-        title: "Aplicação excluída",
-        message: "A lista foi atualizada em tempo real.",
+        title: "Aplicação anulada",
+        message: "O histórico foi preservado e marcado como anulado.",
       });
       if (selectedRecord?.id === record.id) setSelectedRecord(null);
     } catch (deleteError) {
       showToast({
         tone: "error",
-        title: "Não foi possível excluir",
+        title: "Não foi possível anular",
         message: friendlyFirebaseError(deleteError, deleteError.message),
       });
     } finally {
@@ -103,7 +108,9 @@ export default function Aplicacoes() {
       <PageHeader
         eyebrow="Registros oficiais"
         title="Aplicações"
-        description="Gerencie todas as aplicações do Vitta. Todos os profissionais aprovados visualizam o mesmo conjunto de registros."
+        description={isAdmin
+          ? "Gerencie todas as aplicações registradas no Vitta."
+          : "Consulte suas aplicações e registre atendimentos autorizados."}
         actions={
           <button className="button button--primary" type="button" onClick={openCreate}>
             <Plus size={18} /> Nova aplicação
@@ -174,24 +181,24 @@ export default function Aplicacoes() {
                     <td>{formatDate(record.applicationDate)}</td>
                     <td>{record.ubsName || "Não informada"}</td>
                     <td>{record.batchCode || "—"}</td>
-                    <td><StatusBadge status="active">Registrada</StatusBadge></td>
+                    <td><StatusBadge status={record.voidedAt ? "danger" : "active"}>{record.voidedAt ? "Anulada" : "Registrada"}</StatusBadge></td>
                     <td>
                       <div className="table-actions">
                         <button className="icon-button" type="button" onClick={() => setSelectedRecord(record)} title="Detalhes">
                           <Eye size={17} />
                         </button>
-                        <button className="icon-button" type="button" onClick={() => openEdit(record)} title="Editar">
+                        {isAdmin && !record.voidedAt ? <button className="icon-button" type="button" onClick={() => openEdit(record)} title="Editar campos permitidos">
                           <Pencil size={17} />
-                        </button>
-                        <button
+                        </button> : null}
+                        {isAdmin ? <button
                           className="icon-button"
                           type="button"
                           onClick={() => handleDelete(record)}
-                          disabled={deletingId === record.id}
-                          title="Excluir"
+                          disabled={Boolean(record.voidedAt) || deletingId === record.id}
+                          title={record.voidedAt ? "Aplicação já anulada" : "Anular"}
                         >
                           {deletingId === record.id ? <span className="button-spinner" /> : <Trash2 size={17} />}
-                        </button>
+                        </button> : null}
                       </div>
                     </td>
                   </tr>

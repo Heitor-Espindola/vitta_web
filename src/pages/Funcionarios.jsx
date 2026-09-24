@@ -204,13 +204,13 @@ export default function Funcionarios() {
 
     async function deleteProfessional(professional) {
         if (!isAdmin || deletingId) return;
-        if (!window.confirm(`Excluir o cadastro de ${professional.name}?`)) return;
+        if (!window.confirm(`Arquivar o cadastro de ${professional.name}? O histórico será preservado.`)) return;
         setDeletingId(professional.id);
         try {
             await removeProfessional(professional);
-            showToast({ tone: "success", title: "Funcionário excluído", message: "O cadastro SQL foi removido." });
+            showToast({ tone: "success", title: "Funcionário arquivado", message: "O cadastro saiu da lista ativa." });
         } catch (deleteError) {
-            showToast({ tone: "error", title: "Não foi possível excluir", message: friendlyFirebaseError(deleteError, deleteError.message) });
+            showToast({ tone: "error", title: "Não foi possível arquivar", message: friendlyFirebaseError(deleteError, deleteError.message) });
         } finally {
             setDeletingId("");
         }
@@ -239,13 +239,13 @@ export default function Funcionarios() {
 
     async function deleteUnit(unit) {
         if (deletingId) return;
-        if (!window.confirm(`Excluir a UBS ${unit.name}?`)) return;
+        if (!window.confirm(`Arquivar a UBS ${unit.name}? O histórico será preservado.`)) return;
         setDeletingId(unit.id);
         try {
             await removeUBS(unit.id);
-            showToast({ tone: "success", title: "UBS excluída", message: "A lista foi atualizada em tempo real." });
+            showToast({ tone: "success", title: "UBS arquivada", message: "A unidade saiu da lista ativa." });
         } catch (deleteError) {
-            showToast({ tone: "error", title: "Não foi possível excluir a UBS", message: friendlyFirebaseError(deleteError, deleteError.message) });
+            showToast({ tone: "error", title: "Não foi possível arquivar a UBS", message: friendlyFirebaseError(deleteError, deleteError.message) });
         } finally {
             setDeletingId("");
         }
@@ -321,7 +321,7 @@ export default function Funcionarios() {
                                             <td>
                                                 <div className="table-actions">
                                                     <button className="icon-button" type="button" title="Editar" onClick={() => openProfessional(professional)}><Pencil size={17} /></button>
-                                                    {isAdmin ? <button className="icon-button" type="button" title="Excluir" disabled={deletingId === professional.id} onClick={() => deleteProfessional(professional)}>{deletingId === professional.id ? <span className="button-spinner" /> : <Trash2 size={17} />}</button> : null}
+                                                    {isAdmin ? <button className="icon-button" type="button" title="Arquivar" disabled={deletingId === professional.id} onClick={() => deleteProfessional(professional)}>{deletingId === professional.id ? <span className="button-spinner" /> : <Trash2 size={17} />}</button> : null}
                                                 </div>
                                             </td>
                                         </tr>
@@ -346,7 +346,7 @@ export default function Funcionarios() {
                                             <td>{[unit.logradouro, unit.numero, unit.bairro].filter(Boolean).join(", ") || "—"}</td>
                                             <td>{unit.cidade || "—"}</td>
                                             <td>{unit.cep || "—"}</td>
-                                            <td><div className="table-actions"><button className="icon-button" type="button" onClick={() => openUBS(unit)} title="Editar"><Pencil size={17} /></button><button className="icon-button" type="button" disabled={deletingId === unit.id} onClick={() => deleteUnit(unit)} title="Excluir">{deletingId === unit.id ? <span className="button-spinner" /> : <Trash2 size={17} />}</button></div></td>
+                                            <td><div className="table-actions"><button className="icon-button" type="button" onClick={() => openUBS(unit)} title="Editar"><Pencil size={17} /></button><button className="icon-button" type="button" disabled={deletingId === unit.id} onClick={() => deleteUnit(unit)} title="Arquivar">{deletingId === unit.id ? <span className="button-spinner" /> : <Trash2 size={17} />}</button></div></td>
                                         </tr>
                                     ))}
                                 </tbody>

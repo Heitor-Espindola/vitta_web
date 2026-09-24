@@ -36,8 +36,8 @@ export default function Carteiras() {
         <div>
           <strong>Uma fonte de verdade</strong>
           <p>
-            O histórico exibido aqui vem de <code>vaccination_records</code>, a
-            mesma coleção acompanhada em tempo real pelo aplicativo Vitta.
+            O histórico exibido aqui vem de <code>Application</code> no SQL
+            Connect, a mesma fonte usada pelo aplicativo Vitta.
           </p>
         </div>
       </div>

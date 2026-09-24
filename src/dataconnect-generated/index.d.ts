@@ -21,6 +21,12 @@ export enum PatientType {
   CHILD = "CHILD",
 };
 
+export enum PortalRole {
+  PATIENT = "PATIENT",
+  PROFESSIONAL = "PROFESSIONAL",
+  ADMIN = "ADMIN",
+};
+
 export enum ProfessionalType {
   NURSE = "NURSE",
   DOCTOR = "DOCTOR",
@@ -45,6 +51,38 @@ export interface Application_Key {
 export interface Appointment_Key {
   id: UUIDString;
   __typename?: 'Appointment_Key';
+}
+
+export interface ArchivePatientData {
+  patient_update?: Patient_Key | null;
+}
+
+export interface ArchivePatientVariables {
+  id: UUIDString;
+}
+
+export interface ArchiveProfessionalData {
+  professional_update?: Professional_Key | null;
+}
+
+export interface ArchiveProfessionalVariables {
+  id: UUIDString;
+}
+
+export interface ArchiveUbsData {
+  uBS_update?: UBS_Key | null;
+}
+
+export interface ArchiveUbsVariables {
+  id: UUIDString;
+}
+
+export interface ArchiveVaccineData {
+  vaccine_update?: Vaccine_Key | null;
+}
+
+export interface ArchiveVaccineVariables {
+  id: UUIDString;
 }
 
 export interface Batch_Key {
@@ -154,14 +192,6 @@ export interface CreateVaccineVariables {
   requiredDoses: number;
 }
 
-export interface DeleteApplicationData {
-  application_delete?: Application_Key | null;
-}
-
-export interface DeleteApplicationVariables {
-  id: UUIDString;
-}
-
 export interface DeleteAppointmentData {
   appointment_delete?: Appointment_Key | null;
 }
@@ -178,43 +208,11 @@ export interface DeleteBatchVariables {
   id: UUIDString;
 }
 
-export interface DeletePatientData {
-  patient_delete?: Patient_Key | null;
-}
-
-export interface DeletePatientVariables {
-  id: UUIDString;
-}
-
-export interface DeleteProfessionalData {
-  professional_delete?: Professional_Key | null;
-}
-
-export interface DeleteProfessionalVariables {
-  id: UUIDString;
-}
-
-export interface DeleteUbsData {
-  uBS_delete?: UBS_Key | null;
-}
-
-export interface DeleteUbsVariables {
-  id: UUIDString;
-}
-
-export interface DeleteUserData {
+export interface DeleteUnlinkedUserData {
   user_delete?: User_Key | null;
 }
 
-export interface DeleteUserVariables {
-  id: UUIDString;
-}
-
-export interface DeleteVaccineData {
-  vaccine_delete?: Vaccine_Key | null;
-}
-
-export interface DeleteVaccineVariables {
+export interface DeleteUnlinkedUserVariables {
   id: UUIDString;
 }
 
@@ -229,10 +227,83 @@ export interface FamilyRelationship_Key {
   __typename?: 'FamilyRelationship_Key';
 }
 
+export interface GetAdminPatientByCpfData {
+  patients: ({
+    id: UUIDString;
+    motherName?: string | null;
+    patientType: PatientType;
+    user: {
+      id: UUIDString;
+      name: string;
+      birthDate: DateString;
+      email?: string | null;
+      cpf: string;
+      sex?: string | null;
+      status: UserStatus;
+    } & User_Key;
+    responsible?: {
+      id: UUIDString;
+      user: {
+        id: UUIDString;
+        name: string;
+        cpf: string;
+      } & User_Key;
+    } & Patient_Key;
+  } & Patient_Key)[];
+}
+
+export interface GetAdminPatientByCpfVariables {
+  cpf: string;
+}
+
+export interface GetAdminPatientData {
+  patient?: {
+    id: UUIDString;
+    motherName?: string | null;
+    user: {
+      id: UUIDString;
+      name: string;
+      birthDate: DateString;
+      email?: string | null;
+      cpf: string;
+      sex?: string | null;
+      status: UserStatus;
+    } & User_Key;
+    patientType: PatientType;
+    responsible?: {
+      id: UUIDString;
+      user: {
+        id: UUIDString;
+        name: string;
+        cpf: string;
+      } & User_Key;
+    } & Patient_Key;
+  } & Patient_Key;
+}
+
+export interface GetAdminPatientVariables {
+  id: UUIDString;
+}
+
 export interface GetApplicationData {
   application?: {
     id: UUIDString;
-    patient: {
+    patientIdSnapshot: UUIDString;
+    patientLegacyPersonIdSnapshot?: string | null;
+    patientNameSnapshot: string;
+    vaccineNameSnapshot: string;
+    lotSnapshot?: string | null;
+    manufacturerSnapshot?: string | null;
+    facilityNameSnapshot: string;
+    professionalNameSnapshot: string;
+    professionalRegistrationSnapshot?: string | null;
+    doseLabel?: string | null;
+    nextDoseAt?: TimestampString | null;
+    source?: string | null;
+    voidedAt?: TimestampString | null;
+    voidedByAuthUid?: string | null;
+    voidReason?: string | null;
+    patient?: {
       id: UUIDString;
       user: {
         id: UUIDString;
@@ -241,7 +312,7 @@ export interface GetApplicationData {
         cpf: string;
       } & User_Key;
     } & Patient_Key;
-    vaccine: {
+    vaccine?: {
       id: UUIDString;
       name: string;
       description?: string | null;
@@ -261,7 +332,7 @@ export interface GetApplicationData {
       scheduledAt: TimestampString;
       status: AppointmentStatus;
     } & Appointment_Key;
-    professional: {
+    professional?: {
       id: UUIDString;
       user: {
         id: UUIDString;
@@ -271,7 +342,7 @@ export interface GetApplicationData {
       professionalType: ProfessionalType;
       professionalRegistration?: string | null;
     } & Professional_Key;
-    ubs: {
+    ubs?: {
       id: UUIDString;
       name: string;
       logradouro?: string | null;
@@ -328,6 +399,37 @@ export interface GetAppointmentVariables {
   id: UUIDString;
 }
 
+export interface GetAuthorizedPatientByCpfData {
+  patientAccesses: ({
+    patient: {
+      id: UUIDString;
+      motherName?: string | null;
+      patientType: PatientType;
+      user: {
+        id: UUIDString;
+        name: string;
+        birthDate: DateString;
+        email?: string | null;
+        cpf: string;
+        sex?: string | null;
+        status: UserStatus;
+      } & User_Key;
+      responsible?: {
+        id: UUIDString;
+        user: {
+          id: UUIDString;
+          name: string;
+          cpf: string;
+        } & User_Key;
+      } & Patient_Key;
+    } & Patient_Key;
+  })[];
+}
+
+export interface GetAuthorizedPatientByCpfVariables {
+  cpf: string;
+}
+
 export interface GetBatchData {
   batch?: {
     id: UUIDString;
@@ -348,6 +450,32 @@ export interface GetBatchData {
 
 export interface GetBatchVariables {
   id: UUIDString;
+}
+
+export interface GetCurrentPortalUserData {
+  users: ({
+    id: UUIDString;
+    name: string;
+    birthDate: DateString;
+    email?: string | null;
+    authUid?: string | null;
+    status: UserStatus;
+    cpf: string;
+    sex?: string | null;
+    phone?: string | null;
+    photoUrl?: string | null;
+    portalRole?: PortalRole | null;
+    professional_on_user?: {
+      id: UUIDString;
+      active: boolean;
+      professionalType: ProfessionalType;
+      professionalRegistration?: string | null;
+      ubs?: {
+        id: UUIDString;
+        name: string;
+      } & UBS_Key;
+    } & Professional_Key;
+  } & User_Key)[];
 }
 
 export interface GetPatientByUserData {
@@ -476,22 +604,6 @@ export interface GetUbsVariables {
   id: UUIDString;
 }
 
-export interface GetUserByCpfData {
-  users: ({
-    id: UUIDString;
-    name: string;
-    birthDate: DateString;
-    email?: string | null;
-    status: UserStatus;
-    cpf: string;
-    sex?: string | null;
-  } & User_Key)[];
-}
-
-export interface GetUserByCpfVariables {
-  cpf: string;
-}
-
 export interface GetUserByEmailData {
   users: ({
     id: UUIDString;
@@ -517,6 +629,7 @@ export interface GetUserData {
     status: UserStatus;
     cpf: string;
     sex?: string | null;
+    phone?: string | null;
   } & User_Key;
 }
 
@@ -537,10 +650,84 @@ export interface GetVaccineVariables {
   id: UUIDString;
 }
 
-export interface ListApplicationsByPatientData {
+export interface ListAccessibleAppointmentsData {
+  patientAccesses: ({
+    patient: {
+      appointments: ({
+        id: UUIDString;
+        patient: {
+          id: UUIDString;
+          user: {
+            id: UUIDString;
+            name: string;
+            cpf: string;
+          } & User_Key;
+        } & Patient_Key;
+        vaccine: {
+          id: UUIDString;
+          name: string;
+          requiredDoses: number;
+        } & Vaccine_Key;
+        ubs?: {
+          id: UUIDString;
+          name: string;
+          cidade?: string | null;
+        } & UBS_Key;
+        createdAt: TimestampString;
+        scheduledAt: TimestampString;
+        status: AppointmentStatus;
+        notes?: string | null;
+      } & Appointment_Key)[];
+    };
+  })[];
+}
+
+export interface ListAccessiblePatientsData {
+  patientAccesses: ({
+    patient: {
+      id: UUIDString;
+      motherName?: string | null;
+      patientType: PatientType;
+      user: {
+        id: UUIDString;
+        name: string;
+        birthDate: DateString;
+        email?: string | null;
+        cpf: string;
+        sex?: string | null;
+        status: UserStatus;
+      } & User_Key;
+      responsible?: {
+        id: UUIDString;
+        user: {
+          id: UUIDString;
+          name: string;
+          cpf: string;
+        } & User_Key;
+      } & Patient_Key;
+    } & Patient_Key;
+  })[];
+}
+
+export interface ListAdminApplicationsByPatientData {
   applications: ({
     id: UUIDString;
-    vaccine: {
+    patientIdSnapshot: UUIDString;
+    patientLegacyPersonIdSnapshot?: string | null;
+    patientNameSnapshot: string;
+    vaccineNameSnapshot: string;
+    lotSnapshot?: string | null;
+    manufacturerSnapshot?: string | null;
+    facilityNameSnapshot: string;
+    professionalNameSnapshot: string;
+    professionalRegistrationSnapshot?: string | null;
+    doseLabel?: string | null;
+    nextDoseAt?: TimestampString | null;
+    source?: string | null;
+    voidedAt?: TimestampString | null;
+    voidedByAuthUid?: string | null;
+    voidReason?: string | null;
+    vaccine?: {
       id: UUIDString;
       name: string;
       requiredDoses: number;
@@ -556,7 +743,7 @@ export interface ListApplicationsByPatientData {
       scheduledAt: TimestampString;
       status: AppointmentStatus;
     } & Appointment_Key;
-    professional: {
+    professional?: {
       id: UUIDString;
       user: {
         id: UUIDString;
@@ -565,11 +752,76 @@ export interface ListApplicationsByPatientData {
       professionalType: ProfessionalType;
       professionalRegistration?: string | null;
     } & Professional_Key;
-    ubs: {
+    ubs?: {
       id: UUIDString;
       name: string;
     } & UBS_Key;
-    patient: {
+    patient?: {
+      id: UUIDString;
+      user: {
+        id: UUIDString;
+        name: string;
+        cpf: string;
+      } & User_Key;
+    } & Patient_Key;
+    applicationDate: TimestampString;
+    doseNumber?: number | null;
+    notes?: string | null;
+  } & Application_Key)[];
+}
+
+export interface ListAdminApplicationsByPatientVariables {
+  patientId: UUIDString;
+}
+
+export interface ListApplicationsByPatientData {
+  applications: ({
+    id: UUIDString;
+    patientIdSnapshot: UUIDString;
+    patientLegacyPersonIdSnapshot?: string | null;
+    patientNameSnapshot: string;
+    vaccineNameSnapshot: string;
+    lotSnapshot?: string | null;
+    manufacturerSnapshot?: string | null;
+    facilityNameSnapshot: string;
+    professionalNameSnapshot: string;
+    professionalRegistrationSnapshot?: string | null;
+    doseLabel?: string | null;
+    nextDoseAt?: TimestampString | null;
+    source?: string | null;
+    voidedAt?: TimestampString | null;
+    voidedByAuthUid?: string | null;
+    voidReason?: string | null;
+    vaccine?: {
+      id: UUIDString;
+      name: string;
+      requiredDoses: number;
+    } & Vaccine_Key;
+    batch?: {
+      id: UUIDString;
+      manufacturer: string;
+      batchCode: string;
+      expirationDate: DateString;
+    } & Batch_Key;
+    appointment?: {
+      id: UUIDString;
+      scheduledAt: TimestampString;
+      status: AppointmentStatus;
+    } & Appointment_Key;
+    professional?: {
+      id: UUIDString;
+      user: {
+        id: UUIDString;
+        name: string;
+      } & User_Key;
+      professionalType: ProfessionalType;
+      professionalRegistration?: string | null;
+    } & Professional_Key;
+    ubs?: {
+      id: UUIDString;
+      name: string;
+    } & UBS_Key;
+    patient?: {
       id: UUIDString;
       user: {
         id: UUIDString;
@@ -590,7 +842,16 @@ export interface ListApplicationsByPatientVariables {
 export interface ListApplicationsByVaccineData {
   applications: ({
     id: UUIDString;
-    patient: {
+    patientIdSnapshot: UUIDString;
+    patientLegacyPersonIdSnapshot?: string | null;
+    patientNameSnapshot: string;
+    vaccineNameSnapshot: string;
+    facilityNameSnapshot: string;
+    professionalNameSnapshot: string;
+    professionalRegistrationSnapshot?: string | null;
+    voidedAt?: TimestampString | null;
+    voidReason?: string | null;
+    patient?: {
       id: UUIDString;
       user: {
         id: UUIDString;
@@ -598,14 +859,14 @@ export interface ListApplicationsByVaccineData {
         cpf: string;
       } & User_Key;
     } & Patient_Key;
-    professional: {
+    professional?: {
       id: UUIDString;
       user: {
         id: UUIDString;
         name: string;
       } & User_Key;
     } & Professional_Key;
-    ubs: {
+    ubs?: {
       id: UUIDString;
       name: string;
     } & UBS_Key;
@@ -622,7 +883,22 @@ export interface ListApplicationsByVaccineVariables {
 export interface ListApplicationsData {
   applications: ({
     id: UUIDString;
-    patient: {
+    patientIdSnapshot: UUIDString;
+    patientLegacyPersonIdSnapshot?: string | null;
+    patientNameSnapshot: string;
+    vaccineNameSnapshot: string;
+    lotSnapshot?: string | null;
+    manufacturerSnapshot?: string | null;
+    facilityNameSnapshot: string;
+    professionalNameSnapshot: string;
+    professionalRegistrationSnapshot?: string | null;
+    doseLabel?: string | null;
+    nextDoseAt?: TimestampString | null;
+    source?: string | null;
+    voidedAt?: TimestampString | null;
+    voidedByAuthUid?: string | null;
+    voidReason?: string | null;
+    patient?: {
       id: UUIDString;
       user: {
         id: UUIDString;
@@ -630,7 +906,7 @@ export interface ListApplicationsData {
         cpf: string;
       } & User_Key;
     } & Patient_Key;
-    vaccine: {
+    vaccine?: {
       id: UUIDString;
       name: string;
       requiredDoses: number;
@@ -646,7 +922,7 @@ export interface ListApplicationsData {
       scheduledAt: TimestampString;
       status: AppointmentStatus;
     } & Appointment_Key;
-    professional: {
+    professional?: {
       id: UUIDString;
       user: {
         id: UUIDString;
@@ -655,7 +931,7 @@ export interface ListApplicationsData {
       professionalType: ProfessionalType;
       professionalRegistration?: string | null;
     } & Professional_Key;
-    ubs: {
+    ubs?: {
       id: UUIDString;
       name: string;
       cidade?: string | null;
@@ -788,6 +1064,68 @@ export interface ListBatchesData {
     manufacturingDate?: DateString | null;
     expirationDate: DateString;
   } & Batch_Key)[];
+}
+
+export interface ListCurrentProfessionalApplicationsData {
+  applications: ({
+    id: UUIDString;
+    patientIdSnapshot: UUIDString;
+    patientLegacyPersonIdSnapshot?: string | null;
+    patientNameSnapshot: string;
+    vaccineNameSnapshot: string;
+    lotSnapshot?: string | null;
+    manufacturerSnapshot?: string | null;
+    facilityNameSnapshot: string;
+    professionalNameSnapshot: string;
+    professionalRegistrationSnapshot?: string | null;
+    doseLabel?: string | null;
+    nextDoseAt?: TimestampString | null;
+    source?: string | null;
+    voidedAt?: TimestampString | null;
+    voidedByAuthUid?: string | null;
+    voidReason?: string | null;
+    patient?: {
+      id: UUIDString;
+      user: {
+        id: UUIDString;
+        name: string;
+        cpf: string;
+      } & User_Key;
+    } & Patient_Key;
+    vaccine?: {
+      id: UUIDString;
+      name: string;
+      requiredDoses: number;
+    } & Vaccine_Key;
+    batch?: {
+      id: UUIDString;
+      manufacturer: string;
+      batchCode: string;
+      expirationDate: DateString;
+    } & Batch_Key;
+    appointment?: {
+      id: UUIDString;
+      scheduledAt: TimestampString;
+      status: AppointmentStatus;
+    } & Appointment_Key;
+    professional?: {
+      id: UUIDString;
+      user: {
+        id: UUIDString;
+        name: string;
+      } & User_Key;
+      professionalType: ProfessionalType;
+      professionalRegistration?: string | null;
+    } & Professional_Key;
+    ubs?: {
+      id: UUIDString;
+      name: string;
+      cidade?: string | null;
+    } & UBS_Key;
+    applicationDate: TimestampString;
+    doseNumber?: number | null;
+    notes?: string | null;
+  } & Application_Key)[];
 }
 
 export interface ListPatientsData {
@@ -927,14 +1265,9 @@ export interface UpdateApplicationData {
 
 export interface UpdateApplicationVariables {
   id: UUIDString;
-  patientId?: UUIDString | null;
-  vaccineId?: UUIDString | null;
-  batchId?: UUIDString | null;
-  appointmentId?: UUIDString | null;
-  professionalId?: UUIDString | null;
-  ubsId?: UUIDString | null;
-  applicationDate?: TimestampString | null;
   doseNumber?: number | null;
+  doseLabel?: string | null;
+  nextDoseAt?: TimestampString | null;
   notes?: string | null;
 }
 
@@ -1039,6 +1372,15 @@ export interface Vaccine_Key {
   __typename?: 'Vaccine_Key';
 }
 
+export interface VoidApplicationData {
+  application_update?: Application_Key | null;
+}
+
+export interface VoidApplicationVariables {
+  id: UUIDString;
+  reason: string;
+}
+
 interface CreateUserRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: CreateUserVariables): MutationRef<CreateUserData, CreateUserVariables>;
@@ -1063,17 +1405,17 @@ export const updateUserRef: UpdateUserRef;
 export function updateUser(vars: UpdateUserVariables): MutationPromise<UpdateUserData, UpdateUserVariables>;
 export function updateUser(dc: DataConnect, vars: UpdateUserVariables): MutationPromise<UpdateUserData, UpdateUserVariables>;
 
-interface DeleteUserRef {
+interface DeleteUnlinkedUserRef {
   /* Allow users to create refs without passing in DataConnect */
-  (vars: DeleteUserVariables): MutationRef<DeleteUserData, DeleteUserVariables>;
+  (vars: DeleteUnlinkedUserVariables): MutationRef<DeleteUnlinkedUserData, DeleteUnlinkedUserVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: DeleteUserVariables): MutationRef<DeleteUserData, DeleteUserVariables>;
+  (dc: DataConnect, vars: DeleteUnlinkedUserVariables): MutationRef<DeleteUnlinkedUserData, DeleteUnlinkedUserVariables>;
   operationName: string;
 }
-export const deleteUserRef: DeleteUserRef;
+export const deleteUnlinkedUserRef: DeleteUnlinkedUserRef;
 
-export function deleteUser(vars: DeleteUserVariables): MutationPromise<DeleteUserData, DeleteUserVariables>;
-export function deleteUser(dc: DataConnect, vars: DeleteUserVariables): MutationPromise<DeleteUserData, DeleteUserVariables>;
+export function deleteUnlinkedUser(vars: DeleteUnlinkedUserVariables): MutationPromise<DeleteUnlinkedUserData, DeleteUnlinkedUserVariables>;
+export function deleteUnlinkedUser(dc: DataConnect, vars: DeleteUnlinkedUserVariables): MutationPromise<DeleteUnlinkedUserData, DeleteUnlinkedUserVariables>;
 
 interface CreatePatientRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -1099,17 +1441,17 @@ export const updatePatientRef: UpdatePatientRef;
 export function updatePatient(vars: UpdatePatientVariables): MutationPromise<UpdatePatientData, UpdatePatientVariables>;
 export function updatePatient(dc: DataConnect, vars: UpdatePatientVariables): MutationPromise<UpdatePatientData, UpdatePatientVariables>;
 
-interface DeletePatientRef {
+interface ArchivePatientRef {
   /* Allow users to create refs without passing in DataConnect */
-  (vars: DeletePatientVariables): MutationRef<DeletePatientData, DeletePatientVariables>;
+  (vars: ArchivePatientVariables): MutationRef<ArchivePatientData, ArchivePatientVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: DeletePatientVariables): MutationRef<DeletePatientData, DeletePatientVariables>;
+  (dc: DataConnect, vars: ArchivePatientVariables): MutationRef<ArchivePatientData, ArchivePatientVariables>;
   operationName: string;
 }
-export const deletePatientRef: DeletePatientRef;
+export const archivePatientRef: ArchivePatientRef;
 
-export function deletePatient(vars: DeletePatientVariables): MutationPromise<DeletePatientData, DeletePatientVariables>;
-export function deletePatient(dc: DataConnect, vars: DeletePatientVariables): MutationPromise<DeletePatientData, DeletePatientVariables>;
+export function archivePatient(vars: ArchivePatientVariables): MutationPromise<ArchivePatientData, ArchivePatientVariables>;
+export function archivePatient(dc: DataConnect, vars: ArchivePatientVariables): MutationPromise<ArchivePatientData, ArchivePatientVariables>;
 
 interface CreateUbsRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -1135,17 +1477,17 @@ export const updateUbsRef: UpdateUbsRef;
 export function updateUbs(vars: UpdateUbsVariables): MutationPromise<UpdateUbsData, UpdateUbsVariables>;
 export function updateUbs(dc: DataConnect, vars: UpdateUbsVariables): MutationPromise<UpdateUbsData, UpdateUbsVariables>;
 
-interface DeleteUbsRef {
+interface ArchiveUbsRef {
   /* Allow users to create refs without passing in DataConnect */
-  (vars: DeleteUbsVariables): MutationRef<DeleteUbsData, DeleteUbsVariables>;
+  (vars: ArchiveUbsVariables): MutationRef<ArchiveUbsData, ArchiveUbsVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: DeleteUbsVariables): MutationRef<DeleteUbsData, DeleteUbsVariables>;
+  (dc: DataConnect, vars: ArchiveUbsVariables): MutationRef<ArchiveUbsData, ArchiveUbsVariables>;
   operationName: string;
 }
-export const deleteUbsRef: DeleteUbsRef;
+export const archiveUbsRef: ArchiveUbsRef;
 
-export function deleteUbs(vars: DeleteUbsVariables): MutationPromise<DeleteUbsData, DeleteUbsVariables>;
-export function deleteUbs(dc: DataConnect, vars: DeleteUbsVariables): MutationPromise<DeleteUbsData, DeleteUbsVariables>;
+export function archiveUbs(vars: ArchiveUbsVariables): MutationPromise<ArchiveUbsData, ArchiveUbsVariables>;
+export function archiveUbs(dc: DataConnect, vars: ArchiveUbsVariables): MutationPromise<ArchiveUbsData, ArchiveUbsVariables>;
 
 interface CreateProfessionalRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -1171,17 +1513,17 @@ export const updateProfessionalRef: UpdateProfessionalRef;
 export function updateProfessional(vars: UpdateProfessionalVariables): MutationPromise<UpdateProfessionalData, UpdateProfessionalVariables>;
 export function updateProfessional(dc: DataConnect, vars: UpdateProfessionalVariables): MutationPromise<UpdateProfessionalData, UpdateProfessionalVariables>;
 
-interface DeleteProfessionalRef {
+interface ArchiveProfessionalRef {
   /* Allow users to create refs without passing in DataConnect */
-  (vars: DeleteProfessionalVariables): MutationRef<DeleteProfessionalData, DeleteProfessionalVariables>;
+  (vars: ArchiveProfessionalVariables): MutationRef<ArchiveProfessionalData, ArchiveProfessionalVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: DeleteProfessionalVariables): MutationRef<DeleteProfessionalData, DeleteProfessionalVariables>;
+  (dc: DataConnect, vars: ArchiveProfessionalVariables): MutationRef<ArchiveProfessionalData, ArchiveProfessionalVariables>;
   operationName: string;
 }
-export const deleteProfessionalRef: DeleteProfessionalRef;
+export const archiveProfessionalRef: ArchiveProfessionalRef;
 
-export function deleteProfessional(vars: DeleteProfessionalVariables): MutationPromise<DeleteProfessionalData, DeleteProfessionalVariables>;
-export function deleteProfessional(dc: DataConnect, vars: DeleteProfessionalVariables): MutationPromise<DeleteProfessionalData, DeleteProfessionalVariables>;
+export function archiveProfessional(vars: ArchiveProfessionalVariables): MutationPromise<ArchiveProfessionalData, ArchiveProfessionalVariables>;
+export function archiveProfessional(dc: DataConnect, vars: ArchiveProfessionalVariables): MutationPromise<ArchiveProfessionalData, ArchiveProfessionalVariables>;
 
 interface CreateVaccineRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -1207,17 +1549,17 @@ export const updateVaccineRef: UpdateVaccineRef;
 export function updateVaccine(vars: UpdateVaccineVariables): MutationPromise<UpdateVaccineData, UpdateVaccineVariables>;
 export function updateVaccine(dc: DataConnect, vars: UpdateVaccineVariables): MutationPromise<UpdateVaccineData, UpdateVaccineVariables>;
 
-interface DeleteVaccineRef {
+interface ArchiveVaccineRef {
   /* Allow users to create refs without passing in DataConnect */
-  (vars: DeleteVaccineVariables): MutationRef<DeleteVaccineData, DeleteVaccineVariables>;
+  (vars: ArchiveVaccineVariables): MutationRef<ArchiveVaccineData, ArchiveVaccineVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: DeleteVaccineVariables): MutationRef<DeleteVaccineData, DeleteVaccineVariables>;
+  (dc: DataConnect, vars: ArchiveVaccineVariables): MutationRef<ArchiveVaccineData, ArchiveVaccineVariables>;
   operationName: string;
 }
-export const deleteVaccineRef: DeleteVaccineRef;
+export const archiveVaccineRef: ArchiveVaccineRef;
 
-export function deleteVaccine(vars: DeleteVaccineVariables): MutationPromise<DeleteVaccineData, DeleteVaccineVariables>;
-export function deleteVaccine(dc: DataConnect, vars: DeleteVaccineVariables): MutationPromise<DeleteVaccineData, DeleteVaccineVariables>;
+export function archiveVaccine(vars: ArchiveVaccineVariables): MutationPromise<ArchiveVaccineData, ArchiveVaccineVariables>;
+export function archiveVaccine(dc: DataConnect, vars: ArchiveVaccineVariables): MutationPromise<ArchiveVaccineData, ArchiveVaccineVariables>;
 
 interface CreateBatchRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -1315,17 +1657,17 @@ export const updateApplicationRef: UpdateApplicationRef;
 export function updateApplication(vars: UpdateApplicationVariables): MutationPromise<UpdateApplicationData, UpdateApplicationVariables>;
 export function updateApplication(dc: DataConnect, vars: UpdateApplicationVariables): MutationPromise<UpdateApplicationData, UpdateApplicationVariables>;
 
-interface DeleteApplicationRef {
+interface VoidApplicationRef {
   /* Allow users to create refs without passing in DataConnect */
-  (vars: DeleteApplicationVariables): MutationRef<DeleteApplicationData, DeleteApplicationVariables>;
+  (vars: VoidApplicationVariables): MutationRef<VoidApplicationData, VoidApplicationVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: DeleteApplicationVariables): MutationRef<DeleteApplicationData, DeleteApplicationVariables>;
+  (dc: DataConnect, vars: VoidApplicationVariables): MutationRef<VoidApplicationData, VoidApplicationVariables>;
   operationName: string;
 }
-export const deleteApplicationRef: DeleteApplicationRef;
+export const voidApplicationRef: VoidApplicationRef;
 
-export function deleteApplication(vars: DeleteApplicationVariables): MutationPromise<DeleteApplicationData, DeleteApplicationVariables>;
-export function deleteApplication(dc: DataConnect, vars: DeleteApplicationVariables): MutationPromise<DeleteApplicationData, DeleteApplicationVariables>;
+export function voidApplication(vars: VoidApplicationVariables): MutationPromise<VoidApplicationData, VoidApplicationVariables>;
+export function voidApplication(dc: DataConnect, vars: VoidApplicationVariables): MutationPromise<VoidApplicationData, VoidApplicationVariables>;
 
 interface ListUsersRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -1351,17 +1693,29 @@ export const getUserRef: GetUserRef;
 export function getUser(vars: GetUserVariables, options?: ExecuteQueryOptions): QueryPromise<GetUserData, GetUserVariables>;
 export function getUser(dc: DataConnect, vars: GetUserVariables, options?: ExecuteQueryOptions): QueryPromise<GetUserData, GetUserVariables>;
 
-interface GetUserByCpfRef {
+interface GetCurrentPortalUserRef {
   /* Allow users to create refs without passing in DataConnect */
-  (vars: GetUserByCpfVariables): QueryRef<GetUserByCpfData, GetUserByCpfVariables>;
+  (): QueryRef<GetCurrentPortalUserData, undefined>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: GetUserByCpfVariables): QueryRef<GetUserByCpfData, GetUserByCpfVariables>;
+  (dc: DataConnect): QueryRef<GetCurrentPortalUserData, undefined>;
   operationName: string;
 }
-export const getUserByCpfRef: GetUserByCpfRef;
+export const getCurrentPortalUserRef: GetCurrentPortalUserRef;
 
-export function getUserByCpf(vars: GetUserByCpfVariables, options?: ExecuteQueryOptions): QueryPromise<GetUserByCpfData, GetUserByCpfVariables>;
-export function getUserByCpf(dc: DataConnect, vars: GetUserByCpfVariables, options?: ExecuteQueryOptions): QueryPromise<GetUserByCpfData, GetUserByCpfVariables>;
+export function getCurrentPortalUser(options?: ExecuteQueryOptions): QueryPromise<GetCurrentPortalUserData, undefined>;
+export function getCurrentPortalUser(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<GetCurrentPortalUserData, undefined>;
+
+interface GetAdminPatientByCpfRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetAdminPatientByCpfVariables): QueryRef<GetAdminPatientByCpfData, GetAdminPatientByCpfVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetAdminPatientByCpfVariables): QueryRef<GetAdminPatientByCpfData, GetAdminPatientByCpfVariables>;
+  operationName: string;
+}
+export const getAdminPatientByCpfRef: GetAdminPatientByCpfRef;
+
+export function getAdminPatientByCpf(vars: GetAdminPatientByCpfVariables, options?: ExecuteQueryOptions): QueryPromise<GetAdminPatientByCpfData, GetAdminPatientByCpfVariables>;
+export function getAdminPatientByCpf(dc: DataConnect, vars: GetAdminPatientByCpfVariables, options?: ExecuteQueryOptions): QueryPromise<GetAdminPatientByCpfData, GetAdminPatientByCpfVariables>;
 
 interface GetUserByEmailRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -1387,6 +1741,30 @@ export const listPatientsRef: ListPatientsRef;
 export function listPatients(options?: ExecuteQueryOptions): QueryPromise<ListPatientsData, undefined>;
 export function listPatients(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListPatientsData, undefined>;
 
+interface ListAccessiblePatientsRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListAccessiblePatientsData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListAccessiblePatientsData, undefined>;
+  operationName: string;
+}
+export const listAccessiblePatientsRef: ListAccessiblePatientsRef;
+
+export function listAccessiblePatients(options?: ExecuteQueryOptions): QueryPromise<ListAccessiblePatientsData, undefined>;
+export function listAccessiblePatients(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListAccessiblePatientsData, undefined>;
+
+interface GetAuthorizedPatientByCpfRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetAuthorizedPatientByCpfVariables): QueryRef<GetAuthorizedPatientByCpfData, GetAuthorizedPatientByCpfVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetAuthorizedPatientByCpfVariables): QueryRef<GetAuthorizedPatientByCpfData, GetAuthorizedPatientByCpfVariables>;
+  operationName: string;
+}
+export const getAuthorizedPatientByCpfRef: GetAuthorizedPatientByCpfRef;
+
+export function getAuthorizedPatientByCpf(vars: GetAuthorizedPatientByCpfVariables, options?: ExecuteQueryOptions): QueryPromise<GetAuthorizedPatientByCpfData, GetAuthorizedPatientByCpfVariables>;
+export function getAuthorizedPatientByCpf(dc: DataConnect, vars: GetAuthorizedPatientByCpfVariables, options?: ExecuteQueryOptions): QueryPromise<GetAuthorizedPatientByCpfData, GetAuthorizedPatientByCpfVariables>;
+
 interface GetPatientRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: GetPatientVariables): QueryRef<GetPatientData, GetPatientVariables>;
@@ -1398,6 +1776,18 @@ export const getPatientRef: GetPatientRef;
 
 export function getPatient(vars: GetPatientVariables, options?: ExecuteQueryOptions): QueryPromise<GetPatientData, GetPatientVariables>;
 export function getPatient(dc: DataConnect, vars: GetPatientVariables, options?: ExecuteQueryOptions): QueryPromise<GetPatientData, GetPatientVariables>;
+
+interface GetAdminPatientRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetAdminPatientVariables): QueryRef<GetAdminPatientData, GetAdminPatientVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetAdminPatientVariables): QueryRef<GetAdminPatientData, GetAdminPatientVariables>;
+  operationName: string;
+}
+export const getAdminPatientRef: GetAdminPatientRef;
+
+export function getAdminPatient(vars: GetAdminPatientVariables, options?: ExecuteQueryOptions): QueryPromise<GetAdminPatientData, GetAdminPatientVariables>;
+export function getAdminPatient(dc: DataConnect, vars: GetAdminPatientVariables, options?: ExecuteQueryOptions): QueryPromise<GetAdminPatientData, GetAdminPatientVariables>;
 
 interface GetPatientByUserRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -1567,6 +1957,18 @@ export const listAppointmentsRef: ListAppointmentsRef;
 export function listAppointments(options?: ExecuteQueryOptions): QueryPromise<ListAppointmentsData, undefined>;
 export function listAppointments(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListAppointmentsData, undefined>;
 
+interface ListAccessibleAppointmentsRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListAccessibleAppointmentsData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListAccessibleAppointmentsData, undefined>;
+  operationName: string;
+}
+export const listAccessibleAppointmentsRef: ListAccessibleAppointmentsRef;
+
+export function listAccessibleAppointments(options?: ExecuteQueryOptions): QueryPromise<ListAccessibleAppointmentsData, undefined>;
+export function listAccessibleAppointments(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListAccessibleAppointmentsData, undefined>;
+
 interface GetAppointmentRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: GetAppointmentVariables): QueryRef<GetAppointmentData, GetAppointmentVariables>;
@@ -1615,6 +2017,18 @@ export const listApplicationsRef: ListApplicationsRef;
 export function listApplications(options?: ExecuteQueryOptions): QueryPromise<ListApplicationsData, undefined>;
 export function listApplications(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListApplicationsData, undefined>;
 
+interface ListCurrentProfessionalApplicationsRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListCurrentProfessionalApplicationsData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListCurrentProfessionalApplicationsData, undefined>;
+  operationName: string;
+}
+export const listCurrentProfessionalApplicationsRef: ListCurrentProfessionalApplicationsRef;
+
+export function listCurrentProfessionalApplications(options?: ExecuteQueryOptions): QueryPromise<ListCurrentProfessionalApplicationsData, undefined>;
+export function listCurrentProfessionalApplications(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListCurrentProfessionalApplicationsData, undefined>;
+
 interface GetApplicationRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: GetApplicationVariables): QueryRef<GetApplicationData, GetApplicationVariables>;
@@ -1638,6 +2052,18 @@ export const listApplicationsByPatientRef: ListApplicationsByPatientRef;
 
 export function listApplicationsByPatient(vars: ListApplicationsByPatientVariables, options?: ExecuteQueryOptions): QueryPromise<ListApplicationsByPatientData, ListApplicationsByPatientVariables>;
 export function listApplicationsByPatient(dc: DataConnect, vars: ListApplicationsByPatientVariables, options?: ExecuteQueryOptions): QueryPromise<ListApplicationsByPatientData, ListApplicationsByPatientVariables>;
+
+interface ListAdminApplicationsByPatientRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListAdminApplicationsByPatientVariables): QueryRef<ListAdminApplicationsByPatientData, ListAdminApplicationsByPatientVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: ListAdminApplicationsByPatientVariables): QueryRef<ListAdminApplicationsByPatientData, ListAdminApplicationsByPatientVariables>;
+  operationName: string;
+}
+export const listAdminApplicationsByPatientRef: ListAdminApplicationsByPatientRef;
+
+export function listAdminApplicationsByPatient(vars: ListAdminApplicationsByPatientVariables, options?: ExecuteQueryOptions): QueryPromise<ListAdminApplicationsByPatientData, ListAdminApplicationsByPatientVariables>;
+export function listAdminApplicationsByPatient(dc: DataConnect, vars: ListAdminApplicationsByPatientVariables, options?: ExecuteQueryOptions): QueryPromise<ListAdminApplicationsByPatientData, ListAdminApplicationsByPatientVariables>;
 
 interface ListApplicationsByVaccineRef {
   /* Allow users to create refs without passing in DataConnect */

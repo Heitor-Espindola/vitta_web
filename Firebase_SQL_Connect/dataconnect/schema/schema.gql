@@ -73,6 +73,10 @@ type Patient @table {
   patientType: PatientType!
   responsible: Patient
   motherName: String
+  # Exclusão lógica: pacientes com histórico nunca são removidos fisicamente.
+  active: Boolean! @default(value: true)
+  archivedAt: Timestamp
+  archivedByAuthUid: String
   # ID original do Firestore para importação idempotente e auditável.
   legacyPersonId: String @unique
 }
@@ -126,6 +130,9 @@ type UBS @table {
   bairro: String
   cidade: String
   cep: String
+  active: Boolean! @default(value: true)
+  archivedAt: Timestamp
+  archivedByAuthUid: String
 }
 
 type Professional @table {
@@ -133,6 +140,9 @@ type Professional @table {
   professionalType: ProfessionalType!
   professionalRegistration: String
   ubs: UBS
+  active: Boolean! @default(value: true)
+  archivedAt: Timestamp
+  archivedByAuthUid: String
 }
 
 type Vaccine @table {
@@ -153,7 +163,9 @@ type Vaccine @table {
   sourceUrl: String
   sourceUpdatedAt: Timestamp
   calendarVersion: String
-  active: Boolean
+  active: Boolean! @default(value: true)
+  archivedAt: Timestamp
+  archivedByAuthUid: String
 }
 
 type Batch @table {
@@ -177,25 +189,36 @@ type Appointment @table {
 }
 
 type Application @table {
-  patient: Patient!
-  vaccine: Vaccine!
+  # Referências históricas opcionais geram ON DELETE SET NULL. A operation
+  # CreateApplication continua exigindo as quatro entidades e grava snapshots
+  # atômicos; a nulabilidade existe apenas para preservar o histórico.
+  patient: Patient
+  vaccine: Vaccine
   batch: Batch
   appointment: Appointment
   # Registros importados sem correspondência relacional usarão referências
   # administrativas controladas e preservarão os textos originais abaixo.
-  professional: Professional!
-  ubs: UBS!
+  professional: Professional
+  ubs: UBS
   applicationDate: Timestamp!
   doseNumber: Int
   doseLabel: String
   nextDoseAt: Timestamp
   legacyRecordId: String @unique
+  patientIdSnapshot: UUID!
+  patientLegacyPersonIdSnapshot: String
+  patientNameSnapshot: String!
+  vaccineNameSnapshot: String!
   lotSnapshot: String
   manufacturerSnapshot: String
-  facilityNameSnapshot: String
-  professionalNameSnapshot: String
+  facilityNameSnapshot: String!
+  professionalNameSnapshot: String!
+  professionalRegistrationSnapshot: String
   source: String
   notes: String
+  voidedAt: Timestamp
+  voidedByAuthUid: String
+  voidReason: String
   createdAt: Timestamp
   updatedAt: Timestamp
 }

@@ -1,9 +1,9 @@
 import { subscribe } from "firebase/data-connect";
 import {
+  archiveVaccine,
   createBatch,
   createVaccine,
   deleteBatch,
-  deleteVaccine,
   listBatchesRef,
   listVaccinesRef,
   updateBatch,
@@ -118,7 +118,7 @@ export async function editVaccine(
 }
 
 export async function removeVaccine(id) {
-  return deleteVaccine({ id });
+  return archiveVaccine({ id });
 }
 
 export async function addBatch({

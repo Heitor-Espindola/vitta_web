@@ -41,8 +41,26 @@ mutation UpdateUser(
     }
   )
 }
-mutation DeleteUser($id: UUID!) @auth(expr: "auth.token.admin == true") {
-  user_delete(id: $id)
+mutation DeleteUnlinkedUser($id: UUID!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  query @redact {
+    patients(where: { userId: { eq: $id } })
+      @check(
+        expr: "this.size() == 0"
+        message: "Usuário vinculado a paciente não pode ser excluído."
+      ) {
+      id
+    }
+    professionals(where: { userId: { eq: $id } })
+      @check(
+        expr: "this.size() == 0"
+        message: "Usuário vinculado a profissional não pode ser excluído."
+      ) {
+      id
+    }
+  }
+  user_delete(id: $id) @check(message: "Usuário não encontrado.")
 }
 
 # ============================================================
@@ -78,8 +96,17 @@ mutation UpdatePatient(
     }
   )
 }
-mutation DeletePatient($id: UUID!) @auth(expr: "auth.token.admin == true") {
-  patient_delete(id: $id)
+mutation ArchivePatient($id: UUID!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  patient_update(
+    id: $id
+    data: {
+      active: false
+      archivedAt_expr: "request.time"
+      archivedByAuthUid_expr: "auth.uid"
+    }
+  ) @check(message: "Paciente não encontrado.")
 }
 
 # ============================================================
@@ -125,8 +152,17 @@ mutation UpdateUbs(
     }
   )
 }
-mutation DeleteUbs($id: UUID!) @auth(expr: "auth.token.admin == true") {
-  uBS_delete(id: $id)
+mutation ArchiveUbs($id: UUID!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  uBS_update(
+    id: $id
+    data: {
+      active: false
+      archivedAt_expr: "request.time"
+      archivedByAuthUid_expr: "auth.uid"
+    }
+  ) @check(message: "UBS não encontrada.")
 }
 
 # ============================================================
@@ -162,9 +198,17 @@ mutation UpdateProfessional(
     }
   )
 }
-mutation DeleteProfessional($id: UUID!)
-  @auth(expr: "auth.token.admin == true") {
-  professional_delete(id: $id)
+mutation ArchiveProfessional($id: UUID!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  professional_update(
+    id: $id
+    data: {
+      active: false
+      archivedAt_expr: "request.time"
+      archivedByAuthUid_expr: "auth.uid"
+    }
+  ) @check(message: "Profissional não encontrado.")
 }
 
 # ============================================================
@@ -198,8 +242,17 @@ mutation UpdateVaccine(
     }
   )
 }
-mutation DeleteVaccine($id: UUID!) @auth(expr: "auth.token.admin == true") {
-  vaccine_delete(id: $id)
+mutation ArchiveVaccine($id: UUID!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  vaccine_update(
+    id: $id
+    data: {
+      active: false
+      archivedAt_expr: "request.time"
+      archivedByAuthUid_expr: "auth.uid"
+    }
+  ) @check(message: "Vacina não encontrada.")
 }
 
 # ============================================================
@@ -352,7 +405,14 @@ mutation CreateApplication(
   query @redact {
     professional(id: $professionalId)
       @check(message: "Profissional não encontrado.") {
+      active
+        @check(
+          expr: "this == true"
+          message: "Profissional inativo ou arquivado."
+        )
+      professionalRegistration
       user {
+        name
         authUid
           @check(
             expr: "this == auth.uid"
@@ -362,6 +422,41 @@ mutation CreateApplication(
           @check(
             expr: "this == 'PROFESSIONAL'"
             message: "Papel profissional obrigatório."
+          )
+      }
+    }
+    patient(id: $patientId) @check(message: "Paciente não encontrado.") {
+      active
+        @check(
+          expr: "this == true"
+          message: "Paciente inativo ou arquivado."
+        )
+      legacyPersonId
+      user {
+        name
+      }
+    }
+    vaccine(id: $vaccineId) @check(message: "Vacina não encontrada.") {
+      active
+        @check(
+          expr: "this == true"
+          message: "Vacina inativa ou arquivada."
+        )
+      name
+    }
+    uBS(id: $ubsId) @check(message: "UBS não encontrada.") {
+      active
+        @check(expr: "this == true", message: "UBS inativa ou arquivada.")
+      name
+    }
+    batch(id: $batchId) @check(optional: true) {
+      manufacturer
+      batchCode
+      vaccine {
+        id
+          @check(
+            expr: "this == vars.vaccineId"
+            message: "O lote não pertence à vacina informada."
           )
       }
     }
@@ -394,38 +489,50 @@ mutation CreateApplication(
       ubsId: $ubsId
       applicationDate: $applicationDate
       doseNumber: $doseNumber
+      patientIdSnapshot: $patientId
+      patientLegacyPersonIdSnapshot_expr: "response.query.patient.legacyPersonId"
+      patientNameSnapshot_expr: "response.query.patient.user.name"
+      vaccineNameSnapshot_expr: "response.query.vaccine.name"
+      lotSnapshot_expr: "response.query.batch.batchCode"
+      manufacturerSnapshot_expr: "response.query.batch.manufacturer"
+      facilityNameSnapshot_expr: "response.query.uBS.name"
+      professionalNameSnapshot_expr: "response.query.professional.user.name"
+      professionalRegistrationSnapshot_expr: "response.query.professional.professionalRegistration"
+      source: "WEB_PORTAL"
       notes: $notes
+      createdAt_expr: "request.time"
+      updatedAt_expr: "request.time"
     }
   )
 }
 mutation UpdateApplication(
   $id: UUID!
-  $patientId: UUID
-  $vaccineId: UUID
-  $batchId: UUID
-  $appointmentId: UUID
-  $professionalId: UUID
-  $ubsId: UUID
-  $applicationDate: Timestamp
   $doseNumber: Int
+  $doseLabel: String
+  $nextDoseAt: Timestamp
   $notes: String
-) @auth(expr: "auth.token.admin == true") {
+) @auth(expr: "auth.token.admin == true") @transaction {
   application_update(
     id: $id
     data: {
-      patientId: $patientId
-      vaccineId: $vaccineId
-      batchId: $batchId
-      appointmentId: $appointmentId
-      professionalId: $professionalId
-      ubsId: $ubsId
-      applicationDate: $applicationDate
       doseNumber: $doseNumber
+      doseLabel: $doseLabel
+      nextDoseAt: $nextDoseAt
       notes: $notes
+      updatedAt_expr: "request.time"
     }
-  )
+  ) @check(message: "Aplicação não encontrada.")
 }
-mutation DeleteApplication($id: UUID!)
-  @auth(expr: "auth.token.admin == true") {
-  application_delete(id: $id)
+mutation VoidApplication($id: UUID!, $reason: String!)
+  @auth(expr: "auth.token.admin == true")
+  @transaction {
+  application_update(
+    id: $id
+    data: {
+      voidedAt_expr: "request.time"
+      voidedByAuthUid_expr: "auth.uid"
+      voidReason: $reason
+      updatedAt_expr: "request.time"
+    }
+  ) @check(message: "Aplicação não encontrada.")
 }

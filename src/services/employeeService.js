@@ -1,9 +1,9 @@
 import { subscribe } from "firebase/data-connect";
 import {
+  archiveProfessional,
   createProfessional,
   createUser,
-  deleteProfessional,
-  deleteUser,
+  deleteUnlinkedUser,
   getUserByEmail,
   listProfessionalsRef,
   updateProfessional,
@@ -94,7 +94,7 @@ export async function addProfessional({
     const user = await getUserByEmail({ email: cleanEmail }).catch(() => null);
     const createdUser = user?.data?.users?.[0];
     if (createdUser?.id) {
-      await deleteUser({ id: createdUser.id }).catch(() => {});
+      await deleteUnlinkedUser({ id: createdUser.id }).catch(() => {});
     }
     throw error;
   }
@@ -135,6 +135,5 @@ export async function removeProfessional(professional) {
     throw new Error("O profissional selecionado é inválido.");
   }
 
-  await deleteProfessional({ id: professional.id });
-  await deleteUser({ id: professional.userId });
+  await archiveProfessional({ id: professional.id });
 }

@@ -18,12 +18,14 @@ import {
   StatCard,
   StatusBadge,
 } from "../components/ui";
+import { useAuth } from "../context/AuthContext";
 import { getAuthorizedPatient } from "../services/patientService";
 import { removeApplication, watchPatientRecords } from "../services/vaccinationService";
 import { ageFromBirthDate, formatDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
 
 export default function PacienteDetalhe() {
+  const { isAdmin } = useAuth();
   const { personId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -39,7 +41,7 @@ export default function PacienteDetalhe() {
   useEffect(() => {
     let active = true;
     if (!patient) {
-      getAuthorizedPatient(personId)
+      getAuthorizedPatient(personId, { isAdmin })
         .then((result) => {
           if (active) setPatient(result);
         })
@@ -53,7 +55,7 @@ export default function PacienteDetalhe() {
     return () => {
       active = false;
     };
-  }, [personId, patient]);
+  }, [personId, patient, isAdmin]);
 
   useEffect(() => {
     const unsubscribe = watchPatientRecords(
@@ -66,9 +68,10 @@ export default function PacienteDetalhe() {
         setError(friendlyFirebaseError(watchError, watchError.message));
         setRecordsLoading(false);
       },
+      { isAdmin },
     );
     return unsubscribe;
-  }, [personId]);
+  }, [personId, isAdmin]);
 
   const lastRecord = records[0] || null;
   const activePatient = useMemo(
@@ -96,9 +99,11 @@ export default function PacienteDetalhe() {
   }
 
   async function handleDeleteApplication(record) {
-    if (!window.confirm(`Excluir a aplicação de ${record.vaccineName}?`)) return;
+    if (!window.confirm(`Anular a aplicação de ${record.vaccineName}? O histórico será preservado.`)) return;
+    const reason = window.prompt("Informe o motivo da anulação:");
+    if (reason === null) return;
     try {
-      await removeApplication(record.id);
+      await removeApplication(record.id, reason);
       setSelectedRecord(null);
     } catch (deleteError) {
       setError(friendlyFirebaseError(deleteError, deleteError.message));
@@ -168,15 +173,15 @@ export default function PacienteDetalhe() {
                       <td>{record.doseLabel}</td>
                       <td>{formatDate(record.applicationDate)}</td>
                       <td>{record.ubsName || "Não informada"}</td>
-                      <td><StatusBadge status="active">Registrada</StatusBadge></td>
+                      <td><StatusBadge status={record.voidedAt ? "danger" : "active"}>{record.voidedAt ? "Anulada" : "Registrada"}</StatusBadge></td>
                       <td>
                         <div className="table-actions">
                           <button className="icon-button" type="button" onClick={() => setSelectedRecord(record)} title="Detalhes">
                             <EyeIcon />
                           </button>
-                          <button className="icon-button" type="button" onClick={() => { setEditingRecord(record); setFormOpen(true); }} title="Editar">
+                          {isAdmin && !record.voidedAt ? <button className="icon-button" type="button" onClick={() => { setEditingRecord(record); setFormOpen(true); }} title="Editar campos permitidos">
                             <Pencil size={17} />
-                          </button>
+                          </button> : null}
                         </div>
                       </td>
                     </tr>
@@ -225,13 +230,13 @@ export default function PacienteDetalhe() {
         description="Registro armazenado no SQL Connect."
       >
         <VaccinationDetail record={selectedRecord} />
-        {selectedRecord ? (
+        {isAdmin && selectedRecord && !selectedRecord.voidedAt ? (
           <div className="form-actions">
             <button className="button button--secondary" type="button" onClick={() => { setEditingRecord(selectedRecord); setSelectedRecord(null); setFormOpen(true); }}>
               <Pencil size={17} /> Editar
             </button>
             <button className="button button--danger" type="button" onClick={() => handleDeleteApplication(selectedRecord)}>
-              Excluir aplicação
+              Anular aplicação
             </button>
           </div>
         ) : null}

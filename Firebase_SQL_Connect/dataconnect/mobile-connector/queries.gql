@@ -18,6 +18,11 @@ query GetMobileCurrentPerson @auth(level: USER) {
     lastLoginAt
     patient_on_user {
       id
+      active
+        @check(
+          expr: "this == true"
+          message: "Carteira inativa ou arquivada."
+        )
       patientType
       legacyPersonId
     }
@@ -31,6 +36,7 @@ query GetAccessibleFamilyMembers @auth(level: USER) {
         { granteeAuthUid: { eq_expr: "auth.uid" } }
         { consentStatus: { eq: GRANTED } }
         { viewProfile: { eq: true } }
+        { patient: { active: { eq: true } } }
         {
           _or: [
             { validUntil: { isNull: true } }
@@ -78,6 +84,11 @@ query GetAccessiblePatientProfile($patientId: UUID!) @auth(level: USER) {
   }
   patient(id: $patientId) {
     id
+    active
+      @check(
+        expr: "this == true"
+        message: "Carteira inativa ou arquivada."
+      )
     patientType
     legacyPersonId
     user {
@@ -109,12 +120,23 @@ query GetAccessiblePatientVaccinations($patientId: UUID!)
         message: "Acesso expirado."
       )
   }
+  activePatient: patient(id: $patientId) @redact {
+    active
+      @check(
+        expr: "this == true"
+        message: "Carteira inativa ou arquivada."
+      )
+  }
   applications(
     where: { patientId: { eq: $patientId } }
     orderBy: { applicationDate: DESC }
   ) {
     id
     legacyRecordId
+    patientIdSnapshot
+    patientLegacyPersonIdSnapshot
+    patientNameSnapshot
+    vaccineNameSnapshot
     applicationDate
     nextDoseAt
     doseNumber
@@ -123,7 +145,10 @@ query GetAccessiblePatientVaccinations($patientId: UUID!)
     manufacturerSnapshot
     facilityNameSnapshot
     professionalNameSnapshot
+    professionalRegistrationSnapshot
     source
+    voidedAt
+    voidReason
     notes
     vaccine {
       id
@@ -155,7 +180,7 @@ query GetMobileVaccines @auth(level: USER) {
   users(where: { authUid: { eq_expr: "auth.uid" } }) @redact @check {
     id
   }
-  vaccines(orderBy: { name: ASC }) {
+  vaccines(where: { active: { eq: true } }, orderBy: { name: ASC }) {
     id
     legacyVaccineId
     name
@@ -190,6 +215,13 @@ query GetAccessibleEmergencyContact($patientId: UUID!) @auth(level: USER) {
       @check(
         expr: "this == null || this > request.time"
         message: "Acesso expirado."
+      )
+  }
+  activePatient: patient(id: $patientId) @redact {
+    active
+      @check(
+        expr: "this == true"
+        message: "Carteira inativa ou arquivada."
       )
   }
   patient(id: $patientId) {

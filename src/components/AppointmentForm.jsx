@@ -1,5 +1,6 @@
 import { CalendarCheck2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { addAppointment, editAppointment } from "../services/appointmentService";
 import { watchPatients } from "../services/patientService";
@@ -27,6 +28,7 @@ function initialState(appointment) {
 }
 
 export default function AppointmentForm({ initialAppointment = null, onCancel, onSaved }) {
+    const { isAdmin } = useAuth();
     const { showToast } = useToast();
     const [patients, setPatients] = useState([]);
     const [vaccines, setVaccines] = useState([]);
@@ -56,7 +58,7 @@ export default function AppointmentForm({ initialAppointment = null, onCancel, o
             setError(friendlyFirebaseError(loadError, loadError.message));
             patientsReady = true;
             done();
-        });
+        }, { isAdmin });
 
         const unsubscribeVaccines = watchVaccines((data) => {
             setVaccines(data);
@@ -83,7 +85,7 @@ export default function AppointmentForm({ initialAppointment = null, onCancel, o
             unsubscribeVaccines?.();
             unsubscribeUbs?.();
         };
-    }, [initialAppointment?.patientId]);
+    }, [initialAppointment?.patientId, isAdmin]);
 
     const matchingPatients = useMemo(() => {
         const term = patientSearch.trim().toLocaleLowerCase("pt-BR");

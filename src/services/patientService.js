@@ -1,13 +1,16 @@
 import { subscribe } from "firebase/data-connect";
 import {
+  archivePatient,
   createPatient,
   createUser,
-  deletePatient,
-  deleteUser,
+  deleteUnlinkedUser,
+  getAdminPatient,
+  getAdminPatientByCpf,
+  getAuthorizedPatientByCpf,
   getPatientByUser,
   getPatientRef,
-  getUserByCpf,
   getUserByEmail,
+  listAccessiblePatientsRef,
   listPatientsRef,
   updatePatient,
   updateUser,
@@ -55,11 +58,15 @@ function mapPatient(patient) {
   };
 }
 
-export function watchPatients(onData, onError) {
+export function watchPatients(onData, onError, { isAdmin = false } = {}) {
   return subscribe(
-    listPatientsRef(),
+    isAdmin ? listPatientsRef() : listAccessiblePatientsRef(),
     (result) => {
-      const patients = result?.data?.patients || [];
+      const patients = isAdmin
+        ? result?.data?.patients || []
+        : (result?.data?.patientAccesses || [])
+            .map((access) => access?.patient)
+            .filter(Boolean);
 
       const mapped = patients
         .map(mapPatient)
@@ -71,8 +78,10 @@ export function watchPatients(onData, onError) {
   );
 }
 
-export async function getPatientById(id) {
-  const result = await getPatientRef({ id });
+export async function getPatientById(id, { isAdmin = false } = {}) {
+  const result = isAdmin
+    ? await getAdminPatient({ id })
+    : await getPatientRef({ id });
   const patient = result?.data?.patient;
 
   if (!patient) {
@@ -99,28 +108,32 @@ export async function getPatientByUserId(userId) {
   return mapPatient(patient);
 }
 
-export async function authorizePatientLookup({ cpf }) {
+export async function authorizePatientLookup({ cpf, isAdmin = false }) {
   const digits = cleanCpf(cpf);
 
   if (!isValidCpf(digits)) {
     throw new PatientLookupError("invalid-cpf", "Informe um CPF válido.");
   }
 
-  const userResult = await getUserByCpf({ cpf: digits });
-  const user = userResult?.data?.users?.[0];
+  const result = isAdmin
+    ? await getAdminPatientByCpf({ cpf: digits })
+    : await getAuthorizedPatientByCpf({ cpf: digits });
+  const patient = isAdmin
+    ? result?.data?.patients?.[0]
+    : result?.data?.patientAccesses?.[0]?.patient;
 
-  if (!user) {
+  if (!patient) {
     throw new PatientLookupError(
       "patient-not-found",
       "Nenhum paciente foi localizado com este CPF.",
     );
   }
 
-  return getPatientByUserId(user.id);
+  return mapPatient(patient);
 }
 
-export async function getAuthorizedPatient(personId) {
-  return getPatientById(personId);
+export async function getAuthorizedPatient(personId, options) {
+  return getPatientById(personId, options);
 }
 
 export async function addPatient({
@@ -180,7 +193,7 @@ export async function addPatient({
     const createdUser = userResult?.data?.users?.[0];
 
     if (createdUser?.id) {
-      await deleteUser({
+      await deleteUnlinkedUser({
         id: createdUser.id,
       }).catch(() => {});
     }
@@ -231,12 +244,8 @@ export async function removePatient(patient) {
     throw new Error("O paciente selecionado é inválido.");
   }
 
-  await deletePatient({
+  await archivePatient({
     id: patient.id,
-  });
-
-  await deleteUser({
-    id: patient.userId,
   });
 }
 

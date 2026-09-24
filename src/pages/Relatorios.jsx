@@ -1,11 +1,13 @@
 import { BarChart3, CalendarDays, Syringe, UsersRound } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { PageHeader, SkeletonRows, StatCard, StatePanel } from "../components/ui";
+import { useAuth } from "../context/AuthContext";
 import { watchApplications } from "../services/vaccinationService";
 import { asDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
 
 export default function Relatorios() {
+  const { isAdmin } = useAuth();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -20,8 +22,9 @@ export default function Relatorios() {
         setError(friendlyFirebaseError(watchError, watchError.message));
         setLoading(false);
       },
+      { isAdmin },
     );
-  }, []);
+  }, [isAdmin]);
 
   const report = useMemo(() => {
     const now = new Date();

@@ -5,6 +5,21 @@
     }
   },
   "dataconnect": {
-    "source": "dataconnect"
+    "source": "Firebase_SQL_Connect/dataconnect"
+  },
+  "hosting": {
+    "site": "vitta-5ec1e",
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
   }
 }

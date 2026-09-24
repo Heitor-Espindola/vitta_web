@@ -23,7 +23,7 @@ function greeting() {
 }
 
 export default function Dashboard() {
-  const { profile } = useAuth();
+  const { profile, isAdmin } = useAuth();
   const [records, setRecords] = useState([]);
   const [vaccines, setVaccines] = useState([]);
   const [recordsLoading, setRecordsLoading] = useState(true);
@@ -40,6 +40,7 @@ export default function Dashboard() {
         setError(friendlyFirebaseError(watchError, watchError.message));
         setRecordsLoading(false);
       },
+      { isAdmin },
     );
     const unsubscribeVaccines = watchVaccines(
       (data) => {
@@ -55,7 +56,7 @@ export default function Dashboard() {
       unsubscribeRecords?.();
       unsubscribeVaccines?.();
     };
-  }, []);
+  }, [isAdmin]);
 
   const metrics = useMemo(() => {
     const today = new Date();

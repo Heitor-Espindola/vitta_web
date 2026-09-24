@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import AppointmentForm from "../components/AppointmentForm";
 import { Modal, PageHeader, SkeletonRows, StatePanel, StatusBadge } from "../components/ui";
 import { useToast } from "../context/ToastContext";
+import { useAuth } from "../context/AuthContext";
 import { removeAppointment, watchAppointments } from "../services/appointmentService";
 import { formatDateTime } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
@@ -23,6 +24,7 @@ function badgeStatus(status) {
 
 export default function Agendamentos() {
     const { showToast } = useToast();
+    const { isAdmin } = useAuth();
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -43,8 +45,9 @@ export default function Agendamentos() {
                 setError(friendlyFirebaseError(watchError, watchError.message));
                 setLoading(false);
             },
+            { isAdmin },
         );
-    }, []);
+    }, [isAdmin]);
 
     const filtered = useMemo(() => {
         const term = search.trim().toLocaleLowerCase("pt-BR");
@@ -116,7 +119,7 @@ export default function Agendamentos() {
                                         <td>{formatDateTime(item.scheduledAt)}</td>
                                         <td>{item.ubsName}</td>
                                         <td><StatusBadge status={badgeStatus(item.status)}>{statusLabels[item.status] || item.status}</StatusBadge></td>
-                                        <td><div className="table-actions"><button className="icon-button" type="button" title="Detalhes" onClick={() => setSelected(item)}><Eye size={17} /></button><button className="icon-button" type="button" title="Editar" onClick={() => openEdit(item)}><Pencil size={17} /></button><button className="icon-button" type="button" title="Excluir" disabled={deletingId === item.id} onClick={() => handleDelete(item)}>{deletingId === item.id ? <span className="button-spinner" /> : <Trash2 size={17} />}</button></div></td>
+                                        <td><div className="table-actions"><button className="icon-button" type="button" title="Detalhes" onClick={() => setSelected(item)}><Eye size={17} /></button>{isAdmin ? <button className="icon-button" type="button" title="Editar" onClick={() => openEdit(item)}><Pencil size={17} /></button> : null}{isAdmin ? <button className="icon-button" type="button" title="Excluir" disabled={deletingId === item.id} onClick={() => handleDelete(item)}>{deletingId === item.id ? <span className="button-spinner" /> : <Trash2 size={17} />}</button> : null}</div></td>
                                     </tr>
                                 ))}
                             </tbody>
