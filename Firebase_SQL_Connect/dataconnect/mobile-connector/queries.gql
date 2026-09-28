@@ -66,6 +66,28 @@ query GetAccessibleFamilyMembers @auth(level: USER) {
       }
     }
   }
+  # Metadado visual da relaÃ§Ã£o direta. A autorizaÃ§Ã£o continua vindo
+  # exclusivamente de PatientAccess; este bloco nunca concede acesso.
+  directRelationships: familyRelationships(
+    where: {
+      _and: [
+        { fromPatient: { user: { authUid: { eq_expr: "auth.uid" } } } }
+        { status: { eq: VERIFIED } }
+        { consentStatus: { eq: GRANTED } }
+        {
+          _or: [
+            { validUntil: { isNull: true } }
+            { validUntil: { gt_expr: "request.time" } }
+          ]
+        }
+      ]
+    }
+  ) {
+    relationshipType
+    toPatient {
+      id
+    }
+  }
 }
 
 query GetAccessiblePatientProfile($patientId: UUID!) @auth(level: USER) {

@@ -38,14 +38,40 @@ describe('Data Connect authorization contract', () => {
     )
   })
 
-  test('family access uses direct grants and never traverses relationships', () => {
+  test('family access uses direct grants and relationships only as metadata', () => {
     const operation = mobileQueries.match(
       /query GetAccessibleFamilyMembers[\s\S]*?(?=\nquery GetAccessiblePatientProfile)/,
     )?.[0]
 
     expect(operation).toContain('patientAccesses')
     expect(operation).toContain('granteeAuthUid: { eq_expr: "auth.uid" }')
-    expect(operation).not.toContain('familyRelationships')
+    expect(operation).toContain('directRelationships: familyRelationships')
+    expect(operation).toContain(
+      'fromPatient: { user: { authUid: { eq_expr: "auth.uid" } } }',
+    )
+    expect(operation).toContain('relationshipType')
+    expect(operation).not.toContain('relationships_on_toPatient')
+  })
+
+  test('a professional user can also keep a self patient wallet', () => {
+    const portalOperation = webQueries.match(
+      /query GetCurrentPortalUser[\s\S]*?(?=\n# Compatibilidade)/,
+    )?.[0]
+    const mobilePersonOperation = mobileQueries.match(
+      /query GetMobileCurrentPerson[\s\S]*?(?=\nquery GetAccessibleFamilyMembers)/,
+    )?.[0]
+    const registrationOperation = mobileMutations.match(
+      /mutation CompleteMobileRegistration[\s\S]*?(?=\n# Apenas telefone)/,
+    )?.[0]
+
+    expect(portalOperation).toContain('portalRole')
+    expect(portalOperation).toContain('professional_on_user')
+    expect(mobilePersonOperation).toContain('authUid: { eq_expr: "auth.uid" }')
+    expect(mobilePersonOperation).toContain('patient_on_user')
+    expect(mobilePersonOperation).not.toContain('portalRole: { eq: PATIENT }')
+    expect(registrationOperation).toContain('accessKind: SELF')
+    expect(schema).toMatch(/type Professional @table \{[\s\S]*?user: User! @unique/)
+    expect(schema).toMatch(/type Patient @table \{[\s\S]*?user: User! @unique/)
   })
 
   test('mobile profile updates cannot change identity or authorization fields', () => {
