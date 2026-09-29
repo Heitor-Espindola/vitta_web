@@ -1,5 +1,5 @@
 import { CheckCircle2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { watchBatches } from "../services/batchService";
@@ -13,6 +13,21 @@ import { toLocalDateInput } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
 
 const today = toLocalDateInput();
+
+function patientLabel(patient) {
+    if (!patient) return "";
+
+    return [
+        patient.name,
+        patient.maskedCpf || patient.cpf || "",
+    ]
+        .filter(Boolean)
+        .join(" — ");
+}
+
+function cpfDigits(value) {
+    return String(value || "").replace(/\D/g, "");
+}
 
 function initialState(initialApplication, patient) {
     return {
@@ -40,6 +55,9 @@ export default function ApplicationForm({
     const { showToast } = useToast();
     const [patients, setPatients] = useState([]);
     const [vaccines, setVaccines] = useState([]);
+    const [patientSearch, setPatientSearch] = useState(() =>
+        patientLabel(patient),
+    );
     const [batches, setBatches] = useState([]);
     const [loadingOptions, setLoadingOptions] = useState(true);
     const [error, setError] = useState("");
@@ -63,6 +81,17 @@ export default function ApplicationForm({
         const unsubscribePatients = watchPatients(
             (data) => {
                 setPatients(data);
+                const selectedPatientId =
+                    patient?.id ||
+                    patient?.personId ||
+                    initialApplication?.patientId ||
+                    "";
+                const selectedPatient = data.find(
+                    (item) => item.id === selectedPatientId,
+                );
+                if (selectedPatient) {
+                    setPatientSearch(patientLabel(selectedPatient));
+                }
                 patientsReady = true;
                 checkReady();
             },
@@ -103,7 +132,41 @@ export default function ApplicationForm({
             unsubscribeVaccines?.();
             unsubscribeBatches?.();
         };
-    }, [isAdmin]);
+    }, [
+        isAdmin,
+        patient?.id,
+        patient?.personId,
+        initialApplication?.patientId,
+    ]);
+
+    const matchingPatients = useMemo(() => {
+        const term = patientSearch.trim().toLocaleLowerCase("pt-BR");
+        if (!term) return patients.slice(0, 20);
+        const termCpf = cpfDigits(term);
+        return patients
+            .filter((item) =>
+                [item.name, item.maskedCpf, item.cpf, item.email]
+                    .filter(Boolean)
+                    .some((value) => {
+                        const normalized = String(value).toLocaleLowerCase("pt-BR");
+                        if (normalized.includes(term)) return true;
+                        return Boolean(termCpf) && cpfDigits(value).includes(termCpf);
+                    }),
+            )
+            .slice(0, 20);
+    }, [patientSearch, patients]);
+
+    function selectPatient(value) {
+        setPatientSearch(value);
+        const selectedPatient = patients.find(
+            (item) => patientLabel(item) === value,
+        );
+        setForm((current) => ({
+            ...current,
+            patientId: selectedPatient?.id || "",
+        }));
+        setError("");
+    }
 
     function update(field, value) {
         setForm((current) => ({ ...current, [field]: value }));
@@ -177,20 +240,29 @@ export default function ApplicationForm({
             <div className="form-grid">
                 <label className="field field--span-2">
                     <span>Paciente *</span>
-                    <select
-                        value={form.patientId}
-                        onChange={(event) => update("patientId", event.target.value)}
+                    <input
+                        list="application-patient-options"
+                        value={patientSearch}
+                        onChange={(event) => selectPatient(event.target.value)}
+                        placeholder={
+                            loadingOptions
+                                ? "Carregando pacientes..."
+                                : "Digite nome, CPF ou e-mail"
+                        }
                         disabled={fixedPatient || loadingOptions || saving}
-                    >
-                        <option value="">
-                            {loadingOptions ? "Carregando pacientes..." : "Selecione o paciente"}
-                        </option>
-                        {patients.map((item) => (
-                            <option value={item.id} key={item.id}>
-                                {item.name} — {item.maskedCpf}
-                            </option>
+                        autoComplete="off"
+                    />
+                    <datalist id="application-patient-options">
+                        {matchingPatients.map((item) => (
+                            <option
+                                key={item.id}
+                                value={patientLabel(item)}
+                            />
                         ))}
-                    </select>
+                    </datalist>
+                    <small>
+                        Pesquise pelo nome, CPF ou e-mail para localizar o paciente.
+                    </small>
                 </label>
 
                 <label className="field field--span-2">

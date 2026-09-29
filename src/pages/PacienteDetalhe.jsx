@@ -145,7 +145,6 @@ export default function PacienteDetalhe() {
               <span className="eyebrow">Carteira</span>
               <h2>Histórico de aplicações</h2>
             </div>
-            <span className="live-indicator"><i /> Tempo real</span>
           </header>
 
           {recordsLoading ? (

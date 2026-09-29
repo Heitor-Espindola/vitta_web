@@ -630,15 +630,27 @@ export default function Pacientes() {
             <label className="field">
               <span>Sexo</span>
 
-              <input
+              <select
                 value={form.sex}
                 onChange={(event) =>
                   update("sex", event.target.value)
                 }
-                maxLength={40}
-                placeholder="Ex.: Feminino"
                 disabled={saving}
-              />
+              >
+                <option value="">Não informado</option>
+                <option value="Feminino">Feminino</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Intersexo">Intersexo</option>
+                <option value="Outro">Outro</option>
+                {form.sex && ![
+                  "Feminino",
+                  "Masculino",
+                  "Intersexo",
+                  "Outro",
+                ].includes(form.sex) ? (
+                  <option value={form.sex}>{form.sex}</option>
+                ) : null}
+              </select>
             </label>
 
             <label className="field">

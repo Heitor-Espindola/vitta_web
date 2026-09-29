@@ -9,6 +9,8 @@ const pageNames = {
   "/carteiras": "Carteiras",
   "/aplicacoes": "Aplicações",
   "/vacinas": "Vacinas",
+  "/agendamentos": "Agendamentos",
+  "/funcionarios": "Equipe e UBS",
   "/relatorios": "Relatórios",
   "/config": "Configurações",
 };

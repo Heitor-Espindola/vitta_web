@@ -420,7 +420,7 @@ mutation CreateApplication(
           )
         portalRole
           @check(
-            expr: "this == 'PROFESSIONAL'"
+            expr: "auth.token.admin == true || this == 'PROFESSIONAL'"
             message: "Papel profissional obrigatório."
           )
       }
@@ -470,16 +470,22 @@ mutation CreateApplication(
     ) {
       accessKind
         @check(
-          expr: "this == 'PROFESSIONAL'"
+          expr: "auth.token.admin == true || this == 'PROFESSIONAL'"
           message: "Grant profissional obrigatório."
         )
       consentStatus
-        @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
+        @check(
+          expr: "auth.token.admin == true || this == 'GRANTED'"
+          message: "Acesso não concedido."
+        )
       viewVaccination
-        @check(expr: "this == true", message: "Carteira não autorizada.")
+        @check(
+          expr: "auth.token.admin == true || this == true"
+          message: "Carteira não autorizada."
+        )
       validUntil
         @check(
-          expr: "this == null || this > request.time"
+          expr: "auth.token.admin == true || this == null || this > request.time"
           message: "Acesso expirado."
         )
     }
