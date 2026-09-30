@@ -341,32 +341,22 @@ mutation CreateAppointment(
     )
       @check(
         optional: true
-        expr: "auth.token.admin == true || this.size() == 1"
+        expr: """
+          auth.token.admin == true ||
+          this.exists(
+            p,
+            p.accessKind == 'PROFESSIONAL' &&
+            p.consentStatus == 'GRANTED' &&
+            p.viewVaccination == true &&
+            (p.validUntil == null || p.validUntil > request.time)
+          )
+        """
         message: "Paciente não autorizado para este profissional."
       ) {
       accessKind
-        @check(
-          expr: "auth.token.admin == true || this == 'PROFESSIONAL'"
-          message: "Grant profissional obrigatório."
-        )
-
       consentStatus
-        @check(
-          expr: "auth.token.admin == true || this == 'GRANTED'"
-          message: "Acesso não concedido."
-        )
-
       viewVaccination
-        @check(
-          expr: "auth.token.admin == true || this == true"
-          message: "Agenda não autorizada."
-        )
-
       validUntil
-        @check(
-          expr: "auth.token.admin == true || this == null || this > request.time"
-          message: "Acesso expirado."
-        )
     }
   }
 
@@ -446,28 +436,49 @@ mutation CreateApplication(
           )
       }
     }
-    patient(id: $patientId) @check(message: "Paciente não encontrado.") {
+
+    patient(id: $patientId)
+      @check(message: "Paciente não encontrado.") {
       active
-        @check(expr: "this == true", message: "Paciente inativo ou arquivado.")
+        @check(
+          expr: "this == true"
+          message: "Paciente inativo ou arquivado."
+        )
       legacyPersonId
       user {
         name
       }
     }
-    vaccine(id: $vaccineId) @check(message: "Vacina não encontrada.") {
+
+    vaccine(id: $vaccineId)
+      @check(message: "Vacina não encontrada.") {
       active
-        @check(expr: "this == true", message: "Vacina inativa ou arquivada.")
+        @check(
+          expr: "this == true"
+          message: "Vacina inativa ou arquivada."
+        )
       name
     }
-    uBS(id: $ubsId) @check(message: "UBS não encontrada.") {
-      active @check(expr: "this == true", message: "UBS inativa ou arquivada.")
+
+    uBS(id: $ubsId)
+      @check(message: "UBS não encontrada.") {
+      active
+        @check(
+          expr: "this == true"
+          message: "UBS inativa ou arquivada."
+        )
       name
     }
-    batch(id: $batchId) @check(message: "Lote não encontrado.") {
+
+    batch(id: $batchId)
+      @check(message: "Lote não encontrado.") {
       manufacturer
       batchCode
       currentQuantity
-        @check(expr: "this > 0", message: "Lote sem estoque disponível.")
+        @check(
+          expr: "this > 0"
+          message: "Lote sem estoque disponível."
+        )
       vaccine {
         id
           @check(
@@ -476,6 +487,7 @@ mutation CreateApplication(
           )
       }
     }
+
     patientAccesses(
       where: {
         _and: [
@@ -486,34 +498,25 @@ mutation CreateApplication(
     )
       @check(
         optional: true
-        expr: "auth.token.admin == true || this.size() == 1"
+        expr: """
+          auth.token.admin == true ||
+          this.exists(
+            p,
+            p.accessKind == 'PROFESSIONAL' &&
+            p.consentStatus == 'GRANTED' &&
+            p.viewVaccination == true &&
+            (p.validUntil == null || p.validUntil > request.time)
+          )
+        """
         message: "Paciente não autorizado para este profissional."
       ) {
       accessKind
-        @check(
-          expr: "auth.token.admin == true || this == 'PROFESSIONAL'"
-          message: "Grant profissional obrigatório."
-        )
-
       consentStatus
-        @check(
-          expr: "auth.token.admin == true || this == 'GRANTED'"
-          message: "Acesso não concedido."
-        )
-
       viewVaccination
-        @check(
-          expr: "auth.token.admin == true || this == true"
-          message: "Carteira não autorizada."
-        )
-
       validUntil
-        @check(
-          expr: "auth.token.admin == true || this == null || this > request.time"
-          message: "Acesso expirado."
-        )
     }
   }
+
   application_insert(
     data: {
       patientId: $patientId
@@ -539,10 +542,22 @@ mutation CreateApplication(
       updatedAt_expr: "request.time"
     }
   )
+
   batch_updateMany(
-    where: { _and: [{ id: { eq: $batchId } }, { currentQuantity: { gt: 0 } }] }
-    data: { currentQuantity_update: { dec: 1 } }
-  ) @check(expr: "this == 1", message: "Lote sem estoque disponível.")
+    where: {
+      _and: [
+        { id: { eq: $batchId } }
+        { currentQuantity: { gt: 0 } }
+      ]
+    }
+    data: {
+      currentQuantity_update: { dec: 1 }
+    }
+  )
+    @check(
+      expr: "this == 1"
+      message: "Lote sem estoque disponível."
+    )
 }
 mutation UpdateApplication(
   $id: UUID!

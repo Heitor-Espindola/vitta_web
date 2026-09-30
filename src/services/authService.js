@@ -20,10 +20,9 @@ export function isAuthorizedProfessional(profile = {}) {
 }
 
 export async function resolveProfessional(firebaseUser) {
-  const [profileResult, tokenResult] = await Promise.all([
-    getCurrentPortalUser(),
-    firebaseUser.getIdTokenResult(true),
-  ]);
+  const tokenResult = await firebaseUser.getIdTokenResult(true);
+  const profileResult = await getCurrentPortalUser();
+
   const sqlUser = profileResult?.data?.users?.[0];
 
   if (!sqlUser) {
