@@ -1,0 +1,3981 @@
+{
+  "metadata": {
+    "generatedAt": "2026-09-30T03:46:36.696Z",
+    "projectId": "vitta-5ec1e",
+    "databaseId": "(default)",
+    "backupKind": "firestore-rest-logical-export",
+    "excludedCollections": [
+      "news_articles"
+    ]
+  },
+  "counts": {
+    "users": 16,
+    "auth_links": 4,
+    "cpf_registry": 10,
+    "relationships": 7,
+    "access_grants": 7,
+    "vaccines": 19,
+    "vaccination_records": 3,
+    "emergency_contacts": 3
+  },
+  "collections": {
+    "users": [
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/1DJSLfuWRKWRdLxH8sIiaDlmpz72",
+        "fields": {
+          "role": {
+            "stringValue": "responsible"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-06-22T15:57:28.629Z"
+          },
+          "email": {
+            "stringValue": "davirodrigo123@outlook.com"
+          },
+          "uid": {
+            "stringValue": "1DJSLfuWRKWRdLxH8sIiaDlmpz72"
+          },
+          "createdAt": {
+            "timestampValue": "2026-06-22T15:57:28.629Z"
+          },
+          "name": {
+            "stringValue": "Davi Lorraine Beganani Stephany Mist de haaha de Raio Lazer Bala de Ice Kiss"
+          }
+        },
+        "createTime": "2026-06-22T15:57:28.163035Z",
+        "updateTime": "2026-06-22T15:57:28.163035Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/60AypFcJsREqXAaKL6oa",
+        "fields": {
+          "normalizedName": {
+            "stringValue": "filho junior"
+          },
+          "role": {
+            "stringValue": "dependent"
+          },
+          "lastLoginAt": {
+            "nullValue": null
+          },
+          "photoUrl": {
+            "nullValue": null
+          },
+          "birthDate": {
+            "timestampValue": "2026-02-28T03:00:00Z"
+          },
+          "guardianIds": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+                }
+              ]
+            }
+          },
+          "relationshipToGuardian": {
+            "stringValue": "Filho(a)"
+          },
+          "canAuthenticate": {
+            "booleanValue": false
+          },
+          "accountStatus": {
+            "stringValue": "active"
+          },
+          "phone": {
+            "nullValue": null
+          },
+          "name": {
+            "stringValue": "Filho Junior"
+          },
+          "cpfFormatted": {
+            "stringValue": "446.742.578-08"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-08-11T11:09:12.384Z"
+          },
+          "fullName": {
+            "stringValue": "Filho Junior"
+          },
+          "managedByUserIds": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+                }
+              ]
+            }
+          },
+          "id": {
+            "stringValue": "60AypFcJsREqXAaKL6oa"
+          },
+          "dependentIds": {
+            "arrayValue": {}
+          },
+          "cpf": {
+            "stringValue": "44674257808"
+          },
+          "roles": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "dependent"
+                }
+              ]
+            }
+          },
+          "uid": {
+            "stringValue": "60AypFcJsREqXAaKL6oa"
+          },
+          "email": {
+            "stringValue": ""
+          },
+          "createdAt": {
+            "timestampValue": "2026-08-11T11:09:12.384Z"
+          },
+          "cpfDigits": {
+            "stringValue": "44674257808"
+          },
+          "authUid": {
+            "stringValue": ""
+          }
+        },
+        "createTime": "2026-08-11T11:09:12.433793Z",
+        "updateTime": "2026-08-11T11:09:12.433793Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/BlcTjLTPyOPsdAd6FvhG8CFzqRf2",
+        "fields": {
+          "birthDate": {
+            "timestampValue": "2009-05-21T16:30:00Z"
+          },
+          "healthProfessional": {
+            "booleanValue": false
+          },
+          "cpf": {
+            "stringValue": "507.493.878.31"
+          },
+          "email": {
+            "stringValue": "h.esptesti@gmail.com"
+          },
+          "createdAt": {
+            "timestampValue": "2026-08-04T01:47:00Z"
+          },
+          "uid": {
+            "stringValue": "BlcTjLTPyOPsdAd6FvhG8CFzqRf2"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-08-04T01:56:00Z"
+          },
+          "responsibleId": {
+            "stringValue": "fpfoUxSi75PNT4fvD2ovNwVM9CT2"
+          },
+          "role": {
+            "stringValue": "child"
+          },
+          "name": {
+            "stringValue": "Heitor Espíndola Testi"
+          },
+          "phone": {
+            "stringValue": "(16)99958-8586"
+          },
+          "professionalStatus": {
+            "stringValue": "denied"
+          }
+        },
+        "createTime": "2026-08-04T01:48:48.106913Z",
+        "updateTime": "2026-08-05T00:21:59.687968Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/GHf9tJJtCmTdVK08KGBvAZEQsDV2",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-08-05T16:15:19.685Z"
+          },
+          "phone": {
+            "nullValue": null
+          },
+          "name": {
+            "stringValue": "Eduardo Henrique Carvalho Silva"
+          },
+          "birthDate": {
+            "timestampValue": "2008-02-14T02:00:00Z"
+          },
+          "role": {
+            "stringValue": "responsible"
+          },
+          "uid": {
+            "stringValue": "GHf9tJJtCmTdVK08KGBvAZEQsDV2"
+          },
+          "cpf": {
+            "stringValue": "44674257808"
+          },
+          "email": {
+            "stringValue": "dudishenr16@gmail.com"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-08-05T16:15:19.685Z"
+          }
+        },
+        "createTime": "2026-08-05T16:15:19.707828Z",
+        "updateTime": "2026-08-05T16:15:19.707828Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1",
+        "fields": {
+          "phone": {
+            "stringValue": "16994180049"
+          },
+          "role": {
+            "stringValue": "responsible"
+          },
+          "lastLoginAt": {
+            "timestampValue": "2026-09-22T16:53:44.294Z"
+          },
+          "cpf": {
+            "stringValue": "12345678900"
+          },
+          "normalizedName": {
+            "stringValue": "eduardo carvalho"
+          },
+          "createdAt": {
+            "timestampValue": "2026-06-22T15:55:02.323Z"
+          },
+          "cpfDigits": {
+            "stringValue": "12345678900"
+          },
+          "uid": {
+            "stringValue": "Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1"
+          },
+          "guardianIds": {
+            "arrayValue": {}
+          },
+          "managedByUserIds": {
+            "arrayValue": {}
+          },
+          "email": {
+            "stringValue": "dudishenri16@gmail.com"
+          },
+          "roles": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "user"
+                }
+              ]
+            }
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-22T16:53:44.294Z"
+          },
+          "id": {
+            "stringValue": "Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1"
+          },
+          "fullName": {
+            "stringValue": "Eduardo Carvalho"
+          },
+          "authUid": {
+            "stringValue": "Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1"
+          },
+          "photoUrl": {
+            "nullValue": null
+          },
+          "canAuthenticate": {
+            "booleanValue": true
+          },
+          "birthDate": {
+            "timestampValue": "2008-06-23T03:00:00Z"
+          },
+          "accountStatus": {
+            "stringValue": "active"
+          },
+          "name": {
+            "stringValue": "Eduardo Carvalho"
+          },
+          "cpfFormatted": {
+            "stringValue": "123.456.789-00"
+          },
+          "dependentIds": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "z3UIMiIDw2YN3WyWGnfA"
+                },
+                {
+                  "stringValue": "60AypFcJsREqXAaKL6oa"
+                }
+              ]
+            }
+          }
+        },
+        "createTime": "2026-06-22T15:55:01.910209Z",
+        "updateTime": "2026-09-22T16:53:44.308420Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/TiFqCvrwpNQx8uDItXGTxyBLED72",
+        "fields": {
+          "personId": {
+            "stringValue": "TiFqCvrwpNQx8uDItXGTxyBLED72"
+          },
+          "normalizedName": {
+            "stringValue": "isabella lima rigo"
+          },
+          "authUid": {
+            "stringValue": "TiFqCvrwpNQx8uDItXGTxyBLED72"
+          },
+          "birthDate": {
+            "timestampValue": "2009-03-23T03:00:00Z"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-14T16:34:59.071Z"
+          },
+          "phone": {
+            "nullValue": null
+          },
+          "majorityAt": {
+            "timestampValue": "2027-03-23T03:00:00Z"
+          },
+          "name": {
+            "stringValue": "Isabella Lima Rigo"
+          },
+          "lastLoginAt": {
+            "nullValue": null
+          },
+          "email": {
+            "stringValue": "isarigo88@gmail.com"
+          },
+          "fullName": {
+            "stringValue": "Isabella Lima Rigo"
+          },
+          "guardianIds": {
+            "arrayValue": {}
+          },
+          "cpfFormatted": {
+            "stringValue": "458.567.418-70"
+          },
+          "managedByUserIds": {
+            "arrayValue": {}
+          },
+          "cpfDigits": {
+            "stringValue": "45856741870"
+          },
+          "canAuthenticate": {
+            "booleanValue": true
+          },
+          "role": {
+            "stringValue": "responsible"
+          },
+          "photoUrl": {
+            "nullValue": null
+          },
+          "accountStatus": {
+            "stringValue": "active"
+          },
+          "cpf": {
+            "stringValue": "45856741870"
+          },
+          "uid": {
+            "stringValue": "TiFqCvrwpNQx8uDItXGTxyBLED72"
+          },
+          "roles": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "user"
+                }
+              ]
+            }
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-14T16:33:14.007Z"
+          },
+          "dependentIds": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+                }
+              ]
+            }
+          },
+          "id": {
+            "stringValue": "TiFqCvrwpNQx8uDItXGTxyBLED72"
+          }
+        },
+        "createTime": "2026-09-14T16:33:14.057914Z",
+        "updateTime": "2026-09-14T16:34:59.121681Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/U2EIyGEGQUcrr7aIy8GapkXFbIg2",
+        "fields": {
+          "birthDate": {
+            "timestampValue": "1990-01-15T12:00:00Z"
+          },
+          "guardianIds": {
+            "arrayValue": {}
+          },
+          "photoUrl": {
+            "nullValue": null
+          },
+          "id": {
+            "stringValue": "U2EIyGEGQUcrr7aIy8GapkXFbIg2"
+          },
+          "normalizedName": {
+            "stringValue": "administrador teste vitta"
+          },
+          "lastLoginAt": {
+            "nullValue": null
+          },
+          "name": {
+            "stringValue": "Administrador Teste Vitta"
+          },
+          "accountStatus": {
+            "stringValue": "active"
+          },
+          "cpfDigits": {
+            "stringValue": "76939159908"
+          },
+          "majorityAt": {
+            "timestampValue": "2008-01-15T12:00:00Z"
+          },
+          "roles": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "admin"
+                },
+                {
+                  "stringValue": "health_professional"
+                }
+              ]
+            }
+          },
+          "cpfFormatted": {
+            "stringValue": "769.391.599-08"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-08-28T22:29:42.352Z"
+          },
+          "personId": {
+            "stringValue": "U2EIyGEGQUcrr7aIy8GapkXFbIg2"
+          },
+          "canAuthenticate": {
+            "booleanValue": true
+          },
+          "cpf": {
+            "stringValue": "76939159908"
+          },
+          "uid": {
+            "stringValue": "U2EIyGEGQUcrr7aIy8GapkXFbIg2"
+          },
+          "authUid": {
+            "stringValue": "U2EIyGEGQUcrr7aIy8GapkXFbIg2"
+          },
+          "createdAt": {
+            "timestampValue": "2026-08-28T22:28:10.057Z"
+          },
+          "managedByUserIds": {
+            "arrayValue": {}
+          },
+          "email": {
+            "stringValue": "admin.teste.vitta@vitta.test"
+          },
+          "role": {
+            "stringValue": "admin"
+          },
+          "fullName": {
+            "stringValue": "Administrador Teste Vitta"
+          },
+          "dependentIds": {
+            "arrayValue": {}
+          },
+          "phone": {
+            "nullValue": null
+          }
+        },
+        "createTime": "2026-08-28T22:28:10.203940Z",
+        "updateTime": "2026-08-28T22:29:42.370328Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/VQuN73vr5uaMqSJ7wpR6PKbwecz1",
+        "fields": {
+          "id": {
+            "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+          },
+          "managedByUserIds": {
+            "arrayValue": {}
+          },
+          "phone": {
+            "stringValue": ""
+          },
+          "canAuthenticate": {
+            "booleanValue": true
+          },
+          "photoUrl": {
+            "nullValue": null
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-24T02:17:16.661Z"
+          },
+          "name": {
+            "stringValue": "João Marcos Peixoto De Oliveira"
+          },
+          "guardianIds": {
+            "arrayValue": {}
+          },
+          "cpfDigits": {
+            "stringValue": "40900459832"
+          },
+          "createdAt": {
+            "timestampValue": "2026-08-11T11:07:43.612Z"
+          },
+          "email": {
+            "stringValue": "joao@gmail.com"
+          },
+          "lastLoginAt": {
+            "timestampValue": "2026-09-24T02:17:16.661Z"
+          },
+          "roles": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "user"
+                }
+              ]
+            }
+          },
+          "authUid": {
+            "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+          },
+          "normalizedName": {
+            "stringValue": "joão marcos peixoto de oliveira"
+          },
+          "uid": {
+            "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+          },
+          "role": {
+            "stringValue": "responsible"
+          },
+          "cpf": {
+            "stringValue": "40900459832"
+          },
+          "accountStatus": {
+            "stringValue": "active"
+          },
+          "cpfFormatted": {
+            "stringValue": "409.004.598-32"
+          },
+          "birthDate": {
+            "timestampValue": "2008-05-24T03:00:00Z"
+          },
+          "dependentIds": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "60AypFcJsREqXAaKL6oa"
+                },
+                {
+                  "stringValue": "xax5howmPjAzf7apTTvl"
+                }
+              ]
+            }
+          },
+          "fullName": {
+            "stringValue": "João Marcos Peixoto De Oliveira"
+          }
+        },
+        "createTime": "2026-08-11T11:07:43.654474Z",
+        "updateTime": "2026-09-24T02:17:16.717874Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/boWkQYhOd7MmdJfF92PGWctgrTr1",
+        "fields": {
+          "uid": {
+            "stringValue": "boWkQYhOd7MmdJfF92PGWctgrTr1"
+          },
+          "cpf": {
+            "stringValue": "52998224725"
+          },
+          "personId": {
+            "stringValue": "boWkQYhOd7MmdJfF92PGWctgrTr1"
+          },
+          "phone": {
+            "nullValue": null
+          },
+          "managedByUserIds": {
+            "arrayValue": {}
+          },
+          "birthDate": {
+            "timestampValue": "2009-05-21T03:00:00Z"
+          },
+          "email": {
+            "stringValue": "aaaaaaaaa@gmail.com"
+          },
+          "name": {
+            "stringValue": "Renato Teixeira"
+          },
+          "cpfFormatted": {
+            "stringValue": "529.982.247-25"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-22T16:42:50.695Z"
+          },
+          "majorityAt": {
+            "timestampValue": "2027-05-21T03:00:00Z"
+          },
+          "id": {
+            "stringValue": "boWkQYhOd7MmdJfF92PGWctgrTr1"
+          },
+          "fullName": {
+            "stringValue": "Renato Teixeira"
+          },
+          "cpfDigits": {
+            "stringValue": "52998224725"
+          },
+          "accountStatus": {
+            "stringValue": "active"
+          },
+          "photoUrl": {
+            "nullValue": null
+          },
+          "normalizedName": {
+            "stringValue": "renato teixeira"
+          },
+          "roles": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "user"
+                }
+              ]
+            }
+          },
+          "lastLoginAt": {
+            "nullValue": null
+          },
+          "dependentIds": {
+            "arrayValue": {}
+          },
+          "guardianIds": {
+            "arrayValue": {}
+          },
+          "canAuthenticate": {
+            "booleanValue": true
+          },
+          "role": {
+            "stringValue": "responsible"
+          },
+          "authUid": {
+            "stringValue": "boWkQYhOd7MmdJfF92PGWctgrTr1"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-22T16:42:50.695Z"
+          }
+        },
+        "createTime": "2026-09-22T16:42:50.741107Z",
+        "updateTime": "2026-09-22T16:42:50.741107Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/bqtKfpye5xU75tzYKI0Cb4gzJaM2",
+        "fields": {
+          "id": {
+            "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+          },
+          "birthDate": {
+            "timestampValue": "2008-09-22T03:00:00Z"
+          },
+          "photoUrl": {
+            "nullValue": null
+          },
+          "dependentIds": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "z3UIMiIDw2YN3WyWGnfA"
+                },
+                {
+                  "stringValue": "zv6dJspgcJVZNLQgIiqj"
+                }
+              ]
+            }
+          },
+          "authUid": {
+            "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+          },
+          "role": {
+            "stringValue": "responsible"
+          },
+          "cpfFormatted": {
+            "stringValue": "504.975.668-50"
+          },
+          "lastLoginAt": {
+            "timestampValue": "2026-09-22T16:37:19.898Z"
+          },
+          "canAuthenticate": {
+            "booleanValue": true
+          },
+          "fullName": {
+            "stringValue": "Gabrielly Fernanda Cunha Martins"
+          },
+          "cpfDigits": {
+            "stringValue": "50497566850"
+          },
+          "createdAt": {
+            "timestampValue": "2026-08-11T11:08:36.482Z"
+          },
+          "managedByUserIds": {
+            "arrayValue": {}
+          },
+          "roles": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "user"
+                }
+              ]
+            }
+          },
+          "email": {
+            "stringValue": "gabriellyfernandacm@gmail.com"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-22T16:37:19.898Z"
+          },
+          "uid": {
+            "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+          },
+          "name": {
+            "stringValue": "Gabrielly Fernanda Cunha Martins"
+          },
+          "cpf": {
+            "stringValue": "50497566850"
+          },
+          "normalizedName": {
+            "stringValue": "gabrielly fernanda cunha martins"
+          },
+          "guardianIds": {
+            "arrayValue": {}
+          },
+          "accountStatus": {
+            "stringValue": "active"
+          },
+          "phone": {
+            "stringValue": "16997132579"
+          }
+        },
+        "createTime": "2026-08-11T11:08:36.521098Z",
+        "updateTime": "2026-09-22T16:37:19.915255Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/fpfoUxSi75PNT4fvD2ovNwVM9CT2",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-08-01T15:47:00Z"
+          },
+          "phone": {
+            "stringValue": "(16)999588586"
+          },
+          "nome": {
+            "stringValue": "Dr. Espíndola"
+          },
+          "healthProfessional": {
+            "booleanValue": true
+          },
+          "birthDate": {
+            "timestampValue": "2009-05-21T18:30:00Z"
+          },
+          "role": {
+            "stringValue": "responsible"
+          },
+          "professionalStatus": {
+            "stringValue": "approved"
+          },
+          "email": {
+            "stringValue": "heitoresp.dev@gmail.com"
+          },
+          "responsibleId": {
+            "nullValue": null
+          },
+          "cpf": {
+            "stringValue": "507.493.878-31"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-08-05T00:30:00Z"
+          },
+          "uid": {
+            "stringValue": "fpfoUxSi75PNT4fvD2ovNwVM9CT2"
+          }
+        },
+        "createTime": "2026-08-01T15:47:09.311198Z",
+        "updateTime": "2026-08-05T00:31:23.499354Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/kNNpUU3AOwgPkIWNsPfZSJhVXNA2",
+        "fields": {
+          "phone": {
+            "nullValue": null
+          },
+          "name": {
+            "stringValue": "Gabrielly Fernanda Cunha Martins"
+          },
+          "role": {
+            "stringValue": "responsible"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-06-24T17:00:53.669Z"
+          },
+          "uid": {
+            "stringValue": "kNNpUU3AOwgPkIWNsPfZSJhVXNA2"
+          },
+          "cpf": {
+            "stringValue": "50497566850"
+          },
+          "createdAt": {
+            "timestampValue": "2026-06-24T17:00:53.669Z"
+          },
+          "email": {
+            "stringValue": "gabriellyfernanda@gmail.com"
+          },
+          "birthDate": {
+            "timestampValue": "2008-09-22T03:00:00Z"
+          }
+        },
+        "createTime": "2026-06-24T17:00:53.743220Z",
+        "updateTime": "2026-06-24T17:00:53.743220Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/rcMcaylcIbTsZaad5cKyJq7zOr12",
+        "fields": {
+          "uid": {
+            "stringValue": "rcMcaylcIbTsZaad5cKyJq7zOr12"
+          },
+          "cpf": {
+            "stringValue": "44542750841"
+          },
+          "cpfDigits": {
+            "stringValue": "44542750841"
+          },
+          "cpfFormatted": {
+            "stringValue": "445.427.508-41"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-15T11:04:21.034Z"
+          },
+          "name": {
+            "stringValue": "Murilo Henrique"
+          },
+          "roles": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "user"
+                }
+              ]
+            }
+          },
+          "birthDate": {
+            "timestampValue": "2008-04-02T03:00:00Z"
+          },
+          "authUid": {
+            "stringValue": "rcMcaylcIbTsZaad5cKyJq7zOr12"
+          },
+          "id": {
+            "stringValue": "rcMcaylcIbTsZaad5cKyJq7zOr12"
+          },
+          "guardianIds": {
+            "arrayValue": {}
+          },
+          "photoUrl": {
+            "nullValue": null
+          },
+          "lastLoginAt": {
+            "nullValue": null
+          },
+          "accountStatus": {
+            "stringValue": "active"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-15T11:04:21.034Z"
+          },
+          "canAuthenticate": {
+            "booleanValue": true
+          },
+          "phone": {
+            "nullValue": null
+          },
+          "fullName": {
+            "stringValue": "Murilo Henrique"
+          },
+          "managedByUserIds": {
+            "arrayValue": {}
+          },
+          "dependentIds": {
+            "arrayValue": {}
+          },
+          "email": {
+            "stringValue": "murilo1@gmail.com"
+          },
+          "personId": {
+            "stringValue": "rcMcaylcIbTsZaad5cKyJq7zOr12"
+          },
+          "normalizedName": {
+            "stringValue": "murilo henrique"
+          },
+          "role": {
+            "stringValue": "responsible"
+          },
+          "majorityAt": {
+            "timestampValue": "2026-04-02T03:00:00Z"
+          }
+        },
+        "createTime": "2026-09-15T11:04:21.086066Z",
+        "updateTime": "2026-09-15T11:04:21.086066Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/xax5howmPjAzf7apTTvl",
+        "fields": {
+          "roles": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "dependent"
+                }
+              ]
+            }
+          },
+          "fullName": {
+            "stringValue": "Caio Juninho"
+          },
+          "email": {
+            "stringValue": ""
+          },
+          "role": {
+            "stringValue": "dependent"
+          },
+          "managedByUserIds": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+                }
+              ]
+            }
+          },
+          "uid": {
+            "stringValue": "xax5howmPjAzf7apTTvl"
+          },
+          "phone": {
+            "nullValue": null
+          },
+          "birthDate": {
+            "timestampValue": "2020-09-23T03:00:00Z"
+          },
+          "cpf": {
+            "stringValue": "41671968832"
+          },
+          "canAuthenticate": {
+            "booleanValue": false
+          },
+          "accountStatus": {
+            "stringValue": "active"
+          },
+          "normalizedName": {
+            "stringValue": "caio juninho"
+          },
+          "id": {
+            "stringValue": "xax5howmPjAzf7apTTvl"
+          },
+          "authUid": {
+            "stringValue": ""
+          },
+          "name": {
+            "stringValue": "Caio Juninho"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-08-12T17:34:07.882Z"
+          },
+          "relationshipToGuardian": {
+            "stringValue": "Filho(a)"
+          },
+          "lastLoginAt": {
+            "nullValue": null
+          },
+          "dependentIds": {
+            "arrayValue": {}
+          },
+          "guardianIds": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+                }
+              ]
+            }
+          },
+          "cpfFormatted": {
+            "stringValue": "416.719.688-32"
+          },
+          "cpfDigits": {
+            "stringValue": "41671968832"
+          },
+          "createdAt": {
+            "timestampValue": "2026-08-12T17:34:07.882Z"
+          },
+          "photoUrl": {
+            "nullValue": null
+          }
+        },
+        "createTime": "2026-08-12T17:34:07.931604Z",
+        "updateTime": "2026-08-12T17:34:07.931604Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/z3UIMiIDw2YN3WyWGnfA",
+        "fields": {
+          "photoUrl": {
+            "nullValue": null
+          },
+          "id": {
+            "stringValue": "z3UIMiIDw2YN3WyWGnfA"
+          },
+          "roles": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "dependent"
+                }
+              ]
+            }
+          },
+          "cpfDigits": {
+            "stringValue": "51122607857"
+          },
+          "createdAt": {
+            "timestampValue": "2026-08-11T10:46:16.531Z"
+          },
+          "email": {
+            "stringValue": ""
+          },
+          "uid": {
+            "stringValue": "z3UIMiIDw2YN3WyWGnfA"
+          },
+          "cpf": {
+            "stringValue": "51122607857"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-08-11T10:46:16.531Z"
+          },
+          "phone": {
+            "nullValue": null
+          },
+          "role": {
+            "stringValue": "dependent"
+          },
+          "birthDate": {
+            "timestampValue": "2018-01-10T02:00:00Z"
+          },
+          "accountStatus": {
+            "stringValue": "active"
+          },
+          "dependentIds": {
+            "arrayValue": {}
+          },
+          "guardianIds": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1"
+                }
+              ]
+            }
+          },
+          "relationshipToGuardian": {
+            "stringValue": "Filho(a)"
+          },
+          "cpfFormatted": {
+            "stringValue": "511.226.078-57"
+          },
+          "authUid": {
+            "stringValue": ""
+          },
+          "lastLoginAt": {
+            "nullValue": null
+          },
+          "managedByUserIds": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1"
+                }
+              ]
+            }
+          },
+          "canAuthenticate": {
+            "booleanValue": false
+          },
+          "name": {
+            "stringValue": "Davi Tavares"
+          },
+          "normalizedName": {
+            "stringValue": "davi tavares"
+          },
+          "fullName": {
+            "stringValue": "Davi Tavares"
+          }
+        },
+        "createTime": "2026-08-11T10:46:16.582730Z",
+        "updateTime": "2026-08-11T10:46:16.582730Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/zv6dJspgcJVZNLQgIiqj",
+        "fields": {
+          "lastLoginAt": {
+            "nullValue": null
+          },
+          "id": {
+            "stringValue": "zv6dJspgcJVZNLQgIiqj"
+          },
+          "canAuthenticate": {
+            "booleanValue": false
+          },
+          "managedByUserIds": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+                }
+              ]
+            }
+          },
+          "photoUrl": {
+            "nullValue": null
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-14T16:27:20.137Z"
+          },
+          "cpfFormatted": {
+            "stringValue": "507.493.878-31"
+          },
+          "guardianIds": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+                }
+              ]
+            }
+          },
+          "cpfDigits": {
+            "stringValue": "50749387831"
+          },
+          "authUid": {
+            "nullValue": null
+          },
+          "normalizedName": {
+            "stringValue": "heitor espindola testi"
+          },
+          "accountStatus": {
+            "stringValue": "active"
+          },
+          "role": {
+            "stringValue": "dependent"
+          },
+          "roles": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "dependent"
+                }
+              ]
+            }
+          },
+          "birthDate": {
+            "timestampValue": "2009-05-21T03:00:00Z"
+          },
+          "majorityAt": {
+            "timestampValue": "2027-05-21T03:00:00Z"
+          },
+          "name": {
+            "stringValue": "Heitor Espindola Testi"
+          },
+          "relationshipToGuardian": {
+            "stringValue": "Outro familiar"
+          },
+          "personId": {
+            "stringValue": "zv6dJspgcJVZNLQgIiqj"
+          },
+          "uid": {
+            "stringValue": "zv6dJspgcJVZNLQgIiqj"
+          },
+          "cpf": {
+            "stringValue": "50749387831"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-14T16:27:20.137Z"
+          },
+          "dependentIds": {
+            "arrayValue": {}
+          },
+          "phone": {
+            "nullValue": null
+          },
+          "email": {
+            "stringValue": ""
+          },
+          "fullName": {
+            "stringValue": "Heitor Espindola Testi"
+          }
+        },
+        "createTime": "2026-09-14T16:27:20.196944Z",
+        "updateTime": "2026-09-14T16:27:20.196944Z"
+      }
+    ],
+    "auth_links": [
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/auth_links/TiFqCvrwpNQx8uDItXGTxyBLED72",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-09-14T16:33:14.007Z"
+          },
+          "personId": {
+            "stringValue": "TiFqCvrwpNQx8uDItXGTxyBLED72"
+          }
+        },
+        "createTime": "2026-09-14T16:33:14.057914Z",
+        "updateTime": "2026-09-14T16:33:14.057914Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/auth_links/U2EIyGEGQUcrr7aIy8GapkXFbIg2",
+        "fields": {
+          "personId": {
+            "stringValue": "U2EIyGEGQUcrr7aIy8GapkXFbIg2"
+          },
+          "createdAt": {
+            "timestampValue": "2026-08-28T22:28:10.057Z"
+          }
+        },
+        "createTime": "2026-08-28T22:28:10.203940Z",
+        "updateTime": "2026-08-28T22:28:10.203940Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/auth_links/boWkQYhOd7MmdJfF92PGWctgrTr1",
+        "fields": {
+          "personId": {
+            "stringValue": "boWkQYhOd7MmdJfF92PGWctgrTr1"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-22T16:42:50.695Z"
+          }
+        },
+        "createTime": "2026-09-22T16:42:50.741107Z",
+        "updateTime": "2026-09-22T16:42:50.741107Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/auth_links/rcMcaylcIbTsZaad5cKyJq7zOr12",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-09-15T11:04:21.034Z"
+          },
+          "personId": {
+            "stringValue": "rcMcaylcIbTsZaad5cKyJq7zOr12"
+          }
+        },
+        "createTime": "2026-09-15T11:04:21.086066Z",
+        "updateTime": "2026-09-15T11:04:21.086066Z"
+      }
+    ],
+    "cpf_registry": [
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/cpf_registry/67decb090db98f0727f3149e69a8644a0633d4eaca2c2e07d55fdbe437774f17",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-09-14T16:27:20.137Z"
+          },
+          "ownerUid": {
+            "stringValue": "zv6dJspgcJVZNLQgIiqj"
+          },
+          "personId": {
+            "stringValue": "zv6dJspgcJVZNLQgIiqj"
+          },
+          "guardianUid": {
+            "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+          }
+        },
+        "createTime": "2026-09-14T16:27:20.196944Z",
+        "updateTime": "2026-09-14T16:27:20.196944Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/cpf_registry/6b4c30bf1e852946cc12526dc0ccb43dcd216f49e41ae99bc04d595f97d95545",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-08-11T11:09:12.384Z"
+          },
+          "guardianUid": {
+            "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+          },
+          "ownerUid": {
+            "stringValue": "60AypFcJsREqXAaKL6oa"
+          }
+        },
+        "createTime": "2026-08-11T11:09:12.433793Z",
+        "updateTime": "2026-08-11T11:09:12.433793Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/cpf_registry/7281dfb5e8becca0a1c5e77c1268baacb0f983572b8c204fd8df72b24175b231",
+        "fields": {
+          "ownerUid": {
+            "stringValue": "boWkQYhOd7MmdJfF92PGWctgrTr1"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-22T16:42:50.695Z"
+          }
+        },
+        "createTime": "2026-09-22T16:42:50.741107Z",
+        "updateTime": "2026-09-22T16:42:50.741107Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/cpf_registry/7de089d2648a8fb776db761f08df27318e0b02b920c4fc35bd4bf38be08bd55d",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-08-28T22:28:10.057Z"
+          },
+          "ownerUid": {
+            "stringValue": "U2EIyGEGQUcrr7aIy8GapkXFbIg2"
+          }
+        },
+        "createTime": "2026-08-28T22:28:10.203940Z",
+        "updateTime": "2026-08-28T22:28:10.203940Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/cpf_registry/aa82960d10b10aa04591ea439aa84422e5d395fc792989e69626bc2ddee41a50",
+        "fields": {
+          "ownerUid": {
+            "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+          },
+          "createdAt": {
+            "timestampValue": "2026-08-11T11:07:43.612Z"
+          }
+        },
+        "createTime": "2026-08-11T11:07:43.654474Z",
+        "updateTime": "2026-08-11T11:07:43.654474Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/cpf_registry/bb2e6f4c20a9e84973546a9a2bcae0076bb3004701b3b89dedf24a286c6f0557",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-09-15T11:04:21.034Z"
+          },
+          "ownerUid": {
+            "stringValue": "rcMcaylcIbTsZaad5cKyJq7zOr12"
+          }
+        },
+        "createTime": "2026-09-15T11:04:21.086066Z",
+        "updateTime": "2026-09-15T11:04:21.086066Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/cpf_registry/d72cb9f8ccb8f2b41e0a200e4b27abf1b5a68d6e9330580370973802f8efa343",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-09-14T16:33:14.007Z"
+          },
+          "ownerUid": {
+            "stringValue": "TiFqCvrwpNQx8uDItXGTxyBLED72"
+          }
+        },
+        "createTime": "2026-09-14T16:33:14.057914Z",
+        "updateTime": "2026-09-14T16:33:14.057914Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/cpf_registry/dd515757d48a8f89ad5de940b7d462ecb1885d118b5a9e42118b3d2b551504d7",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-08-11T10:46:16.531Z"
+          },
+          "ownerUid": {
+            "stringValue": "z3UIMiIDw2YN3WyWGnfA"
+          },
+          "guardianUid": {
+            "stringValue": "Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1"
+          }
+        },
+        "createTime": "2026-08-11T10:46:16.582730Z",
+        "updateTime": "2026-08-11T10:46:16.582730Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/cpf_registry/ef94e523f46ca15dbb8cc83b721f2c5824fee09fb3e9aab14048db6a8ca9b694",
+        "fields": {
+          "ownerUid": {
+            "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+          },
+          "createdAt": {
+            "timestampValue": "2026-08-11T11:08:36.482Z"
+          }
+        },
+        "createTime": "2026-08-11T11:08:36.521098Z",
+        "updateTime": "2026-08-11T11:08:36.521098Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/cpf_registry/f4da143c99cf2c51e1ce422adfa6a73acb86606590879b5e00189dde9866f328",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-08-12T17:34:07.882Z"
+          },
+          "guardianUid": {
+            "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+          },
+          "ownerUid": {
+            "stringValue": "xax5howmPjAzf7apTTvl"
+          }
+        },
+        "createTime": "2026-08-12T17:34:07.931604Z",
+        "updateTime": "2026-08-12T17:34:07.931604Z"
+      }
+    ],
+    "relationships": [
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/relationships/Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1_60AypFcJsREqXAaKL6oa",
+        "fields": {
+          "updatedAt": {
+            "timestampValue": "2026-09-01T23:25:34.382Z"
+          },
+          "fromPersonId": {
+            "stringValue": "Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1"
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T23:25:34.382Z"
+          },
+          "permissions": {
+            "mapValue": {
+              "fields": {
+                "viewVaccination": {
+                  "booleanValue": true
+                },
+                "receiveNotifications": {
+                  "booleanValue": true
+                }
+              }
+            }
+          },
+          "verifiedAt": {
+            "timestampValue": "2026-09-01T23:25:34.382Z"
+          },
+          "verificationSource": {
+            "stringValue": "academic_tcc"
+          },
+          "toPersonId": {
+            "stringValue": "60AypFcJsREqXAaKL6oa"
+          },
+          "validUntil": {
+            "nullValue": null
+          },
+          "status": {
+            "stringValue": "verified"
+          },
+          "cpfHash": {
+            "stringValue": "6b4c30bf1e852946cc12526dc0ccb43dcd216f49e41ae99bc04d595f97d95545"
+          },
+          "type": {
+            "stringValue": "legal_guardian"
+          }
+        },
+        "createTime": "2026-09-01T23:25:34.439055Z",
+        "updateTime": "2026-09-01T23:25:34.439055Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/relationships/Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1_z3UIMiIDw2YN3WyWGnfA",
+        "fields": {
+          "type": {
+            "stringValue": "legal_guardian"
+          },
+          "verificationSource": {
+            "stringValue": "academic_tcc"
+          },
+          "permissions": {
+            "mapValue": {
+              "fields": {
+                "receiveNotifications": {
+                  "booleanValue": true
+                },
+                "viewVaccination": {
+                  "booleanValue": true
+                }
+              }
+            }
+          },
+          "cpfHash": {
+            "stringValue": "dd515757d48a8f89ad5de940b7d462ecb1885d118b5a9e42118b3d2b551504d7"
+          },
+          "fromPersonId": {
+            "stringValue": "Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1"
+          },
+          "status": {
+            "stringValue": "verified"
+          },
+          "toPersonId": {
+            "stringValue": "z3UIMiIDw2YN3WyWGnfA"
+          },
+          "verifiedAt": {
+            "timestampValue": "2026-09-01T23:18:56.327Z"
+          },
+          "validUntil": {
+            "nullValue": null
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T23:18:56.327Z"
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T23:18:56.327Z"
+          }
+        },
+        "createTime": "2026-09-01T23:18:56.473289Z",
+        "updateTime": "2026-09-01T23:18:56.473289Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/relationships/TiFqCvrwpNQx8uDItXGTxyBLED72_bqtKfpye5xU75tzYKI0Cb4gzJaM2",
+        "fields": {
+          "toPersonId": {
+            "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+          },
+          "permissions": {
+            "mapValue": {
+              "fields": {
+                "viewVaccination": {
+                  "booleanValue": true
+                },
+                "receiveNotifications": {
+                  "booleanValue": true
+                }
+              }
+            }
+          },
+          "verifiedAt": {
+            "timestampValue": "2026-09-14T16:34:59.071Z"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-14T16:34:59.071Z"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-14T16:34:59.071Z"
+          },
+          "verificationSource": {
+            "stringValue": "academic_tcc"
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "fromPersonId": {
+            "stringValue": "TiFqCvrwpNQx8uDItXGTxyBLED72"
+          },
+          "cpfHash": {
+            "stringValue": "ef94e523f46ca15dbb8cc83b721f2c5824fee09fb3e9aab14048db6a8ca9b694"
+          },
+          "type": {
+            "stringValue": "tutor"
+          },
+          "validUntil": {
+            "nullValue": null
+          },
+          "status": {
+            "stringValue": "verified"
+          }
+        },
+        "createTime": "2026-09-14T16:34:59.121681Z",
+        "updateTime": "2026-09-14T16:34:59.121681Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/relationships/VQuN73vr5uaMqSJ7wpR6PKbwecz1_60AypFcJsREqXAaKL6oa",
+        "fields": {
+          "permissions": {
+            "mapValue": {
+              "fields": {
+                "receiveNotifications": {
+                  "booleanValue": true
+                },
+                "viewVaccination": {
+                  "booleanValue": true
+                }
+              }
+            }
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-15T15:58:58.906Z"
+          },
+          "status": {
+            "stringValue": "verified"
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "toPersonId": {
+            "stringValue": "60AypFcJsREqXAaKL6oa"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-15T15:58:58.906Z"
+          },
+          "verifiedAt": {
+            "timestampValue": "2026-09-15T15:58:58.906Z"
+          },
+          "cpfHash": {
+            "stringValue": "6b4c30bf1e852946cc12526dc0ccb43dcd216f49e41ae99bc04d595f97d95545"
+          },
+          "verificationSource": {
+            "stringValue": "academic_tcc"
+          },
+          "validUntil": {
+            "nullValue": null
+          },
+          "fromPersonId": {
+            "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+          },
+          "type": {
+            "stringValue": "legal_guardian"
+          }
+        },
+        "createTime": "2026-09-15T15:58:59.007108Z",
+        "updateTime": "2026-09-15T15:58:59.007108Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/relationships/VQuN73vr5uaMqSJ7wpR6PKbwecz1_xax5howmPjAzf7apTTvl",
+        "fields": {
+          "cpfHash": {
+            "stringValue": "f4da143c99cf2c51e1ce422adfa6a73acb86606590879b5e00189dde9866f328"
+          },
+          "verifiedAt": {
+            "timestampValue": "2026-09-15T15:58:59.541Z"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-15T15:58:59.541Z"
+          },
+          "toPersonId": {
+            "stringValue": "xax5howmPjAzf7apTTvl"
+          },
+          "type": {
+            "stringValue": "legal_guardian"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-15T15:58:59.541Z"
+          },
+          "fromPersonId": {
+            "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "status": {
+            "stringValue": "verified"
+          },
+          "verificationSource": {
+            "stringValue": "academic_tcc"
+          },
+          "validUntil": {
+            "nullValue": null
+          },
+          "permissions": {
+            "mapValue": {
+              "fields": {
+                "viewVaccination": {
+                  "booleanValue": true
+                },
+                "receiveNotifications": {
+                  "booleanValue": true
+                }
+              }
+            }
+          }
+        },
+        "createTime": "2026-09-15T15:58:59.640263Z",
+        "updateTime": "2026-09-15T15:58:59.640263Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/relationships/bqtKfpye5xU75tzYKI0Cb4gzJaM2_z3UIMiIDw2YN3WyWGnfA",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-09-02T11:00:59.302Z"
+          },
+          "cpfHash": {
+            "stringValue": "dd515757d48a8f89ad5de940b7d462ecb1885d118b5a9e42118b3d2b551504d7"
+          },
+          "toPersonId": {
+            "stringValue": "z3UIMiIDw2YN3WyWGnfA"
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "type": {
+            "stringValue": "tutor"
+          },
+          "verifiedAt": {
+            "timestampValue": "2026-09-02T11:00:59.302Z"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-02T11:00:59.302Z"
+          },
+          "fromPersonId": {
+            "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+          },
+          "validUntil": {
+            "nullValue": null
+          },
+          "verificationSource": {
+            "stringValue": "academic_tcc"
+          },
+          "permissions": {
+            "mapValue": {
+              "fields": {
+                "viewVaccination": {
+                  "booleanValue": true
+                },
+                "receiveNotifications": {
+                  "booleanValue": true
+                }
+              }
+            }
+          },
+          "status": {
+            "stringValue": "verified"
+          }
+        },
+        "createTime": "2026-09-02T11:00:59.366639Z",
+        "updateTime": "2026-09-02T11:00:59.366639Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/relationships/bqtKfpye5xU75tzYKI0Cb4gzJaM2_zv6dJspgcJVZNLQgIiqj",
+        "fields": {
+          "createdAt": {
+            "timestampValue": "2026-09-14T16:27:20.137Z"
+          },
+          "type": {
+            "stringValue": "caregiver"
+          },
+          "permissions": {
+            "mapValue": {
+              "fields": {
+                "viewVaccination": {
+                  "booleanValue": true
+                },
+                "receiveNotifications": {
+                  "booleanValue": true
+                }
+              }
+            }
+          },
+          "cpfHash": {
+            "stringValue": "67decb090db98f0727f3149e69a8644a0633d4eaca2c2e07d55fdbe437774f17"
+          },
+          "status": {
+            "stringValue": "verified"
+          },
+          "toPersonId": {
+            "stringValue": "zv6dJspgcJVZNLQgIiqj"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-14T16:27:20.137Z"
+          },
+          "verifiedAt": {
+            "timestampValue": "2026-09-14T16:27:20.137Z"
+          },
+          "verificationSource": {
+            "stringValue": "academic_tcc"
+          },
+          "validUntil": {
+            "nullValue": null
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "fromPersonId": {
+            "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+          }
+        },
+        "createTime": "2026-09-14T16:27:20.196944Z",
+        "updateTime": "2026-09-14T16:27:20.196944Z"
+      }
+    ],
+    "access_grants": [
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/access_grants/Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1_60AypFcJsREqXAaKL6oa",
+        "fields": {
+          "validUntil": {
+            "nullValue": null
+          },
+          "subjectPersonId": {
+            "stringValue": "60AypFcJsREqXAaKL6oa"
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T23:25:34.382Z"
+          },
+          "granteePersonId": {
+            "stringValue": "Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1"
+          },
+          "source": {
+            "stringValue": "academic_tcc"
+          },
+          "receiveNotifications": {
+            "booleanValue": true
+          },
+          "cpfHash": {
+            "stringValue": "6b4c30bf1e852946cc12526dc0ccb43dcd216f49e41ae99bc04d595f97d95545"
+          },
+          "viewVaccination": {
+            "booleanValue": true
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T23:25:34.382Z"
+          }
+        },
+        "createTime": "2026-09-01T23:25:34.439055Z",
+        "updateTime": "2026-09-01T23:25:34.439055Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/access_grants/Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1_z3UIMiIDw2YN3WyWGnfA",
+        "fields": {
+          "granteePersonId": {
+            "stringValue": "Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1"
+          },
+          "receiveNotifications": {
+            "booleanValue": true
+          },
+          "source": {
+            "stringValue": "academic_tcc"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T23:18:56.327Z"
+          },
+          "subjectPersonId": {
+            "stringValue": "z3UIMiIDw2YN3WyWGnfA"
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "cpfHash": {
+            "stringValue": "dd515757d48a8f89ad5de940b7d462ecb1885d118b5a9e42118b3d2b551504d7"
+          },
+          "validUntil": {
+            "nullValue": null
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T23:18:56.327Z"
+          },
+          "viewVaccination": {
+            "booleanValue": true
+          }
+        },
+        "createTime": "2026-09-01T23:18:56.473289Z",
+        "updateTime": "2026-09-01T23:18:56.473289Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/access_grants/TiFqCvrwpNQx8uDItXGTxyBLED72_bqtKfpye5xU75tzYKI0Cb4gzJaM2",
+        "fields": {
+          "granteePersonId": {
+            "stringValue": "TiFqCvrwpNQx8uDItXGTxyBLED72"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-14T16:34:59.071Z"
+          },
+          "subjectPersonId": {
+            "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+          },
+          "validUntil": {
+            "nullValue": null
+          },
+          "receiveNotifications": {
+            "booleanValue": true
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-14T16:34:59.071Z"
+          },
+          "viewVaccination": {
+            "booleanValue": true
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "source": {
+            "stringValue": "academic_tcc"
+          },
+          "cpfHash": {
+            "stringValue": "ef94e523f46ca15dbb8cc83b721f2c5824fee09fb3e9aab14048db6a8ca9b694"
+          }
+        },
+        "createTime": "2026-09-14T16:34:59.121681Z",
+        "updateTime": "2026-09-14T16:34:59.121681Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/access_grants/VQuN73vr5uaMqSJ7wpR6PKbwecz1_60AypFcJsREqXAaKL6oa",
+        "fields": {
+          "source": {
+            "stringValue": "academic_tcc"
+          },
+          "cpfHash": {
+            "stringValue": "6b4c30bf1e852946cc12526dc0ccb43dcd216f49e41ae99bc04d595f97d95545"
+          },
+          "validUntil": {
+            "nullValue": null
+          },
+          "viewVaccination": {
+            "booleanValue": true
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-15T15:58:58.906Z"
+          },
+          "receiveNotifications": {
+            "booleanValue": true
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "subjectPersonId": {
+            "stringValue": "60AypFcJsREqXAaKL6oa"
+          },
+          "granteePersonId": {
+            "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-15T15:58:58.906Z"
+          }
+        },
+        "createTime": "2026-09-15T15:58:59.007108Z",
+        "updateTime": "2026-09-15T15:58:59.007108Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/access_grants/VQuN73vr5uaMqSJ7wpR6PKbwecz1_xax5howmPjAzf7apTTvl",
+        "fields": {
+          "validUntil": {
+            "nullValue": null
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "viewVaccination": {
+            "booleanValue": true
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-15T15:58:59.541Z"
+          },
+          "receiveNotifications": {
+            "booleanValue": true
+          },
+          "granteePersonId": {
+            "stringValue": "VQuN73vr5uaMqSJ7wpR6PKbwecz1"
+          },
+          "source": {
+            "stringValue": "academic_tcc"
+          },
+          "subjectPersonId": {
+            "stringValue": "xax5howmPjAzf7apTTvl"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-15T15:58:59.541Z"
+          },
+          "cpfHash": {
+            "stringValue": "f4da143c99cf2c51e1ce422adfa6a73acb86606590879b5e00189dde9866f328"
+          }
+        },
+        "createTime": "2026-09-15T15:58:59.640263Z",
+        "updateTime": "2026-09-15T15:58:59.640263Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/access_grants/bqtKfpye5xU75tzYKI0Cb4gzJaM2_z3UIMiIDw2YN3WyWGnfA",
+        "fields": {
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "source": {
+            "stringValue": "academic_tcc"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-02T11:00:59.302Z"
+          },
+          "viewVaccination": {
+            "booleanValue": true
+          },
+          "cpfHash": {
+            "stringValue": "dd515757d48a8f89ad5de940b7d462ecb1885d118b5a9e42118b3d2b551504d7"
+          },
+          "validUntil": {
+            "nullValue": null
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-02T11:00:59.302Z"
+          },
+          "granteePersonId": {
+            "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+          },
+          "receiveNotifications": {
+            "booleanValue": true
+          },
+          "subjectPersonId": {
+            "stringValue": "z3UIMiIDw2YN3WyWGnfA"
+          }
+        },
+        "createTime": "2026-09-02T11:00:59.366639Z",
+        "updateTime": "2026-09-02T11:00:59.366639Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/access_grants/bqtKfpye5xU75tzYKI0Cb4gzJaM2_zv6dJspgcJVZNLQgIiqj",
+        "fields": {
+          "subjectPersonId": {
+            "stringValue": "zv6dJspgcJVZNLQgIiqj"
+          },
+          "consentStatus": {
+            "stringValue": "granted"
+          },
+          "granteePersonId": {
+            "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+          },
+          "receiveNotifications": {
+            "booleanValue": true
+          },
+          "validUntil": {
+            "nullValue": null
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-14T16:27:20.137Z"
+          },
+          "viewVaccination": {
+            "booleanValue": true
+          },
+          "source": {
+            "stringValue": "academic_tcc"
+          },
+          "cpfHash": {
+            "stringValue": "67decb090db98f0727f3149e69a8644a0633d4eaca2c2e07d55fdbe437774f17"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-14T16:27:20.137Z"
+          }
+        },
+        "createTime": "2026-09-14T16:27:20.196944Z",
+        "updateTime": "2026-09-14T16:27:20.196944Z"
+      }
+    ],
+    "vaccines": [
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/bcg",
+        "fields": {
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                }
+              ]
+            }
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:20.115Z"
+          },
+          "intervalDays": {
+            "integerValue": "0"
+          },
+          "description": {
+            "stringValue": "Proteção contra formas graves e disseminadas da tuberculose."
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "recommendedAge": {
+            "stringValue": "Ao nascer"
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Dose única ao nascer"
+                }
+              ]
+            }
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Formas graves da tuberculose"
+                }
+              ]
+            }
+          },
+          "doseCount": {
+            "integerValue": "1"
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "name": {
+            "stringValue": "BCG"
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "id": {
+            "stringValue": "bcg"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:49.362Z"
+          },
+          "shortName": {
+            "stringValue": "BCG"
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          }
+        },
+        "createTime": "2026-09-01T17:03:20.163377Z",
+        "updateTime": "2026-09-01T17:10:49.412176Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/covid_19",
+        "fields": {
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:51.561Z"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                },
+                {
+                  "stringValue": "Gestantes"
+                },
+                {
+                  "stringValue": "Idosos"
+                },
+                {
+                  "stringValue": "Grupos especiais"
+                }
+              ]
+            }
+          },
+          "recommendedAge": {
+            "stringValue": "Conforme idade, condição e histórico"
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "shortName": {
+            "stringValue": "COVID-19"
+          },
+          "id": {
+            "stringValue": "covid_19"
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "doseCount": {
+            "integerValue": "1"
+          },
+          "intervalDays": {
+            "integerValue": "0"
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:22.506Z"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Esquema conforme produto, grupo e histórico"
+                }
+              ]
+            }
+          },
+          "name": {
+            "stringValue": "COVID-19"
+          },
+          "description": {
+            "stringValue": "Proteção contra formas graves de COVID-19, conforme produto e grupo recomendado."
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Formas graves de COVID-19"
+                }
+              ]
+            }
+          }
+        },
+        "createTime": "2026-09-01T17:03:22.518913Z",
+        "updateTime": "2026-09-01T17:10:51.583113Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/dt",
+        "fields": {
+          "active": {
+            "booleanValue": true
+          },
+          "description": {
+            "stringValue": "Proteção contra difteria e tétano."
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:21.683Z"
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Completar esquema e reforços conforme histórico"
+                }
+              ]
+            }
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Difteria"
+                },
+                {
+                  "stringValue": "Tétano"
+                }
+              ]
+            }
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:51.082Z"
+          },
+          "id": {
+            "stringValue": "dt"
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "shortName": {
+            "stringValue": "dT"
+          },
+          "name": {
+            "stringValue": "Dupla adulto (dT)"
+          },
+          "intervalDays": {
+            "integerValue": "60"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Adolescentes"
+                },
+                {
+                  "stringValue": "Adultos"
+                },
+                {
+                  "stringValue": "Idosos"
+                }
+              ]
+            }
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "doseCount": {
+            "integerValue": "3"
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "recommendedAge": {
+            "stringValue": "Adolescentes e adultos, conforme histórico"
+          }
+        },
+        "createTime": "2026-09-01T17:03:21.696181Z",
+        "updateTime": "2026-09-01T17:10:51.094837Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/dtp",
+        "fields": {
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Difteria"
+                },
+                {
+                  "stringValue": "Tétano"
+                },
+                {
+                  "stringValue": "Coqueluche"
+                }
+              ]
+            }
+          },
+          "intervalDays": {
+            "integerValue": "0"
+          },
+          "doseCount": {
+            "integerValue": "2"
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "shortName": {
+            "stringValue": "DTP"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                }
+              ]
+            }
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:50.969Z"
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "id": {
+            "stringValue": "dtp"
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "recommendedAge": {
+            "stringValue": "Infância"
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "description": {
+            "stringValue": "Proteção contra difteria, tétano e coqueluche."
+          },
+          "name": {
+            "stringValue": "Tríplice bacteriana (DTP)"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:21.598Z"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Reforços conforme calendário infantil"
+                }
+              ]
+            }
+          }
+        },
+        "createTime": "2026-09-01T17:03:21.612534Z",
+        "updateTime": "2026-09-01T17:10:50.980465Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/dtpa",
+        "fields": {
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "name": {
+            "stringValue": "Tríplice bacteriana acelular do adulto (dTpa)"
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "intervalDays": {
+            "integerValue": "0"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Difteria"
+                },
+                {
+                  "stringValue": "Tétano"
+                },
+                {
+                  "stringValue": "Coqueluche"
+                }
+              ]
+            }
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Gestantes"
+                },
+                {
+                  "stringValue": "Profissionais e grupos indicados"
+                }
+              ]
+            }
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:21.787Z"
+          },
+          "recommendedAge": {
+            "stringValue": "Gestantes e grupos indicados"
+          },
+          "id": {
+            "stringValue": "dtpa"
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "doseCount": {
+            "integerValue": "1"
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "shortName": {
+            "stringValue": "dTpa"
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:51.180Z"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Dose conforme condição e histórico"
+                }
+              ]
+            }
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "description": {
+            "stringValue": "Proteção contra difteria, tétano e coqueluche em grupos indicados."
+          }
+        },
+        "createTime": "2026-09-01T17:03:21.810074Z",
+        "updateTime": "2026-09-01T17:10:51.193138Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/febre_amarela",
+        "fields": {
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "doseCount": {
+            "integerValue": "1"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                },
+                {
+                  "stringValue": "Adolescentes"
+                },
+                {
+                  "stringValue": "Adultos"
+                },
+                {
+                  "stringValue": "Idosos conforme avaliação"
+                }
+              ]
+            }
+          },
+          "intervalDays": {
+            "integerValue": "0"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:50.406Z"
+          },
+          "shortName": {
+            "stringValue": "FA"
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Esquema conforme idade e histórico vacinal"
+                }
+              ]
+            }
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "recommendedAge": {
+            "stringValue": "A partir da infância, conforme indicação e histórico"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:21.155Z"
+          },
+          "name": {
+            "stringValue": "Febre Amarela"
+          },
+          "id": {
+            "stringValue": "febre_amarela"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Febre amarela"
+                }
+              ]
+            }
+          },
+          "description": {
+            "stringValue": "Proteção contra febre amarela."
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          }
+        },
+        "createTime": "2026-09-01T17:03:21.170628Z",
+        "updateTime": "2026-09-01T17:10:50.418913Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/hepatite_a",
+        "fields": {
+          "name": {
+            "stringValue": "Hepatite A"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:21.494Z"
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Dose conforme calendário infantil"
+                }
+              ]
+            }
+          },
+          "id": {
+            "stringValue": "hepatite_a"
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "recommendedAge": {
+            "stringValue": "Infância e situações indicadas"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Hepatite A"
+                }
+              ]
+            }
+          },
+          "shortName": {
+            "stringValue": "HA"
+          },
+          "intervalDays": {
+            "integerValue": "0"
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:50.871Z"
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "description": {
+            "stringValue": "Proteção contra hepatite A."
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                },
+                {
+                  "stringValue": "Grupos especiais"
+                }
+              ]
+            }
+          },
+          "doseCount": {
+            "integerValue": "1"
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          }
+        },
+        "createTime": "2026-09-01T17:03:21.519899Z",
+        "updateTime": "2026-09-01T17:10:50.885984Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/hepatite_b",
+        "fields": {
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "id": {
+            "stringValue": "hepatite_b"
+          },
+          "shortName": {
+            "stringValue": "HB"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:49.535Z"
+          },
+          "recommendedAge": {
+            "stringValue": "Ao nascer e conforme histórico vacinal"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Hepatite B"
+                },
+                {
+                  "stringValue": "Hepatite D"
+                }
+              ]
+            }
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "doseCount": {
+            "integerValue": "3"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Dose ao nascer"
+                },
+                {
+                  "stringValue": "Completar esquema conforme histórico"
+                }
+              ]
+            }
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "description": {
+            "stringValue": "Vacina para prevenção das hepatites B e D."
+          },
+          "name": {
+            "stringValue": "Hepatite B"
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "intervalDays": {
+            "integerValue": "0"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:20.257Z"
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Todas as fases da vida"
+                }
+              ]
+            }
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          }
+        },
+        "createTime": "2026-09-01T17:03:20.363871Z",
+        "updateTime": "2026-09-01T17:10:49.571839Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/hpv",
+        "fields": {
+          "description": {
+            "stringValue": "Proteção contra tipos de papilomavírus humano associados a doenças e cânceres."
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "id": {
+            "stringValue": "hpv"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:51.290Z"
+          },
+          "shortName": {
+            "stringValue": "HPV"
+          },
+          "name": {
+            "stringValue": "HPV"
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "doseCount": {
+            "integerValue": "1"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Esquema conforme faixa etária e condição clínica"
+                }
+              ]
+            }
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "recommendedAge": {
+            "stringValue": "Crianças, adolescentes e grupos indicados"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:22.329Z"
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "intervalDays": {
+            "integerValue": "0"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Infecções e doenças associadas ao HPV"
+                }
+              ]
+            }
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                },
+                {
+                  "stringValue": "Adolescentes"
+                },
+                {
+                  "stringValue": "Grupos especiais"
+                }
+              ]
+            }
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          }
+        },
+        "createTime": "2026-09-01T17:03:22.342353Z",
+        "updateTime": "2026-09-01T17:10:51.309868Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/influenza",
+        "fields": {
+          "id": {
+            "stringValue": "influenza"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                },
+                {
+                  "stringValue": "Gestantes"
+                },
+                {
+                  "stringValue": "Adultos"
+                },
+                {
+                  "stringValue": "Idosos"
+                },
+                {
+                  "stringValue": "Grupos prioritários"
+                }
+              ]
+            }
+          },
+          "doseCount": {
+            "integerValue": "1"
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "shortName": {
+            "stringValue": "Gripe"
+          },
+          "intervalDays": {
+            "integerValue": "0"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:51.446Z"
+          },
+          "description": {
+            "stringValue": "Proteção sazonal contra influenza."
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "name": {
+            "stringValue": "Influenza"
+          },
+          "recommendedAge": {
+            "stringValue": "Conforme estratégia anual e grupos indicados"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Dose conforme campanha e calendário vigente"
+                }
+              ]
+            }
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:22.406Z"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Influenza"
+                }
+              ]
+            }
+          }
+        },
+        "createTime": "2026-09-01T17:03:22.423033Z",
+        "updateTime": "2026-09-01T17:10:51.457777Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/meningo_acwy",
+        "fields": {
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Dose conforme faixa etária e histórico"
+                }
+              ]
+            }
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:21.060Z"
+          },
+          "description": {
+            "stringValue": "Proteção contra doença meningocócica dos sorogrupos A, C, W e Y."
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "shortName": {
+            "stringValue": "MenACWY"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:50.281Z"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Adolescentes"
+                },
+                {
+                  "stringValue": "Grupos especiais"
+                }
+              ]
+            }
+          },
+          "id": {
+            "stringValue": "meningo_acwy"
+          },
+          "intervalDays": {
+            "integerValue": "0"
+          },
+          "name": {
+            "stringValue": "Meningocócica ACWY"
+          },
+          "recommendedAge": {
+            "stringValue": "Adolescentes e grupos indicados"
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Doença meningocócica A, C, W e Y"
+                }
+              ]
+            }
+          },
+          "doseCount": {
+            "integerValue": "1"
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "active": {
+            "booleanValue": true
+          }
+        },
+        "createTime": "2026-09-01T17:03:21.077819Z",
+        "updateTime": "2026-09-01T17:10:50.294012Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/meningo_c",
+        "fields": {
+          "intervalDays": {
+            "integerValue": "60"
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Doença meningocócica C"
+                }
+              ]
+            }
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:20.969Z"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                }
+              ]
+            }
+          },
+          "description": {
+            "stringValue": "Proteção contra doença meningocócica do sorogrupo C."
+          },
+          "doseCount": {
+            "integerValue": "3"
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "id": {
+            "stringValue": "meningo_c"
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "name": {
+            "stringValue": "Meningocócica C"
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:50.161Z"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Esquema conforme idade e histórico"
+                }
+              ]
+            }
+          },
+          "recommendedAge": {
+            "stringValue": "Infância, conforme calendário vigente"
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "shortName": {
+            "stringValue": "MenC"
+          }
+        },
+        "createTime": "2026-09-01T17:03:20.981460Z",
+        "updateTime": "2026-09-01T17:10:50.192630Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/pentavalente",
+        "fields": {
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Série primária conforme calendário infantil"
+                }
+              ]
+            }
+          },
+          "description": {
+            "stringValue": "Combina proteção contra difteria, tétano, coqueluche, Haemophilus influenzae b e hepatite B."
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "recommendedAge": {
+            "stringValue": "Primeiro ano de vida"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:20.456Z"
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "id": {
+            "stringValue": "pentavalente"
+          },
+          "intervalDays": {
+            "integerValue": "60"
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "doseCount": {
+            "integerValue": "3"
+          },
+          "shortName": {
+            "stringValue": "Penta"
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                }
+              ]
+            }
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:49.672Z"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Difteria"
+                },
+                {
+                  "stringValue": "Tétano"
+                },
+                {
+                  "stringValue": "Coqueluche"
+                },
+                {
+                  "stringValue": "Haemophilus influenzae b"
+                },
+                {
+                  "stringValue": "Hepatite B"
+                }
+              ]
+            }
+          },
+          "name": {
+            "stringValue": "Pentavalente"
+          }
+        },
+        "createTime": "2026-09-01T17:03:20.483707Z",
+        "updateTime": "2026-09-01T17:10:49.712914Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/pneumo_10",
+        "fields": {
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "shortName": {
+            "stringValue": "VPC10"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:50.036Z"
+          },
+          "description": {
+            "stringValue": "Vacina conjugada contra doenças causadas por sorotipos do pneumococo."
+          },
+          "recommendedAge": {
+            "stringValue": "Infância e situações indicadas"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Esquema conforme idade e recomendação vigente"
+                }
+              ]
+            }
+          },
+          "doseCount": {
+            "integerValue": "3"
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "intervalDays": {
+            "integerValue": "60"
+          },
+          "id": {
+            "stringValue": "pneumo_10"
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:20.829Z"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Doenças pneumocócicas invasivas"
+                }
+              ]
+            }
+          },
+          "name": {
+            "stringValue": "Pneumocócica 10-valente"
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                },
+                {
+                  "stringValue": "Grupos especiais"
+                }
+              ]
+            }
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          }
+        },
+        "createTime": "2026-09-01T17:03:20.878983Z",
+        "updateTime": "2026-09-01T17:10:50.064165Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/rotavirus",
+        "fields": {
+          "doseCount": {
+            "integerValue": "2"
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "shortName": {
+            "stringValue": "Rotavírus"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:49.933Z"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Duas doses conforme calendário infantil"
+                }
+              ]
+            }
+          },
+          "recommendedAge": {
+            "stringValue": "Lactentes, respeitando limites de idade"
+          },
+          "description": {
+            "stringValue": "Proteção contra gastroenterite causada por rotavírus."
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "id": {
+            "stringValue": "rotavirus"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Gastroenterite por rotavírus"
+                }
+              ]
+            }
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "name": {
+            "stringValue": "Rotavírus humano"
+          },
+          "intervalDays": {
+            "integerValue": "60"
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                }
+              ]
+            }
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:20.716Z"
+          }
+        },
+        "createTime": "2026-09-01T17:03:20.735209Z",
+        "updateTime": "2026-09-01T17:10:49.962613Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/tetraviral",
+        "fields": {
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "description": {
+            "stringValue": "Combina proteção contra sarampo, caxumba, rubéola e varicela."
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                }
+              ]
+            }
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:21.323Z"
+          },
+          "id": {
+            "stringValue": "tetraviral"
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "recommendedAge": {
+            "stringValue": "Infância"
+          },
+          "intervalDays": {
+            "integerValue": "0"
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "shortName": {
+            "stringValue": "SCRV"
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Dose conforme calendário infantil"
+                }
+              ]
+            }
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:50.593Z"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Sarampo"
+                },
+                {
+                  "stringValue": "Caxumba"
+                },
+                {
+                  "stringValue": "Rubéola"
+                },
+                {
+                  "stringValue": "Varicela"
+                }
+              ]
+            }
+          },
+          "doseCount": {
+            "integerValue": "1"
+          },
+          "name": {
+            "stringValue": "Tetraviral"
+          },
+          "active": {
+            "booleanValue": true
+          }
+        },
+        "createTime": "2026-09-01T17:03:21.344347Z",
+        "updateTime": "2026-09-01T17:10:50.606205Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/triplice_viral",
+        "fields": {
+          "name": {
+            "stringValue": "Tríplice Viral"
+          },
+          "description": {
+            "stringValue": "Proteção contra sarampo, caxumba e rubéola."
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:21.240Z"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Uma ou duas doses conforme idade e histórico"
+                }
+              ]
+            }
+          },
+          "id": {
+            "stringValue": "triplice_viral"
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "doseCount": {
+            "integerValue": "2"
+          },
+          "intervalDays": {
+            "integerValue": "30"
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:50.480Z"
+          },
+          "recommendedAge": {
+            "stringValue": "A partir da infância, conforme histórico"
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                },
+                {
+                  "stringValue": "Adolescentes"
+                },
+                {
+                  "stringValue": "Adultos"
+                }
+              ]
+            }
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "shortName": {
+            "stringValue": "SCR"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Sarampo"
+                },
+                {
+                  "stringValue": "Caxumba"
+                },
+                {
+                  "stringValue": "Rubéola"
+                }
+              ]
+            }
+          }
+        },
+        "createTime": "2026-09-01T17:03:21.259628Z",
+        "updateTime": "2026-09-01T17:10:50.526130Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/varicela",
+        "fields": {
+          "shortName": {
+            "stringValue": "Varicela"
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "description": {
+            "stringValue": "Proteção contra varicela."
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:50.704Z"
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Varicela"
+                }
+              ]
+            }
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Esquema conforme idade e histórico"
+                }
+              ]
+            }
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "name": {
+            "stringValue": "Varicela"
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "doseCount": {
+            "integerValue": "2"
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "recommendedAge": {
+            "stringValue": "Infância e grupos indicados"
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "intervalDays": {
+            "integerValue": "30"
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:21.416Z"
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "id": {
+            "stringValue": "varicela"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                },
+                {
+                  "stringValue": "Grupos especiais"
+                }
+              ]
+            }
+          }
+        },
+        "createTime": "2026-09-01T17:03:21.432901Z",
+        "updateTime": "2026-09-01T17:10:50.717302Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccines/vip",
+        "fields": {
+          "description": {
+            "stringValue": "Proteção contra poliomielite com vacina inativada."
+          },
+          "prevents": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Poliomielite"
+                }
+              ]
+            }
+          },
+          "doseCount": {
+            "integerValue": "4"
+          },
+          "calendarVersion": {
+            "stringValue": "Catálogo Vitta — referência PNI consultada em 2026"
+          },
+          "name": {
+            "stringValue": "Poliomielite inativada (VIP)"
+          },
+          "sourceName": {
+            "stringValue": "Calendário Nacional de Vacinação / PNI"
+          },
+          "doseSchedule": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Série primária e reforço conforme calendário infantil"
+                }
+              ]
+            }
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T17:10:49.841Z"
+          },
+          "sourceUpdatedAt": {
+            "timestampValue": "2026-07-29T00:00:00Z"
+          },
+          "shortName": {
+            "stringValue": "VIP"
+          },
+          "sourceUrl": {
+            "stringValue": "https://www.gov.br/saude/pt-br/vacinacao/calendario"
+          },
+          "contraindications": {
+            "arrayValue": {}
+          },
+          "recommendedAge": {
+            "stringValue": "Infância"
+          },
+          "id": {
+            "stringValue": "vip"
+          },
+          "expectedReactions": {
+            "arrayValue": {}
+          },
+          "intervalDays": {
+            "integerValue": "60"
+          },
+          "active": {
+            "booleanValue": true
+          },
+          "warningSigns": {
+            "arrayValue": {}
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T17:03:20.584Z"
+          },
+          "targetGroups": {
+            "arrayValue": {
+              "values": [
+                {
+                  "stringValue": "Crianças"
+                }
+              ]
+            }
+          }
+        },
+        "createTime": "2026-09-01T17:03:20.617341Z",
+        "updateTime": "2026-09-01T17:10:49.853789Z"
+      }
+    ],
+    "vaccination_records": [
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccination_records/ENevFKeTF3ZwOQ781gXI",
+        "fields": {
+          "patientId": {
+            "stringValue": "60AypFcJsREqXAaKL6oa"
+          },
+          "professionalUid": {
+            "stringValue": "U2EIyGEGQUcrr7aIy8GapkXFbIg2"
+          },
+          "source": {
+            "stringValue": "professional_panel"
+          },
+          "appliedAt": {
+            "timestampValue": "2026-09-01T15:00:00Z"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-01T23:21:42.615Z"
+          },
+          "doseNumber": {
+            "integerValue": "1"
+          },
+          "vaccineId": {
+            "stringValue": "bcg"
+          },
+          "doseLabel": {
+            "stringValue": "1ª dose"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-01T23:21:42.615Z"
+          },
+          "vaccineName": {
+            "stringValue": "BCG"
+          }
+        },
+        "createTime": "2026-09-01T23:21:42.661962Z",
+        "updateTime": "2026-09-01T23:21:42.661962Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccination_records/RD4QBmnCs1gw0k14bjnQ",
+        "fields": {
+          "appliedAt": {
+            "timestampValue": "2026-09-14T15:00:00Z"
+          },
+          "source": {
+            "stringValue": "professional_panel"
+          },
+          "vaccineId": {
+            "stringValue": "covid_19"
+          },
+          "facilityName": {
+            "stringValue": "UBS Central"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-14T16:07:43.837Z"
+          },
+          "nextDoseAt": {
+            "timestampValue": "2026-09-15T15:00:00Z"
+          },
+          "patientId": {
+            "stringValue": "z3UIMiIDw2YN3WyWGnfA"
+          },
+          "lot": {
+            "stringValue": "#0003"
+          },
+          "vaccineName": {
+            "stringValue": "COVID-19"
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-14T16:07:43.837Z"
+          },
+          "professionalUid": {
+            "stringValue": "U2EIyGEGQUcrr7aIy8GapkXFbIg2"
+          },
+          "doseLabel": {
+            "stringValue": "Reforço"
+          },
+          "notes": {
+            "stringValue": "Vai virar jacare"
+          },
+          "manufacturer": {
+            "stringValue": "Sou eu"
+          }
+        },
+        "createTime": "2026-09-14T16:07:43.892205Z",
+        "updateTime": "2026-09-14T16:07:43.892205Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/vaccination_records/VlR2dtcRscdKTzTRRynv",
+        "fields": {
+          "updatedAt": {
+            "timestampValue": "2026-09-14T16:05:12.022Z"
+          },
+          "vaccineName": {
+            "stringValue": "BCG"
+          },
+          "professionalUid": {
+            "stringValue": "U2EIyGEGQUcrr7aIy8GapkXFbIg2"
+          },
+          "doseLabel": {
+            "stringValue": "Dose única"
+          },
+          "facilityName": {
+            "stringValue": "UBS Central"
+          },
+          "lot": {
+            "stringValue": "#0001"
+          },
+          "appliedAt": {
+            "timestampValue": "2026-09-14T15:00:00Z"
+          },
+          "manufacturer": {
+            "stringValue": "N Sei"
+          },
+          "createdAt": {
+            "timestampValue": "2026-09-14T16:05:12.022Z"
+          },
+          "vaccineId": {
+            "stringValue": "bcg"
+          },
+          "nextDoseAt": {
+            "timestampValue": "2027-04-15T15:00:00Z"
+          },
+          "patientId": {
+            "stringValue": "bqtKfpye5xU75tzYKI0Cb4gzJaM2"
+          },
+          "source": {
+            "stringValue": "professional_panel"
+          }
+        },
+        "createTime": "2026-09-14T16:05:12.050404Z",
+        "updateTime": "2026-09-14T16:05:12.050404Z"
+      }
+    ],
+    "emergency_contacts": [
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/Ip3MTyggWFWo8Sfw3r7rm7Ia4Kt1/private/emergency_contact",
+        "fields": {
+          "phone": {
+            "stringValue": ""
+          },
+          "name": {
+            "stringValue": ""
+          },
+          "relationship": {
+            "stringValue": ""
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-16T15:09:17.203Z"
+          }
+        },
+        "createTime": "2026-09-01T17:15:10.580238Z",
+        "updateTime": "2026-09-16T15:09:17.270340Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/VQuN73vr5uaMqSJ7wpR6PKbwecz1/private/emergency_contact",
+        "fields": {
+          "relationship": {
+            "stringValue": ""
+          },
+          "phone": {
+            "stringValue": ""
+          },
+          "name": {
+            "stringValue": ""
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-22T04:03:13.202Z"
+          }
+        },
+        "createTime": "2026-09-22T03:29:16.235391Z",
+        "updateTime": "2026-09-22T04:03:13.271457Z"
+      },
+      {
+        "name": "projects/vitta-5ec1e/databases/(default)/documents/users/bqtKfpye5xU75tzYKI0Cb4gzJaM2/private/emergency_contact",
+        "fields": {
+          "relationship": {
+            "stringValue": ""
+          },
+          "updatedAt": {
+            "timestampValue": "2026-09-15T10:49:14.082Z"
+          },
+          "phone": {
+            "stringValue": ""
+          },
+          "name": {
+            "stringValue": ""
+          }
+        },
+        "createTime": "2026-09-02T11:04:12.069971Z",
+        "updateTime": "2026-09-15T10:49:14.121808Z"
+      }
+    ]
+  }
+}
