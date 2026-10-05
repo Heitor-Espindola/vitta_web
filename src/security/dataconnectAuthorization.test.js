@@ -148,15 +148,38 @@ describe('Data Connect authorization contract', () => {
     }
   })
 
-  test('only the matching professional with a direct grant can create an application', () => {
+  test('only the matching admin or an authorized professional can create an application', () => {
     const operation = webMutations.match(
       /mutation CreateApplication[\s\S]*?(?=\nmutation UpdateApplication)/,
     )?.[0]
 
     expect(operation).toContain('this == auth.uid')
+    expect(operation).toContain("this == 'ADMIN'")
     expect(operation).toContain("this == 'PROFESSIONAL'")
-    expect(operation).toContain('granteeAuthUid_expr: "auth.uid"')
-    expect(operation).toContain("this == 'GRANTED'")
+    expect(operation).toContain('granteeAuthUid: { eq_expr: "auth.uid" }')
+    expect(operation).toContain('auth.token.admin == true')
+    expect(operation).toContain("p.consentStatus == 'GRANTED'")
+  })
+
+  test('web applications are queried by the mobile wallet using the same patient id', () => {
+    const createApplication = webMutations.match(
+      /mutation CreateApplication[\s\S]*?(?=\nmutation UpdateApplication)/,
+    )?.[0]
+    const mobileVaccinations = mobileQueries.match(
+      /query GetAccessiblePatientVaccinations[\s\S]*?(?=\nquery |$)/,
+    )?.[0]
+
+    expect(createApplication).toContain('$patientId: UUID!')
+    expect(createApplication).toContain('patientId: $patientId')
+    expect(createApplication).toContain('source: "WEB_PORTAL"')
+    expect(mobileVaccinations).toContain('$patientId: UUID!')
+    expect(mobileVaccinations).toContain(
+      'where: { patientId: { eq: $patientId } }',
+    )
+    expect(mobileVaccinations).toContain('applicationDate')
+    expect(mobileVaccinations).toContain('nextDoseAt')
+    expect(mobileVaccinations).toContain('doseNumber')
+    expect(mobileVaccinations).toContain('vaccineNameSnapshot')
   })
 
   test('medical history entities expose archive or void operations, never physical deletes', () => {
