@@ -20,8 +20,10 @@ const collectionIds = [
   'users',
   'auth_links',
   'cpf_registry',
+  'children',
   'relationships',
   'access_grants',
+  'professional_patient_access',
   'vaccines',
   'vaccination_records',
 ]
