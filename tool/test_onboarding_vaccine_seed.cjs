@@ -65,6 +65,8 @@ DECLARE
   before_quantity integer;
   after_quantity integer;
   duplicate_count integer;
+  adult_upcoming integer;
+  adult_overdue integer;
 BEGIN
   SELECT count(*) INTO adult_count
     FROM public.application
@@ -84,6 +86,19 @@ BEGIN
   END IF;
   IF newborn_count <> 2 THEN
     RAISE EXCEPTION 'Recem-nascido recebeu % registros; esperado 2.', newborn_count;
+  END IF;
+  SELECT count(*) INTO adult_upcoming
+    FROM public.application
+   WHERE patient_id = '92000000-0000-4000-8000-000000000001'
+     AND next_dose_at::date >= CURRENT_DATE;
+  SELECT count(*) INTO adult_overdue
+    FROM public.application
+   WHERE patient_id = '92000000-0000-4000-8000-000000000001'
+     AND next_dose_at::date < CURRENT_DATE;
+  IF adult_upcoming < 1 OR adult_overdue < 1 THEN
+    RAISE EXCEPTION
+      'Carteira adulta sem exemplos de proxima (%) e atrasada (%).',
+      adult_upcoming, adult_overdue;
   END IF;
   IF EXISTS (
     SELECT 1

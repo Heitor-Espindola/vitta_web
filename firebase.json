@@ -7,6 +7,10 @@
   "dataconnect": {
     "source": "Firebase_SQL_Connect/dataconnect"
   },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs22"
+  },
   "hosting": {
     "site": "vitta-5ec1e",
     "public": "dist",

@@ -7,7 +7,6 @@ import {
   Plus,
   RotateCcw,
   ShieldCheck,
-  Type,
   UserCog,
   UserRound,
 } from "lucide-react";

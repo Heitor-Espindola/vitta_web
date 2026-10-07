@@ -52,8 +52,22 @@ if (forbidden.some((pattern) => pattern.test(executableSql))) {
 if (!/\bBEGIN\s*;/i.test(executableSql) || !/\bCOMMIT\s*;/i.test(executableSql)) {
   throw new Error('Migration recusada: transacao explicita ausente.')
 }
-if (!/ON\s+CONFLICT\s*\(legacy_record_id\)\s+DO\s+NOTHING/i.test(executableSql)) {
+const isScheduleMigration =
+  path.basename(migrationPath) ===
+  'onboarding_experimental_vaccine_schedule.sql'
+if (
+  !isScheduleMigration &&
+  !/ON\s+CONFLICT\s*\(legacy_record_id\)\s+DO\s+NOTHING/i.test(executableSql)
+) {
   throw new Error('Migration recusada: idempotencia ausente.')
+}
+if (
+  isScheduleMigration &&
+  !/CREATE\s+OR\s+REPLACE\s+FUNCTION\s+public\.schedule_experimental_onboarding_doses/i.test(
+    executableSql,
+  )
+) {
+  throw new Error('Migration recusada: funcao de agenda experimental ausente.')
 }
 if (!/source[\s\S]*'EXPERIMENTAL_ONBOARDING'/i.test(executableSql)) {
   throw new Error('Migration recusada: origem experimental ausente.')
