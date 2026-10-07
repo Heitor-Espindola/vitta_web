@@ -181,7 +181,7 @@ export default function Aplicacoes() {
                     <td>{formatDate(record.applicationDate)}</td>
                     <td>{record.ubsName || "Não informada"}</td>
                     <td>{record.batchCode || "—"}</td>
-                    <td><StatusBadge status={record.voidedAt ? "danger" : "active"}>{record.voidedAt ? "Anulada" : "Registrada"}</StatusBadge></td>
+                    <td><StatusBadge status={ record.voidedAt ? "danger" : isAdmin && record.editedAt ? "warning" : "active" }> {record.voidedAt ? "Anulada" : isAdmin && record.editedAt ? "Editada" : "Registrada"} </StatusBadge></td>
                     <td>
                       <div className="table-actions">
                         <button className="icon-button" type="button" onClick={() => setSelectedRecord(record)} title="Detalhes">
@@ -215,7 +215,7 @@ export default function Aplicacoes() {
         title="Detalhes da aplicação"
         description="Registro oficial armazenado no SQL Connect."
       >
-        <VaccinationDetail record={selectedRecord} />
+        <VaccinationDetail record={selectedRecord} isAdmin={isAdmin}/>
       </Modal>
 
       <Modal

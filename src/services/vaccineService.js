@@ -14,17 +14,24 @@ function mapVaccine(vaccine) {
   return {
     id: vaccine.id,
     name: vaccine.name || "Vacina sem nome",
-    shortName: "",
+    shortName: vaccine.shortName || "",
     description: vaccine.description || "",
-    recommendedAge: "",
+    recommendedAge: vaccine.recommendedAge || "",
     doseCount:
       typeof vaccine.requiredDoses === "number"
         ? vaccine.requiredDoses
         : null,
-    intervalDays: null,
-    targetGroups: [],
+    intervalDays:
+      typeof vaccine.intervalDays === "number"
+        ? vaccine.intervalDays
+        : null,
+    targetGroups: Array.isArray(vaccine.targetGroups)
+      ? vaccine.targetGroups
+      : [],
     prevents: [],
-    doseSchedule: [],
+    doseSchedule: Array.isArray(vaccine.doseSchedule)
+      ? vaccine.doseSchedule
+      : [],
     expectedReactions: [],
     warningSigns: [],
     contraindications: [],

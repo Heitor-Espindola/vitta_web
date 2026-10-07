@@ -7,6 +7,7 @@ import { addProfessional, editProfessional, removeProfessional, watchProfessiona
 import { addUBS, editUBS, removeUBS, watchUBS } from "../services/ubsService";
 import { formatCpf, isValidCpf } from "../utils/cpf";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
+import { SEX_OPTIONS, normalizeSex } from "../utils/sex";
 
 const emptyProfessional = {
     name: "",
@@ -363,14 +364,65 @@ export default function Funcionarios() {
                     {formError ? <div className="inline-alert inline-alert--error">{formError}</div> : null}
                     <div className="form-grid">
                         <label className="field field--span-2"><span>Nome completo *</span><input value={professionalForm.name} onChange={(event) => updateProfessional("name", event.target.value)} disabled={saving} /></label>
-                        <label className="field"><span>Data de nascimento *</span><input type="date" value={professionalForm.birthDate} onChange={(event) => updateProfessional("birthDate", event.target.value)} disabled={saving} /></label>
-                        <label className="field"><span>CPF *</span><input inputMode="numeric" value={professionalForm.cpf} onChange={(event) => updateProfessional("cpf", formatCpf(event.target.value))} maxLength={14} disabled={saving} /></label>
-                        <label className="field field--span-2"><span>E-mail *</span><input type="email" value={professionalForm.email} onChange={(event) => updateProfessional("email", event.target.value)} disabled={saving || (!isAdmin && !editingProfessional)} /></label>
-                        <label className="field"><span>Sexo</span><input value={professionalForm.sex} onChange={(event) => updateProfessional("sex", event.target.value)} disabled={saving} /></label>
-                        <label className="field"><span>Status</span><select value={professionalForm.status} onChange={(event) => updateProfessional("status", event.target.value)} disabled={saving || (!isAdmin && editingProfessional?.email !== firebaseUser?.email)}><option value="ACTIVE">Ativo</option><option value="INACTIVE">Inativo</option><option value="BLOCKED">Bloqueado</option></select></label>
-                        <label className="field"><span>Tipo profissional</span><select value={professionalForm.professionalType} onChange={(event) => updateProfessional("professionalType", event.target.value)} disabled={saving}><option value="NURSE">Enfermeiro(a)</option><option value="DOCTOR">Médico(a)</option><option value="NURSING_TECHNICIAN">Técnico(a) de enfermagem</option><option value="PHARMACIST">Farmacêutico(a)</option><option value="OTHER">Outro</option></select></label>
-                        <label className="field"><span>Registro profissional</span><input value={professionalForm.professionalRegistration} onChange={(event) => updateProfessional("professionalRegistration", event.target.value)} disabled={saving} placeholder="Ex.: COREN 123456" /></label>
-                        <label className="field field--span-2"><span>UBS vinculada</span><select value={professionalForm.ubsId} onChange={(event) => updateProfessional("ubsId", event.target.value)} disabled={loading || saving}><option value="">Nenhuma</option>{ubs.map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select></label>
+                        <label className="field">
+                            <span>Data de nascimento *</span><input type="date" value={professionalForm.birthDate} onChange={(event) => updateProfessional("birthDate", event.target.value)} disabled={saving} />
+                        </label>
+                        <label className="field">
+                            <span>CPF *</span>
+                            <input inputMode="numeric" value={professionalForm.cpf} onChange={(event) => updateProfessional("cpf", formatCpf(event.target.value))} maxLength={14} disabled={saving} />
+                        </label>
+                        <label className="field field--span-2">
+                            <span>E-mail *</span>
+                            <input type="email" value={professionalForm.email} onChange={(event) => updateProfessional("email", event.target.value)} disabled={saving || (!isAdmin && !editingProfessional)} />
+                        </label>
+                        <label className="field">
+                            <span>Sexo</span>
+                            <select
+                                value={professionalForm.sex}
+                                onChange={(event) =>
+                                    updateProfessional(
+                                        "sex",
+                                        event.target.value,
+                                    )
+                                }
+                                disabled={saving}
+                            >
+                                {SEX_OPTIONS.map((option) => (
+                                    <option
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                        <label className="field">
+                            <span>Status</span>
+                            <select value={professionalForm.status} onChange={(event) => updateProfessional("status", event.target.value)} disabled={saving || (!isAdmin && editingProfessional?.email !== firebaseUser?.email)}>
+                                <option value="ACTIVE">Ativo</option>
+                                <option value="INACTIVE">Inativo</option>
+                                <option value="BLOCKED">Bloqueado</option>
+                            </select>
+                        </label>
+                        <label className="field">
+                            <span>Tipo profissional</span>
+                            <select value={professionalForm.professionalType} onChange={(event) => updateProfessional("professionalType", event.target.value)} disabled={saving}>
+                                <option value="NURSE">Enfermeiro(a)</option>
+                                <option value="DOCTOR">Médico(a)</option>
+                                <option value="NURSING_TECHNICIAN">Técnico(a) de enfermagem</option>
+                                <option value="PHARMACIST">Farmacêutico(a)</option>
+                                <option value="OTHER">Outro</option>
+                            </select>
+                        </label>
+                        <label className="field">
+                            <span>Registro profissional</span>
+                            <input value={professionalForm.professionalRegistration} onChange={(event) => updateProfessional("professionalRegistration", event.target.value)} disabled={saving} placeholder="Ex.: COREN 123456" />
+                        </label>
+                        <label className="field field--span-2">
+                            <span>UBS vinculada</span>
+                            <select value={professionalForm.ubsId} onChange={(event) => updateProfessional("ubsId", event.target.value)} disabled={loading || saving}><option value="">Nenhuma</option>{ubs.map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select>
+                        </label>
                     </div>
                     <div className="inline-alert inline-alert--info"><strong>Atenção:</strong> o e-mail aqui deve ser o mesmo e-mail usado pela conta do Firebase Authentication.</div>
                     <div className="form-actions"><button className="button button--secondary" type="button" onClick={closeProfessional} disabled={saving}><X size={18} /> Cancelar</button><button className="button button--primary" type="submit" disabled={saving}>{saving ? <span className="button-spinner" /> : <UserCog size={18} />}{saving ? "Salvando..." : editingProfessional ? "Salvar alterações" : "Cadastrar profissional"}</button></div>
@@ -381,12 +433,30 @@ export default function Funcionarios() {
                 <form className="modal__body professional-form" onSubmit={submitUBS} noValidate>
                     {formError ? <div className="inline-alert inline-alert--error">{formError}</div> : null}
                     <div className="form-grid">
-                        <label className="field field--span-2"><span>Nome da UBS *</span><input value={ubsForm.name} onChange={(event) => updateUBS("name", event.target.value)} disabled={saving} /></label>
-                        <label className="field field--span-2"><span>Logradouro</span><input value={ubsForm.logradouro} onChange={(event) => updateUBS("logradouro", event.target.value)} disabled={saving} /></label>
-                        <label className="field"><span>Número</span><input value={ubsForm.numero} onChange={(event) => updateUBS("numero", event.target.value)} disabled={saving} /></label>
-                        <label className="field"><span>Bairro</span><input value={ubsForm.bairro} onChange={(event) => updateUBS("bairro", event.target.value)} disabled={saving} /></label>
-                        <label className="field"><span>Cidade</span><input value={ubsForm.cidade} onChange={(event) => updateUBS("cidade", event.target.value)} disabled={saving} /></label>
-                        <label className="field"><span>CEP</span><input value={ubsForm.cep} onChange={(event) => updateUBS("cep", event.target.value)} disabled={saving} /></label>
+                        <label className="field field--span-2">
+                            <span>Nome da UBS *</span>
+                            <input value={ubsForm.name} onChange={(event) => updateUBS("name", event.target.value)} disabled={saving} />
+                        </label>
+                        <label className="field field--span-2">
+                            <span>Logradouro</span>
+                            <input value={ubsForm.logradouro} onChange={(event) => updateUBS("logradouro", event.target.value)} disabled={saving} />
+                        </label>
+                        <label className="field">
+                            <span>Número</span>
+                            <input value={ubsForm.numero} onChange={(event) => updateUBS("numero", event.target.value)} disabled={saving} />
+                        </label>
+                        <label className="field">
+                            <span>Bairro</span>
+                            <input value={ubsForm.bairro} onChange={(event) => updateUBS("bairro", event.target.value)} disabled={saving} />
+                        </label>
+                        <label className="field">
+                            <span>Cidade</span>
+                            <input value={ubsForm.cidade} onChange={(event) => updateUBS("cidade", event.target.value)} disabled={saving} />
+                        </label>
+                        <label className="field">
+                            <span>CEP</span>
+                            <input value={ubsForm.cep} onChange={(event) => updateUBS("cep", event.target.value)} disabled={saving} />
+                        </label>
                     </div>
                     <div className="form-actions"><button className="button button--secondary" type="button" onClick={closeUBS} disabled={saving}><X size={18} /> Cancelar</button><button className="button button--primary" type="submit" disabled={saving}>{saving ? <span className="button-spinner" /> : <Building2 size={18} />}{saving ? "Salvando..." : editingUBS ? "Salvar alterações" : "Cadastrar UBS"}</button></div>
                 </form>

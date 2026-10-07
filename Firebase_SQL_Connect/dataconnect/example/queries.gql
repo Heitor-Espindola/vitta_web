@@ -3,10 +3,10 @@
 # ============================================================
 
 query ListUsers
-  @auth(expr: "auth.token.admin == true")
-  @refresh(onMutationExecuted: { operation: "CreateUser" })
-  @refresh(onMutationExecuted: { operation: "UpdateUser" })
-  @refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" }) {
+@auth(expr: "auth.token.admin == true")
+@refresh(onMutationExecuted: { operation: "CreateUser" })
+@refresh(onMutationExecuted: { operation: "UpdateUser" })
+@refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" }) {
   users {
     id
     name
@@ -61,8 +61,8 @@ query GetCurrentPortalUser @auth(level: USER) {
 # retirada do SDK novo e restringida a administrador para não manter a busca
 # global por CPF disponível ao papel profissional.
 query GetUserByCpf($cpf: String!)
-  @auth(expr: "auth.token.admin == true")
-  @retired {
+@auth(expr: "auth.token.admin == true")
+@retired {
   professionals(where: { user: { authUid: { eq_expr: "auth.uid" } } })
     @retired
     @redact
@@ -81,14 +81,9 @@ query GetUserByCpf($cpf: String!)
 }
 
 query GetAdminPatientByCpf($cpf: String!)
-  @auth(expr: "auth.token.admin == true") {
+@auth(expr: "auth.token.admin == true") {
   patients(
-    where: {
-      _and: [
-        { active: { eq: true } }
-        { user: { cpf: { eq: $cpf } } }
-      ]
-    }
+    where: { _and: [{ active: { eq: true } }, { user: { cpf: { eq: $cpf } } }] }
   ) {
     id
     motherName
@@ -130,13 +125,13 @@ query GetUserByEmail($email: String!) @auth(expr: "auth.token.admin == true") {
 # ============================================================
 
 query ListPatients
-  @auth(expr: "auth.token.admin == true")
-  @refresh(onMutationExecuted: { operation: "CreateUser" })
-  @refresh(onMutationExecuted: { operation: "UpdateUser" })
-  @refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
-  @refresh(onMutationExecuted: { operation: "CreatePatient" })
-  @refresh(onMutationExecuted: { operation: "UpdatePatient" })
-  @refresh(onMutationExecuted: { operation: "ArchivePatient" }) {
+@auth(expr: "auth.token.admin == true")
+@refresh(onMutationExecuted: { operation: "CreateUser" })
+@refresh(onMutationExecuted: { operation: "UpdateUser" })
+@refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
+@refresh(onMutationExecuted: { operation: "CreatePatient" })
+@refresh(onMutationExecuted: { operation: "UpdatePatient" })
+@refresh(onMutationExecuted: { operation: "ArchivePatient" }) {
   patients(where: { active: { eq: true } }) {
     id
     motherName
@@ -272,8 +267,7 @@ query GetPatient($id: UUID!) @auth(level: USER) {
     @redact {
     consentStatus
       @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
-    viewProfile
-      @check(expr: "this == true", message: "Perfil não autorizado.")
+    viewProfile @check(expr: "this == true", message: "Perfil não autorizado.")
     validUntil
       @check(
         expr: "this == null || this > request.time"
@@ -304,8 +298,7 @@ query GetPatient($id: UUID!) @auth(level: USER) {
   }
 }
 
-query GetAdminPatient($id: UUID!)
-  @auth(expr: "auth.token.admin == true") {
+query GetAdminPatient($id: UUID!) @auth(expr: "auth.token.admin == true") {
   patient(id: $id) {
     id
     motherName
@@ -330,8 +323,7 @@ query GetAdminPatient($id: UUID!)
   }
 }
 
-query GetPatientByUser($userId: UUID!)
-  @auth(expr: "auth.token.admin == true") {
+query GetPatientByUser($userId: UUID!) @auth(expr: "auth.token.admin == true") {
   patients(where: { userId: { eq: $userId } }) {
     id
     motherName
@@ -361,10 +353,10 @@ query GetPatientByUser($userId: UUID!)
 # ============================================================
 
 query ListUbs
-  @auth(level: USER)
-  @refresh(onMutationExecuted: { operation: "CreateUbs" })
-  @refresh(onMutationExecuted: { operation: "UpdateUbs" })
-  @refresh(onMutationExecuted: { operation: "ArchiveUbs" }) {
+@auth(level: USER)
+@refresh(onMutationExecuted: { operation: "CreateUbs" })
+@refresh(onMutationExecuted: { operation: "UpdateUbs" })
+@refresh(onMutationExecuted: { operation: "ArchiveUbs" }) {
   users(
     where: {
       _and: [
@@ -430,10 +422,10 @@ query SearchUbsByName($name: String!) @auth(level: USER) {
 # ============================================================
 
 query ListProfessionals
-  @auth(expr: "auth.token.admin == true")
-  @refresh(onMutationExecuted: { operation: "CreateProfessional" })
-  @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
-  @refresh(onMutationExecuted: { operation: "ArchiveProfessional" }) {
+@auth(expr: "auth.token.admin == true")
+@refresh(onMutationExecuted: { operation: "CreateProfessional" })
+@refresh(onMutationExecuted: { operation: "UpdateProfessional" })
+@refresh(onMutationExecuted: { operation: "ArchiveProfessional" }) {
   professionals(where: { active: { eq: true } }) {
     id
     user {
@@ -483,7 +475,7 @@ query GetProfessional($id: UUID!) @auth(expr: "auth.token.admin == true") {
 }
 
 query GetProfessionalByUser($userId: UUID!)
-  @auth(expr: "auth.token.admin == true") {
+@auth(expr: "auth.token.admin == true") {
   professionals(where: { userId: { eq: $userId } }) {
     id
     user {
@@ -506,10 +498,10 @@ query GetProfessionalByUser($userId: UUID!)
 # ============================================================
 
 query ListVaccines
-  @auth(level: USER)
-  @refresh(onMutationExecuted: { operation: "CreateVaccine" })
-  @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
-  @refresh(onMutationExecuted: { operation: "ArchiveVaccine" }) {
+@auth(level: USER)
+@refresh(onMutationExecuted: { operation: "CreateVaccine" })
+@refresh(onMutationExecuted: { operation: "UpdateVaccine" })
+@refresh(onMutationExecuted: { operation: "ArchiveVaccine" }) {
   users(where: { authUid: { eq_expr: "auth.uid" } })
     @redact
     @check(message: "Conta autenticada não vinculada ao SQL.") {
@@ -519,7 +511,12 @@ query ListVaccines
     id
     name
     description
+    shortName
+    recommendedAge
     requiredDoses
+    intervalDays
+    targetGroups
+    doseSchedule
   }
 }
 
@@ -556,13 +553,13 @@ query SearchVaccinesByName($name: String!) @auth(level: USER) {
 # ============================================================
 
 query ListBatches
-  @auth(level: USER)
-  @refresh(onMutationExecuted: { operation: "CreateBatch" })
-  @refresh(onMutationExecuted: { operation: "UpdateBatch" })
-  @refresh(onMutationExecuted: { operation: "DeleteBatch" })
-  @refresh(onMutationExecuted: { operation: "CreateVaccine" })
-  @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
-  @refresh(onMutationExecuted: { operation: "ArchiveVaccine" }) {
+@auth(level: USER)
+@refresh(onMutationExecuted: { operation: "CreateBatch" })
+@refresh(onMutationExecuted: { operation: "UpdateBatch" })
+@refresh(onMutationExecuted: { operation: "DeleteBatch" })
+@refresh(onMutationExecuted: { operation: "CreateVaccine" })
+@refresh(onMutationExecuted: { operation: "UpdateVaccine" })
+@refresh(onMutationExecuted: { operation: "ArchiveVaccine" }) {
   users(
     where: {
       _and: [
@@ -663,10 +660,10 @@ query ListBatchesByVaccine($vaccineId: UUID!) @auth(level: USER) {
 # ============================================================
 
 query ListAppointments
-  @auth(expr: "auth.token.admin == true")
-  @refresh(onMutationExecuted: { operation: "CreateAppointment" })
-  @refresh(onMutationExecuted: { operation: "UpdateAppointment" })
-  @refresh(onMutationExecuted: { operation: "DeleteAppointment" }) {
+@auth(expr: "auth.token.admin == true")
+@refresh(onMutationExecuted: { operation: "CreateAppointment" })
+@refresh(onMutationExecuted: { operation: "UpdateAppointment" })
+@refresh(onMutationExecuted: { operation: "DeleteAppointment" }) {
   appointments {
     id
     patient {
@@ -826,7 +823,7 @@ query ListAppointmentsByPatient($patientId: UUID!) @auth(level: USER) {
 }
 
 query ListAppointmentsByStatus($status: AppointmentStatus!)
-  @auth(expr: "auth.token.admin == true") {
+@auth(expr: "auth.token.admin == true") {
   appointments(where: { status: { eq: $status } }) {
     id
     patient {
@@ -856,25 +853,25 @@ query ListAppointmentsByStatus($status: AppointmentStatus!)
 # ============================================================
 
 query ListApplications
-  @auth(expr: "auth.token.admin == true")
-  @refresh(onMutationExecuted: { operation: "CreateUser" })
-  @refresh(onMutationExecuted: { operation: "UpdateUser" })
-  @refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
-  @refresh(onMutationExecuted: { operation: "CreatePatient" })
-  @refresh(onMutationExecuted: { operation: "UpdatePatient" })
-  @refresh(onMutationExecuted: { operation: "ArchivePatient" })
-  @refresh(onMutationExecuted: { operation: "CreateApplication" })
-  @refresh(onMutationExecuted: { operation: "UpdateApplication" })
-  @refresh(onMutationExecuted: { operation: "VoidApplication" })
-  @refresh(onMutationExecuted: { operation: "VoidLegacyApplication" })
-  @refresh(onMutationExecuted: { operation: "CreateVaccine" })
-  @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
-  @refresh(onMutationExecuted: { operation: "ArchiveVaccine" })
-  @refresh(onMutationExecuted: { operation: "CreateBatch" })
-  @refresh(onMutationExecuted: { operation: "UpdateBatch" })
-  @refresh(onMutationExecuted: { operation: "DeleteBatch" })
-  @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
-  @refresh(onMutationExecuted: { operation: "UpdateUbs" }) {
+@auth(expr: "auth.token.admin == true")
+@refresh(onMutationExecuted: { operation: "CreateUser" })
+@refresh(onMutationExecuted: { operation: "UpdateUser" })
+@refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
+@refresh(onMutationExecuted: { operation: "CreatePatient" })
+@refresh(onMutationExecuted: { operation: "UpdatePatient" })
+@refresh(onMutationExecuted: { operation: "ArchivePatient" })
+@refresh(onMutationExecuted: { operation: "CreateApplication" })
+@refresh(onMutationExecuted: { operation: "UpdateApplication" })
+@refresh(onMutationExecuted: { operation: "VoidApplication" })
+@refresh(onMutationExecuted: { operation: "VoidLegacyApplication" })
+@refresh(onMutationExecuted: { operation: "CreateVaccine" })
+@refresh(onMutationExecuted: { operation: "UpdateVaccine" })
+@refresh(onMutationExecuted: { operation: "ArchiveVaccine" })
+@refresh(onMutationExecuted: { operation: "CreateBatch" })
+@refresh(onMutationExecuted: { operation: "UpdateBatch" })
+@refresh(onMutationExecuted: { operation: "DeleteBatch" })
+@refresh(onMutationExecuted: { operation: "UpdateProfessional" })
+@refresh(onMutationExecuted: { operation: "UpdateUbs" }) {
   applications {
     id
     patientIdSnapshot
@@ -889,6 +886,8 @@ query ListApplications
     doseLabel
     nextDoseAt
     source
+    editedAt
+    editedByAuthUid
     voidedAt
     voidedByAuthUid
     voidReason
@@ -964,6 +963,8 @@ query ListCurrentProfessionalApplications @auth(level: USER) {
     doseLabel
     nextDoseAt
     source
+    editedAt
+    editedByAuthUid
     voidedAt
     voidedByAuthUid
     voidReason
@@ -1084,21 +1085,21 @@ query GetApplication($id: UUID!) @auth(expr: "auth.token.admin == true") {
 }
 
 query ListApplicationsByPatient($patientId: UUID!)
-  @auth(level: USER)
-  @refresh(onMutationExecuted: { operation: "CreateUser" })
-  @refresh(onMutationExecuted: { operation: "UpdateUser" })
-  @refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
-  @refresh(onMutationExecuted: { operation: "CreatePatient" })
-  @refresh(onMutationExecuted: { operation: "UpdatePatient" })
-  @refresh(onMutationExecuted: { operation: "ArchivePatient" })
-  @refresh(onMutationExecuted: { operation: "CreateApplication" })
-  @refresh(onMutationExecuted: { operation: "UpdateApplication" })
-  @refresh(onMutationExecuted: { operation: "VoidApplication" })
-  @refresh(onMutationExecuted: { operation: "VoidLegacyApplication" })
-  @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
-  @refresh(onMutationExecuted: { operation: "UpdateBatch" })
-  @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
-  @refresh(onMutationExecuted: { operation: "UpdateUbs" }) {
+@auth(level: USER)
+@refresh(onMutationExecuted: { operation: "CreateUser" })
+@refresh(onMutationExecuted: { operation: "UpdateUser" })
+@refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
+@refresh(onMutationExecuted: { operation: "CreatePatient" })
+@refresh(onMutationExecuted: { operation: "UpdatePatient" })
+@refresh(onMutationExecuted: { operation: "ArchivePatient" })
+@refresh(onMutationExecuted: { operation: "CreateApplication" })
+@refresh(onMutationExecuted: { operation: "UpdateApplication" })
+@refresh(onMutationExecuted: { operation: "VoidApplication" })
+@refresh(onMutationExecuted: { operation: "VoidLegacyApplication" })
+@refresh(onMutationExecuted: { operation: "UpdateVaccine" })
+@refresh(onMutationExecuted: { operation: "UpdateBatch" })
+@refresh(onMutationExecuted: { operation: "UpdateProfessional" })
+@refresh(onMutationExecuted: { operation: "UpdateUbs" }) {
   patientAccess(
     key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
   ) @redact {
@@ -1173,7 +1174,7 @@ query ListApplicationsByPatient($patientId: UUID!)
 }
 
 query ListAdminApplicationsByPatient($patientId: UUID!)
-  @auth(expr: "auth.token.admin == true") {
+@auth(expr: "auth.token.admin == true") {
   applications(
     where: { patientId: { eq: $patientId } }
     orderBy: { applicationDate: DESC }
@@ -1191,6 +1192,8 @@ query ListAdminApplicationsByPatient($patientId: UUID!)
     doseLabel
     nextDoseAt
     source
+    editedAt
+    editedByAuthUid
     voidedAt
     voidedByAuthUid
     voidReason
@@ -1238,26 +1241,26 @@ query ListAdminApplicationsByPatient($patientId: UUID!)
 }
 
 query ListApplicationsByVaccine($vaccineId: UUID!)
-  @auth(expr: "auth.token.admin == true")
-  @refresh(onMutationExecuted: { operation: "CreateUser" })
-  @refresh(onMutationExecuted: { operation: "UpdateUser" })
-  @refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
-  @refresh(onMutationExecuted: { operation: "CreateProfessional" })
-  @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
-  @refresh(onMutationExecuted: { operation: "ArchiveProfessional" })
-  @refresh(onMutationExecuted: { operation: "CreateUbs" })
-  @refresh(onMutationExecuted: { operation: "UpdateUbs" })
-  @refresh(onMutationExecuted: { operation: "ArchiveUbs" })
-  @refresh(onMutationExecuted: { operation: "CreateVaccine" })
-  @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
-  @refresh(onMutationExecuted: { operation: "ArchiveVaccine" })
-  @refresh(onMutationExecuted: { operation: "CreateBatch" })
-  @refresh(onMutationExecuted: { operation: "UpdateBatch" })
-  @refresh(onMutationExecuted: { operation: "DeleteBatch" })
-  @refresh(onMutationExecuted: { operation: "CreateApplication" })
-  @refresh(onMutationExecuted: { operation: "UpdateApplication" })
-  @refresh(onMutationExecuted: { operation: "VoidApplication" })
-  @refresh(onMutationExecuted: { operation: "VoidLegacyApplication" }) {
+@auth(expr: "auth.token.admin == true")
+@refresh(onMutationExecuted: { operation: "CreateUser" })
+@refresh(onMutationExecuted: { operation: "UpdateUser" })
+@refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
+@refresh(onMutationExecuted: { operation: "CreateProfessional" })
+@refresh(onMutationExecuted: { operation: "UpdateProfessional" })
+@refresh(onMutationExecuted: { operation: "ArchiveProfessional" })
+@refresh(onMutationExecuted: { operation: "CreateUbs" })
+@refresh(onMutationExecuted: { operation: "UpdateUbs" })
+@refresh(onMutationExecuted: { operation: "ArchiveUbs" })
+@refresh(onMutationExecuted: { operation: "CreateVaccine" })
+@refresh(onMutationExecuted: { operation: "UpdateVaccine" })
+@refresh(onMutationExecuted: { operation: "ArchiveVaccine" })
+@refresh(onMutationExecuted: { operation: "CreateBatch" })
+@refresh(onMutationExecuted: { operation: "UpdateBatch" })
+@refresh(onMutationExecuted: { operation: "DeleteBatch" })
+@refresh(onMutationExecuted: { operation: "CreateApplication" })
+@refresh(onMutationExecuted: { operation: "UpdateApplication" })
+@refresh(onMutationExecuted: { operation: "VoidApplication" })
+@refresh(onMutationExecuted: { operation: "VoidLegacyApplication" }) {
   applications(where: { vaccineId: { eq: $vaccineId } }) {
     id
     patientIdSnapshot

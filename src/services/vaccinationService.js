@@ -12,6 +12,7 @@ import {
   voidApplication,
   voidLegacyApplication,
 } from "@dataconnect/generated";
+import { maskCpf } from "../utils/cpf";
 
 function textOrNull(value) {
   const text = String(value ?? "").trim();
@@ -33,6 +34,7 @@ export function mapApplication(application) {
     patientName:
       user.name || application?.patientNameSnapshot || "Paciente não informado",
     patientCpf: user.cpf || "",
+    maskedPatientCpf: maskCpf(user.cpf || ""),
     vaccineId: vaccine.id || "",
     vaccineName:
       vaccine.name || application?.vaccineNameSnapshot || "Vacina não informada",
@@ -64,6 +66,8 @@ export function mapApplication(application) {
         ? `${application.doseNumber}ª dose`
         : "Dose não informada"),
     nextDoseAt: application?.nextDoseAt || null,
+    editedAt: application?.editedAt || null,
+    editedByAuthUid: application?.editedByAuthUid || "",
     voidedAt: application?.voidedAt || null,
     voidedByAuthUid: application?.voidedByAuthUid || "",
     voidReason: application?.voidReason || "",
@@ -205,17 +209,40 @@ export async function registerVaccination({
 
 export async function editApplication(
   id,
-  { doseNumber, doseLabel, nextDoseAt, notes },
+  {
+    patientId,
+    vaccineId,
+    batchId,
+    previousBatchId,
+    applicationDate,
+    doseNumber,
+    doseLabel,
+    notes,
+  },
 ) {
   if (!id) {
     throw new Error("A aplicação selecionada é inválida.");
   }
 
+  if (!patientId || !vaccineId || !batchId || !previousBatchId) {
+    throw new Error(
+      "Paciente, vacina e lote são obrigatórios para editar a aplicação.",
+    );
+  }
+
+  if (!applicationDate) {
+    throw new Error("Informe a data da aplicação.");
+  }
+
   return updateApplication({
     id,
+    patientId,
+    vaccineId,
+    batchId,
+    previousBatchId,
+    applicationDate: timestampFromDateInput(applicationDate),
     doseNumber: doseNumber ? Number(doseNumber) : null,
     doseLabel: textOrNull(doseLabel),
-    nextDoseAt: nextDoseAt || null,
     notes: textOrNull(notes),
   });
 }

@@ -1266,9 +1266,9 @@ export interface UpdateApplicationData {
 
 export interface UpdateApplicationVariables {
   id: UUIDString;
+  applicationDate: TimestampString;
   doseNumber?: number | null;
   doseLabel?: string | null;
-  nextDoseAt?: TimestampString | null;
   notes?: string | null;
 }
 

@@ -23,6 +23,7 @@ import {
 import { formatCpf, isValidCpf } from "../utils/cpf";
 import { formatDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
+import { SEX_OPTIONS, normalizeSex } from "../utils/sex";
 
 const emptyForm = {
   name: "",
@@ -637,19 +638,14 @@ export default function Pacientes() {
                 }
                 disabled={saving}
               >
-                <option value="">Não informado</option>
-                <option value="Feminino">Feminino</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Intersexo">Intersexo</option>
-                <option value="Outro">Outro</option>
-                {form.sex && ![
-                  "Feminino",
-                  "Masculino",
-                  "Intersexo",
-                  "Outro",
-                ].includes(form.sex) ? (
-                  <option value={form.sex}>{form.sex}</option>
-                ) : null}
+                {SEX_OPTIONS.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                  >
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </label>
 

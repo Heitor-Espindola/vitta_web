@@ -7063,9 +7063,9 @@ The `UpdateApplication` mutation requires an argument of type `UpdateApplication
 ```typescript
 export interface UpdateApplicationVariables {
   id: UUIDString;
+  applicationDate: TimestampString;
   doseNumber?: number | null;
   doseLabel?: string | null;
-  nextDoseAt?: TimestampString | null;
   notes?: string | null;
 }
 ```
@@ -7087,9 +7087,9 @@ import { connectorConfig, updateApplication, UpdateApplicationVariables } from '
 // The `UpdateApplication` mutation requires an argument of type `UpdateApplicationVariables`:
 const updateApplicationVars: UpdateApplicationVariables = {
   id: ..., 
+  applicationDate: ..., 
   doseNumber: ..., // optional
   doseLabel: ..., // optional
-  nextDoseAt: ..., // optional
   notes: ..., // optional
 };
 
@@ -7097,7 +7097,7 @@ const updateApplicationVars: UpdateApplicationVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateApplication(updateApplicationVars);
 // Variables can be defined inline as well.
-const { data } = await updateApplication({ id: ..., doseNumber: ..., doseLabel: ..., nextDoseAt: ..., notes: ..., });
+const { data } = await updateApplication({ id: ..., applicationDate: ..., doseNumber: ..., doseLabel: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7121,16 +7121,16 @@ import { connectorConfig, updateApplicationRef, UpdateApplicationVariables } fro
 // The `UpdateApplication` mutation requires an argument of type `UpdateApplicationVariables`:
 const updateApplicationVars: UpdateApplicationVariables = {
   id: ..., 
+  applicationDate: ..., 
   doseNumber: ..., // optional
   doseLabel: ..., // optional
-  nextDoseAt: ..., // optional
   notes: ..., // optional
 };
 
 // Call the `updateApplicationRef()` function to get a reference to the mutation.
 const ref = updateApplicationRef(updateApplicationVars);
 // Variables can be defined inline as well.
-const ref = updateApplicationRef({ id: ..., doseNumber: ..., doseLabel: ..., nextDoseAt: ..., notes: ..., });
+const ref = updateApplicationRef({ id: ..., applicationDate: ..., doseNumber: ..., doseLabel: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);

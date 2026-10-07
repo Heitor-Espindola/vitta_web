@@ -1,7 +1,7 @@
 import { formatDate, formatDateTime } from "../utils/dates";
 import { StatusBadge } from "./ui";
 
-export default function VaccinationDetail({ record }) {
+export default function VaccinationDetail({ record, isAdmin = false }) {
   if (!record) return null;
 
   const fields = [
@@ -20,8 +20,20 @@ export default function VaccinationDetail({ record }) {
   return (
     <div className="record-detail">
       <div className="record-detail__status">
-        <StatusBadge status={record.voidedAt ? "danger" : "active"}>
-          {record.voidedAt ? "Anulada" : "Registrada"}
+        <StatusBadge
+          status={
+            record.voidedAt
+              ? "danger"
+              : isAdmin && record.editedAt
+                ? "warning"
+                : "active"
+          }
+        >
+          {record.voidedAt
+            ? "Anulada"
+            : isAdmin && record.editedAt
+              ? "Editada"
+              : "Registrada"}
         </StatusBadge>
         <span>Registro do SQL Connect</span>
       </div>

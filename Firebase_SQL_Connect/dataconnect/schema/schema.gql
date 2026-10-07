@@ -219,6 +219,8 @@ type Application @table {
   voidedAt: Timestamp
   voidedByAuthUid: String
   voidReason: String
+  editedAt: Timestamp
+  editedByAuthUid: String
   createdAt: Timestamp
   updatedAt: Timestamp
 }

@@ -342,14 +342,14 @@ mutation CreateAppointment(
       @check(
         optional: true
         expr: """
-          auth.token.admin == true ||
-          this.exists(
-            p,
-            p.accessKind == 'PROFESSIONAL' &&
-            p.consentStatus == 'GRANTED' &&
-            p.viewVaccination == true &&
-            (p.validUntil == null || p.validUntil > request.time)
-          )
+        auth.token.admin == true ||
+        this.exists(
+          p,
+          p.accessKind == 'PROFESSIONAL' &&
+          p.consentStatus == 'GRANTED' &&
+          p.viewVaccination == true &&
+          (p.validUntil == null || p.validUntil > request.time)
+        )
         """
         message: "Paciente não autorizado para este profissional."
       ) {
@@ -437,48 +437,31 @@ mutation CreateApplication(
       }
     }
 
-    patient(id: $patientId)
-      @check(message: "Paciente não encontrado.") {
+    patient(id: $patientId) @check(message: "Paciente não encontrado.") {
       active
-        @check(
-          expr: "this == true"
-          message: "Paciente inativo ou arquivado."
-        )
+        @check(expr: "this == true", message: "Paciente inativo ou arquivado.")
       legacyPersonId
       user {
         name
       }
     }
 
-    vaccine(id: $vaccineId)
-      @check(message: "Vacina não encontrada.") {
+    vaccine(id: $vaccineId) @check(message: "Vacina não encontrada.") {
       active
-        @check(
-          expr: "this == true"
-          message: "Vacina inativa ou arquivada."
-        )
+        @check(expr: "this == true", message: "Vacina inativa ou arquivada.")
       name
     }
 
-    uBS(id: $ubsId)
-      @check(message: "UBS não encontrada.") {
-      active
-        @check(
-          expr: "this == true"
-          message: "UBS inativa ou arquivada."
-        )
+    uBS(id: $ubsId) @check(message: "UBS não encontrada.") {
+      active @check(expr: "this == true", message: "UBS inativa ou arquivada.")
       name
     }
 
-    batch(id: $batchId)
-      @check(message: "Lote não encontrado.") {
+    batch(id: $batchId) @check(message: "Lote não encontrado.") {
       manufacturer
       batchCode
       currentQuantity
-        @check(
-          expr: "this > 0"
-          message: "Lote sem estoque disponível."
-        )
+        @check(expr: "this > 0", message: "Lote sem estoque disponível.")
       vaccine {
         id
           @check(
@@ -499,14 +482,14 @@ mutation CreateApplication(
       @check(
         optional: true
         expr: """
-          auth.token.admin == true ||
-          this.exists(
-            p,
-            p.accessKind == 'PROFESSIONAL' &&
-            p.consentStatus == 'GRANTED' &&
-            p.viewVaccination == true &&
-            (p.validUntil == null || p.validUntil > request.time)
-          )
+        auth.token.admin == true ||
+        this.exists(
+          p,
+          p.accessKind == 'PROFESSIONAL' &&
+          p.consentStatus == 'GRANTED' &&
+          p.viewVaccination == true &&
+          (p.validUntil == null || p.validUntil > request.time)
+        )
         """
         message: "Paciente não autorizado para este profissional."
       ) {
@@ -544,6 +527,93 @@ mutation CreateApplication(
   )
 
   batch_updateMany(
+    where: { _and: [{ id: { eq: $batchId } }, { currentQuantity: { gt: 0 } }] }
+    data: { currentQuantity_update: { dec: 1 } }
+  ) @check(expr: "this == 1", message: "Lote sem estoque disponível.")
+}
+mutation UpdateApplication(
+  $id: UUID!
+  $patientId: UUID!
+  $vaccineId: UUID!
+  $batchId: UUID!
+  $previousBatchId: UUID!
+  $applicationDate: Timestamp!
+  $doseNumber: Int
+  $doseLabel: String
+  $notes: String
+) @auth(expr: "auth.token.admin == true") @transaction {
+  query @redact {
+    application(id: $id)
+      @check(message: "Aplicação não encontrada.") {
+      voidedAt
+        @check(
+          expr: "this == null"
+          message: "Aplicação anulada não pode ser editada."
+        )
+      batch {
+        id
+          @check(
+            expr: "this == vars.previousBatchId"
+            message: "O lote original da aplicação mudou. Atualize a tela e tente novamente."
+          )
+      }
+    }
+
+    patient(id: $patientId)
+      @check(message: "Paciente não encontrado.") {
+      active
+        @check(
+          expr: "this == true"
+          message: "Paciente inativo ou arquivado."
+        )
+      legacyPersonId
+      user {
+        name
+      }
+    }
+
+    vaccine(id: $vaccineId)
+      @check(message: "Vacina não encontrada.") {
+      active
+        @check(
+          expr: "this == true"
+          message: "Vacina inativa ou arquivada."
+        )
+      name
+    }
+
+    batch(id: $batchId)
+      @check(message: "Lote não encontrado.") {
+      manufacturer
+      batchCode
+      currentQuantity
+        @check(
+          expr: "this > 0"
+          message: "O novo lote não possui estoque disponível."
+        )
+      expirationDate
+      vaccine {
+        id
+          @check(
+            expr: "this == vars.vaccineId"
+            message: "O lote selecionado não pertence à vacina."
+          )
+      }
+    }
+  }
+
+  batch_updateMany(
+    where: { id: { eq: $previousBatchId } }
+    data: {
+      currentQuantity_update: { inc: 1 }
+    }
+  )
+    @check(
+      expr: "this == 1"
+      message: "O estoque do lote original não pôde ser restaurado."
+    )
+
+  batch_updateMany(
     where: {
       _and: [
         { id: { eq: $batchId } }
@@ -556,26 +626,31 @@ mutation CreateApplication(
   )
     @check(
       expr: "this == 1"
-      message: "Lote sem estoque disponível."
+      message: "O estoque do novo lote não pôde ser reservado."
     )
-}
-mutation UpdateApplication(
-  $id: UUID!
-  $doseNumber: Int
-  $doseLabel: String
-  $nextDoseAt: Timestamp
-  $notes: String
-) @auth(expr: "auth.token.admin == true") @transaction {
+
   application_update(
     id: $id
     data: {
+      patientId: $patientId
+      vaccineId: $vaccineId
+      batchId: $batchId
+      applicationDate: $applicationDate
       doseNumber: $doseNumber
       doseLabel: $doseLabel
-      nextDoseAt: $nextDoseAt
       notes: $notes
+      patientIdSnapshot: $patientId
+      patientLegacyPersonIdSnapshot_expr: "response.query.patient.legacyPersonId"
+      patientNameSnapshot_expr: "response.query.patient.user.name"
+      vaccineNameSnapshot_expr: "response.query.vaccine.name"
+      lotSnapshot_expr: "response.query.batch.batchCode"
+      manufacturerSnapshot_expr: "response.query.batch.manufacturer"
+      editedAt_expr: "request.time"
+      editedByAuthUid_expr: "auth.uid"
       updatedAt_expr: "request.time"
     }
-  ) @check(message: "Aplicação não encontrada.")
+  )
+    @check(message: "Aplicação não encontrada.")
 }
 mutation VoidApplication($id: UUID!, $batchId: UUID!, $reason: String!)
 @auth(expr: "auth.token.admin == true")

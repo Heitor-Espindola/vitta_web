@@ -239,19 +239,23 @@ describe('Data Connect authorization contract', () => {
     )
   })
 
-  test('application updates cannot rewrite identity or application date', () => {
-    const operation = webMutations.match(
-      /mutation UpdateApplication[\s\S]*?(?=\nmutation VoidApplication)/,
-    )?.[0]
+test('application updates can change date and editable fields but cannot rewrite identity', () => {
+  const operation = webMutations.match(
+    /mutation UpdateApplication[\s\S]*?(?=\nmutation VoidApplication)/,
+  )?.[0]
 
-    expect(operation).not.toMatch(
-      /\$(?:patientId|vaccineId|professionalId|ubsId|applicationDate):/,
-    )
-    expect(operation).toMatch(/\$doseNumber: Int/)
-    expect(operation).toMatch(/\$doseLabel: String/)
-    expect(operation).toMatch(/\$nextDoseAt: Timestamp/)
-    expect(operation).toMatch(/\$notes: String/)
-  })
+  expect(operation).toMatch(/\$applicationDate: Timestamp!/)
+  expect(operation).toMatch(/\$doseNumber: Int/)
+  expect(operation).toMatch(/\$doseLabel: String/)
+  expect(operation).toMatch(/\$notes: String/)
+
+  expect(operation).not.toMatch(
+    /\$(?:patientId|vaccineId|professionalId|ubsId|batchId):/,
+  )
+
+  expect(operation).toContain("Aplicação anulada não pode ser editada.")
+  expect(operation).toContain("applicationDate: $applicationDate")
+})
 
   test('patient lookup executes the protected query instead of returning a reference', () => {
     expect(patientService).toContain('await getPatient({ id })')
