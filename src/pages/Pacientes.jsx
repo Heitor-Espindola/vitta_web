@@ -20,7 +20,7 @@ import {
   removePatient,
   watchPatients,
 } from "../services/patientService";
-import { formatCpf, isValidCpf } from "../utils/cpf";
+import { cpfMatchesSearch, formatCpf, isValidCpf } from "../utils/cpf";
 import { formatDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
 import { SEX_OPTIONS, normalizeSex } from "../utils/sex";
@@ -91,8 +91,8 @@ export default function Pacientes() {
       return patients;
     }
 
-    return patients.filter((patient) =>
-      [
+    return patients.filter((patient) => {
+      const matchesText = [
         patient.name,
         patient.maskedCpf,
         patient.email,
@@ -102,9 +102,11 @@ export default function Pacientes() {
         .some((value) =>
           String(value)
             .toLocaleLowerCase("pt-BR")
-            .includes(term),
-        ),
-    );
+            .includes(term)
+        );
+
+      return matchesText || cpfMatchesSearch(patient.cpf, term);
+    });
   }, [patients, search]);
 
   const selectedMother = useMemo(

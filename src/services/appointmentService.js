@@ -7,6 +7,7 @@ import {
   updateAppointment,
 } from "@dataconnect/generated";
 import { asDate } from "../utils/dates";
+import { maskCpf } from "../utils/cpf";
 
 function timestampFromInput(value) {
   const date = new Date(value);
@@ -30,6 +31,8 @@ export function mapAppointment(item) {
     scheduledAt: item?.scheduledAt || null,
     status: item?.status || "SCHEDULED",
     notes: item?.notes || "",
+
+    maskedPatientCpf: maskCpf(item?.patient?.user?.cpf || ""),
   };
 }
 

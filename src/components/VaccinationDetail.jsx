@@ -6,7 +6,7 @@ export default function VaccinationDetail({ record, isAdmin = false }) {
 
   const fields = [
     ["Paciente", record.patientName],
-    ["CPF", record.patientCpf || "Não informado"],
+    ["CPF", record.maskedPatientCpf || "Não informado"],
     ["Vacina", record.vaccineName],
     ["Dose", record.doseLabel],
     ["Data da aplicação", formatDate(record.applicationDate)],

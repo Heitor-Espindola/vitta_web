@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import { removeAppointment, watchAppointments } from "../services/appointmentService";
 import { formatDateTime } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
+import { cpfMatchesSearch } from "../utils/cpf";
 
 const statusLabels = {
     SCHEDULED: "Agendado",
@@ -52,11 +53,23 @@ export default function Agendamentos() {
     const filtered = useMemo(() => {
         const term = search.trim().toLocaleLowerCase("pt-BR");
         if (!term) return appointments;
-        return appointments.filter((item) =>
-            [item.patientName, item.patientCpf, item.vaccineName, item.ubsName, statusLabels[item.status]]
+        return appointments.filter((item) => {
+            const matchesText = [
+                item.patientName,
+                item.maskedPatientCpf,
+                item.vaccineName,
+                item.ubsName,
+                statusLabels[item.status],
+            ]
                 .filter(Boolean)
-                .some((value) => String(value).toLocaleLowerCase("pt-BR").includes(term)),
-        );
+                .some((value) =>
+                    String(value)
+                        .toLocaleLowerCase("pt-BR")
+                        .includes(term)
+                );
+
+            return matchesText || cpfMatchesSearch(item.patientCpf, term);
+        });
     }, [appointments, search]);
 
     function openCreate() {
@@ -114,7 +127,7 @@ export default function Agendamentos() {
                             <tbody>
                                 {filtered.map((item) => (
                                     <tr key={item.id}>
-                                        <td><strong>{item.patientName}</strong><small>{item.patientCpf || "CPF não informado"}</small></td>
+                                        <td><strong>{item.patientName}</strong><small>{item.maskedPatientCpf || "CPF não informado"}</small></td>
                                         <td>{item.vaccineName}</td>
                                         <td>{formatDateTime(item.scheduledAt)}</td>
                                         <td>{item.ubsName}</td>
@@ -129,7 +142,34 @@ export default function Agendamentos() {
             </section>
 
             <Modal open={Boolean(selected)} onClose={() => setSelected(null)} title="Detalhes do agendamento" description="Dados armazenados no SQL Connect.">
-                {selected ? <div className="record-detail"><dl><div><dt>Paciente</dt><dd>{selected.patientName} • {selected.patientCpf}</dd></div><div><dt>Vacina</dt><dd>{selected.vaccineName}</dd></div><div><dt>Data e hora</dt><dd>{formatDateTime(selected.scheduledAt)}</dd></div><div><dt>UBS</dt><dd>{selected.ubsName}</dd></div><div><dt>Status</dt><dd>{statusLabels[selected.status] || selected.status}</dd></div></dl>{selected.notes ? <div className="record-detail__notes"><strong>Observações</strong><p>{selected.notes}</p></div> : null}</div> : null}
+                {selected ? <div className="record-detail">
+                    <dl>
+                        <div>
+                            <dt>Paciente</dt>
+                            <dd>{selected.patientName}</dd>
+                        </div>
+                        <div>
+                            <dt>CPF</dt>
+                            <dd>{selected.maskedPatientCpf}</dd>
+                        </div>
+                        <div>
+                            <dt>Vacina</dt>
+                            <dd>{selected.vaccineName}</dd>
+                        </div>
+                        <div>
+                            <dt>Data e hora</dt>
+                            <dd>{formatDateTime(selected.scheduledAt)}</dd>
+                        </div>
+                        <div>
+                            <dt>UBS</dt>
+                            <dd>{selected.ubsName}</dd>
+                        </div>
+                        <div>
+                            <dt>Status</dt>
+                            <dd>{statusLabels[selected.status] || selected.status}</dd>
+                        </div>
+                    </dl>
+                {selected.notes ? <div className="record-detail__notes"><strong>Observações</strong><p>{selected.notes}</p></div> : null}</div> : null}
             </Modal>
 
             <Modal open={formOpen} onClose={closeForm} title={editing ? "Editar agendamento" : "Novo agendamento"} description="A alteração será sincronizada automaticamente na agenda." wide>

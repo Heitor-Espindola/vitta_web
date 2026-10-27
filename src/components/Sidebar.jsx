@@ -1,7 +1,6 @@
 import { NavLink } from "react-router-dom";
 import {
   BarChart3,
-  BookOpenCheck,
   CalendarClock,
   ChevronRight,
   ClipboardPlus,
@@ -23,7 +22,6 @@ const navItems = [
   { label: "Vacinas", icon: Syringe, path: "/vacinas" },
   { label: "Aplicações", icon: ClipboardPlus, path: "/aplicacoes" },
   { label: "Agendamentos", icon: CalendarClock, path: "/agendamentos" },
-  { label: "Carteiras", icon: BookOpenCheck, path: "/carteiras" },
   { label: "Relatórios", icon: BarChart3, path: "/relatorios" },
   { label: "Equipe e UBS", icon: UserCog, path: "/funcionarios" },
   { label: "Configurações", icon: Settings, path: "/config" },
