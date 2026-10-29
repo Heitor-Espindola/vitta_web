@@ -7,7 +7,7 @@ import { addProfessional, editProfessional, removeProfessional, watchProfessiona
 import { addUBS, editUBS, removeUBS, watchUBS } from "../services/ubsService";
 import { formatCpf, isValidCpf } from "../utils/cpf";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
-import { SEX_OPTIONS, normalizeSex } from "../utils/sex";
+import { SEX_OPTIONS } from "../utils/sex";
 
 const emptyProfessional = {
     name: "",
@@ -56,6 +56,7 @@ export default function Funcionarios() {
     const [formError, setFormError] = useState("");
     const [saving, setSaving] = useState(false);
     const [deletingId, setDeletingId] = useState("");
+    const [registeringSelf, setRegisteringSelf] = useState(false);
 
     useEffect(() => {
         let professionalsReady = false;
@@ -130,6 +131,7 @@ export default function Funcionarios() {
                 },
         );
         setProfessionalModal(true);
+        setRegisteringSelf(!professional && self);
     }
 
     function closeProfessional() {
@@ -138,6 +140,7 @@ export default function Funcionarios() {
         setEditingProfessional(null);
         setProfessionalForm(emptyProfessional);
         setFormError("");
+        setRegisteringSelf(false);
     }
 
     function openUBS(unit = null) {
@@ -183,16 +186,36 @@ export default function Funcionarios() {
 
         setSaving(true);
         try {
+            let creationResult = null;
+
             if (editingProfessional) {
                 await editProfessional(editingProfessional, professionalForm);
             } else {
-                await addProfessional(professionalForm);
+                creationResult = await addProfessional(professionalForm, {
+                    createAuthenticationAccount: !registeringSelf,
+                    authUid: registeringSelf ? firebaseUser?.uid : null,
+                    portalRole: registeringSelf && isAdmin ? "ADMIN" : "PROFESSIONAL",
+                });
             }
+
+            const message = editingProfessional
+                ? "O cadastro SQL foi atualizado sem recarregar a página."
+                : registeringSelf
+                    ? "Sua conta existente foi vinculada ao perfil profissional."
+                    : creationResult?.passwordResetSent
+                        ? "Conta criada. Enviamos um e-mail para definir a senha."
+                        : "Conta criada, mas o e-mail de redefinição não foi enviado. O funcionário poderá tentar novamente em 'Esqueci minha senha'.";
+
             showToast({
                 tone: "success",
-                title: editingProfessional ? "Funcionário atualizado" : "Funcionário cadastrado",
-                message: "O cadastro SQL foi atualizado sem recarregar a página.",
+                title: editingProfessional
+                    ? "Funcionário atualizado"
+                    : registeringSelf
+                        ? "Conta vinculada"
+                        : "Funcionário cadastrado",
+                message,
             });
+
             closeProfessional();
         } catch (saveError) {
             const message = friendlyFirebaseError(saveError, saveError.message);

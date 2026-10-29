@@ -181,6 +181,8 @@ export interface CreateUserVariables {
   status: UserStatus;
   cpf: string;
   sex?: string | null;
+  authUid?: string | null;
+  portalRole?: PortalRole | null;
 }
 
 export interface CreateVaccineData {
@@ -725,6 +727,8 @@ export interface ListAdminApplicationsByPatientData {
     doseLabel?: string | null;
     nextDoseAt?: TimestampString | null;
     source?: string | null;
+    editedAt?: TimestampString | null;
+    editedByAuthUid?: string | null;
     voidedAt?: TimestampString | null;
     voidedByAuthUid?: string | null;
     voidReason?: string | null;
@@ -896,6 +900,8 @@ export interface ListApplicationsData {
     doseLabel?: string | null;
     nextDoseAt?: TimestampString | null;
     source?: string | null;
+    editedAt?: TimestampString | null;
+    editedByAuthUid?: string | null;
     voidedAt?: TimestampString | null;
     voidedByAuthUid?: string | null;
     voidReason?: string | null;
@@ -1082,6 +1088,8 @@ export interface ListCurrentProfessionalApplicationsData {
     doseLabel?: string | null;
     nextDoseAt?: TimestampString | null;
     source?: string | null;
+    editedAt?: TimestampString | null;
+    editedByAuthUid?: string | null;
     voidedAt?: TimestampString | null;
     voidedByAuthUid?: string | null;
     voidReason?: string | null;
@@ -1206,7 +1214,12 @@ export interface ListVaccinesData {
     id: UUIDString;
     name: string;
     description?: string | null;
+    shortName?: string | null;
+    recommendedAge?: string | null;
     requiredDoses: number;
+    intervalDays?: number | null;
+    targetGroups?: string[] | null;
+    doseSchedule?: unknown | null;
   } & Vaccine_Key)[];
 }
 

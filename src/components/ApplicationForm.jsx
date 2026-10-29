@@ -11,8 +11,7 @@ import {
 import { watchVaccines } from "../services/vaccineService";
 import { toLocalDateInput } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
-import { watchPatientRecords } from "../services/vaccinationService";
-import { getVaccinationDecision } from "../utils/vaccinationRules";
+
 
 const today = toLocalDateInput();
 
@@ -65,7 +64,6 @@ export default function ApplicationForm({
     const [error, setError] = useState("");
     const [form, setForm] = useState(() => initialState(initialApplication, patient));
     const [saving, setSaving] = useState(false);
-    const [patientApplications, setPatientApplications] = useState([]);
 
     const editing = Boolean(initialApplication?.id);
     const fixedPatient = Boolean(patient?.id || patient?.personId) && !editing;
@@ -142,27 +140,6 @@ export default function ApplicationForm({
         initialApplication?.patientId,
     ]);
 
-    useEffect(() => {
-        setPatientApplications([]);
-
-        if (!form.patientId) {
-            return undefined;
-        }
-
-        return watchPatientRecords(
-            form.patientId,
-            (data) => {
-                setPatientApplications(data);
-            },
-            (loadError) => {
-                setError(
-                    friendlyFirebaseError(loadError, loadError.message),
-                );
-            },
-            { isAdmin },
-        );
-    }, [form.patientId, isAdmin]);
-
     const matchingPatients = useMemo(() => {
         const term = patientSearch.trim().toLocaleLowerCase("pt-BR");
         if (!term) return patients.slice(0, 20);
@@ -196,25 +173,6 @@ export default function ApplicationForm({
         setForm((current) => ({ ...current, [field]: value }));
         setError("");
     }
-
-    const selectedPatient = patients.find(
-        (item) => item.id === form.patientId,
-    );
-
-    const selectedVaccine = vaccines.find(
-        (item) => item.id === form.vaccineId,
-    );
-
-    const doseDecision = getVaccinationDecision({
-        patient: selectedPatient,
-        vaccine: selectedVaccine,
-        applications: patientApplications,
-        applicationDate: form.applicationDate,
-        editingApplication:
-            editing && initialApplication
-                ? initialApplication
-                : null,
-    });
 
     async function handleSubmit(event) {
         event.preventDefault();

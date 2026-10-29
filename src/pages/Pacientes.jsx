@@ -23,7 +23,7 @@ import {
 import { cpfMatchesSearch, formatCpf, isValidCpf } from "../utils/cpf";
 import { formatDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
-import { SEX_OPTIONS, normalizeSex } from "../utils/sex";
+import { SEX_OPTIONS } from "../utils/sex";
 
 const emptyForm = {
   name: "",

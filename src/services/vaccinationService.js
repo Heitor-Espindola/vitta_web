@@ -210,10 +210,6 @@ export async function registerVaccination({
 export async function editApplication(
   id,
   {
-    patientId,
-    vaccineId,
-    batchId,
-    previousBatchId,
     applicationDate,
     doseNumber,
     doseLabel,
@@ -224,22 +220,12 @@ export async function editApplication(
     throw new Error("A aplicação selecionada é inválida.");
   }
 
-  if (!patientId || !vaccineId || !batchId || !previousBatchId) {
-    throw new Error(
-      "Paciente, vacina e lote são obrigatórios para editar a aplicação.",
-    );
-  }
-
   if (!applicationDate) {
     throw new Error("Informe a data da aplicação.");
   }
 
   return updateApplication({
     id,
-    patientId,
-    vaccineId,
-    batchId,
-    previousBatchId,
     applicationDate: timestampFromDateInput(applicationDate),
     doseNumber: doseNumber ? Number(doseNumber) : null,
     doseLabel: textOrNull(doseLabel),

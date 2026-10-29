@@ -2177,7 +2177,12 @@ export interface ListVaccinesData {
     id: UUIDString;
     name: string;
     description?: string | null;
+    shortName?: string | null;
+    recommendedAge?: string | null;
     requiredDoses: number;
+    intervalDays?: number | null;
+    targetGroups?: string[] | null;
+    doseSchedule?: unknown | null;
   } & Vaccine_Key)[];
 }
 ```
@@ -3493,6 +3498,8 @@ export interface ListApplicationsData {
     doseLabel?: string | null;
     nextDoseAt?: TimestampString | null;
     source?: string | null;
+    editedAt?: TimestampString | null;
+    editedByAuthUid?: string | null;
     voidedAt?: TimestampString | null;
     voidedByAuthUid?: string | null;
     voidReason?: string | null;
@@ -3642,6 +3649,8 @@ export interface ListCurrentProfessionalApplicationsData {
     doseLabel?: string | null;
     nextDoseAt?: TimestampString | null;
     source?: string | null;
+    editedAt?: TimestampString | null;
+    editedByAuthUid?: string | null;
     voidedAt?: TimestampString | null;
     voidedByAuthUid?: string | null;
     voidReason?: string | null;
@@ -4140,6 +4149,8 @@ export interface ListAdminApplicationsByPatientData {
     doseLabel?: string | null;
     nextDoseAt?: TimestampString | null;
     source?: string | null;
+    editedAt?: TimestampString | null;
+    editedByAuthUid?: string | null;
     voidedAt?: TimestampString | null;
     voidedByAuthUid?: string | null;
     voidReason?: string | null;
@@ -4446,6 +4457,8 @@ export interface CreateUserVariables {
   status: UserStatus;
   cpf: string;
   sex?: string | null;
+  authUid?: string | null;
+  portalRole?: PortalRole | null;
 }
 ```
 ### Return Type
@@ -4471,13 +4484,15 @@ const createUserVars: CreateUserVariables = {
   status: ..., 
   cpf: ..., 
   sex: ..., // optional
+  authUid: ..., // optional
+  portalRole: ..., // optional
 };
 
 // Call the `createUser()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createUser(createUserVars);
 // Variables can be defined inline as well.
-const { data } = await createUser({ name: ..., birthDate: ..., email: ..., status: ..., cpf: ..., sex: ..., });
+const { data } = await createUser({ name: ..., birthDate: ..., email: ..., status: ..., cpf: ..., sex: ..., authUid: ..., portalRole: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -4506,12 +4521,14 @@ const createUserVars: CreateUserVariables = {
   status: ..., 
   cpf: ..., 
   sex: ..., // optional
+  authUid: ..., // optional
+  portalRole: ..., // optional
 };
 
 // Call the `createUserRef()` function to get a reference to the mutation.
 const ref = createUserRef(createUserVars);
 // Variables can be defined inline as well.
-const ref = createUserRef({ name: ..., birthDate: ..., email: ..., status: ..., cpf: ..., sex: ..., });
+const ref = createUserRef({ name: ..., birthDate: ..., email: ..., status: ..., cpf: ..., sex: ..., authUid: ..., portalRole: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);

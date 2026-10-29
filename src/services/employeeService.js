@@ -9,6 +9,7 @@ import {
   updateProfessional,
   updateUser,
 } from "@dataconnect/generated";
+import { createEmployeeAuthAccount, requestPasswordReset, } from "./authService";
 
 function clean(value) {
   return String(value ?? "").trim();
@@ -55,49 +56,112 @@ async function findUserByEmail(email) {
   return user;
 }
 
-export async function addProfessional({
-  name,
-  birthDate,
-  email,
-  status,
-  cpf,
-  sex,
-  professionalType,
-  professionalRegistration,
-  ubsId,
-}) {
+export async function addProfessional(
+  {
+    name,
+    birthDate,
+    email,
+    status,
+    cpf,
+    sex,
+    professionalType,
+    professionalRegistration,
+    ubsId,
+  },
+  {
+    createAuthenticationAccount = true,
+    authUid = null,
+    portalRole = "PROFESSIONAL",
+  } = {},
+) {
   const cleanName = clean(name);
   const cleanEmail = clean(email).toLowerCase();
   const cleanCpf = clean(cpf).replace(/\D/g, "");
+
   if (!cleanName || !birthDate || !cleanEmail || !cleanCpf) {
     throw new Error("Preencha nome, nascimento, e-mail e CPF.");
   }
 
-  await createUser({
-    name: cleanName,
-    birthDate,
-    email: cleanEmail,
-    status,
-    cpf: cleanCpf,
-    sex: clean(sex) || null,
-  });
+  const authAccount = createAuthenticationAccount
+    ? await createEmployeeAuthAccount(cleanEmail)
+    : null;
+
+  const targetAuthUid = authAccount?.uid || authUid;
+
+  if (!targetAuthUid) {
+    if (authAccount) {
+      await authAccount.close();
+    }
+
+    throw new Error("Não foi possível identificar a conta de Authentication.");
+  }
+
+  let sqlUserInserted = false;
+  let sqlUserId = null;
 
   try {
+    await createUser({
+      name: cleanName,
+      birthDate,
+      email: cleanEmail,
+      status,
+      cpf: cleanCpf,
+      sex: clean(sex) || null,
+      authUid: targetAuthUid,
+      portalRole,
+    });
+
+    sqlUserInserted = true;
+
     const user = await findUserByEmail(cleanEmail);
+    sqlUserId = user.id;
+
     await createProfessional({
       userId: user.id,
       professionalType,
-      professionalRegistration: clean(professionalRegistration) || null,
+      professionalRegistration:
+        clean(professionalRegistration) || null,
       ubsId: ubsId || null,
     });
   } catch (error) {
-    const user = await getUserByEmail({ email: cleanEmail }).catch(() => null);
-    const createdUser = user?.data?.users?.[0];
-    if (createdUser?.id) {
-      await deleteUnlinkedUser({ id: createdUser.id }).catch(() => {});
+    if (sqlUserInserted) {
+      let createdUserId = sqlUserId;
+
+      if (!createdUserId) {
+        const result = await getUserByEmail({ email: cleanEmail })
+          .catch(() => null);
+
+        createdUserId = result?.data?.users?.[0]?.id || null;
+      }
+
+      if (createdUserId) {
+        await deleteUnlinkedUser({ id: createdUserId }).catch(() => { });
+      }
     }
+
+    if (authAccount) {
+      await authAccount.rollback().catch(() => { });
+    }
+
     throw error;
+  } finally {
+    if (authAccount) {
+      await authAccount.close();
+    }
   }
+
+  let passwordResetSent = false;
+
+  if (authAccount) {
+    try {
+      await requestPasswordReset(cleanEmail);
+      passwordResetSent = true;
+    } catch {
+      passwordResetSent = false;
+    }
+  }
+
+  return { passwordResetSent };
 }
 
 export async function editProfessional(professional, data) {
