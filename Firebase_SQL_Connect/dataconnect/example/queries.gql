@@ -11,7 +11,6 @@ query ListUsers
     id
     name
     birthDate
-    email
     status
     cpf
     sex
@@ -23,7 +22,6 @@ query GetUser($id: UUID!) @auth(expr: "auth.token.admin == true") {
     id
     name
     birthDate
-    email
     status
     cpf
     sex
@@ -32,27 +30,26 @@ query GetUser($id: UUID!) @auth(expr: "auth.token.admin == true") {
 }
 
 query GetCurrentPortalUser @auth(level: USER) {
-  users(where: { authUid: { eq_expr: "auth.uid" } }) {
+  professionals(where: { authUid: { eq_expr: "auth.uid" } }) {
     id
-    name
-    birthDate
     email
     authUid
-    status
-    cpf
-    sex
-    phone
-    photoUrl
-    portalRole
-    professional_on_user {
+    active
+    professionalType
+    professionalRegistration
+    user {
       id
-      active
-      professionalType
-      professionalRegistration
-      ubs {
-        id
-        name
-      }
+      name
+      birthDate
+      status
+      cpf
+      sex
+      phone
+      photoUrl
+    }
+    ubs {
+      id
+      name
     }
   }
 }
@@ -63,7 +60,7 @@ query GetCurrentPortalUser @auth(level: USER) {
 query GetUserByCpf($cpf: String!)
 @auth(expr: "auth.token.admin == true")
 @retired {
-  professionals(where: { user: { authUid: { eq_expr: "auth.uid" } } })
+  professionals(where: { authUid: { eq_expr: "auth.uid" } })
     @retired
     @redact
     @check(message: "Acesso restrito ao portal profissional.") {
@@ -73,10 +70,34 @@ query GetUserByCpf($cpf: String!)
     id
     name
     birthDate
-    email
     status
     cpf
     sex
+  }
+}
+
+query GetAdminUserByCpf($cpf: String!)
+@auth(expr: "auth.token.admin == true") {
+  users(where: { cpf: { eq: $cpf } }) {
+    id
+    name
+    birthDate
+    status
+    cpf
+    sex
+    phone
+    patient_on_user {
+      id
+      email
+      authUid
+      active
+    }
+    professional_on_user {
+      id
+      email
+      authUid
+      active
+    }
   }
 }
 
@@ -86,13 +107,14 @@ query GetAdminPatientByCpf($cpf: String!)
     where: { _and: [{ active: { eq: true } }, { user: { cpf: { eq: $cpf } } }] }
   ) {
     id
+    email
+    authUid
     motherName
     patientType
     user {
       id
       name
       birthDate
-      email
       cpf
       sex
       status
@@ -105,18 +127,6 @@ query GetAdminPatientByCpf($cpf: String!)
         cpf
       }
     }
-  }
-}
-
-query GetUserByEmail($email: String!) @auth(expr: "auth.token.admin == true") {
-  users(where: { email: { eq: $email } }) {
-    id
-    name
-    birthDate
-    email
-    status
-    cpf
-    sex
   }
 }
 
@@ -134,12 +144,13 @@ query ListPatients
 @refresh(onMutationExecuted: { operation: "ArchivePatient" }) {
   patients(where: { active: { eq: true } }) {
     id
+    email
+    authUid
     motherName
     user {
       id
       name
       birthDate
-      email
       cpf
       sex
       status
@@ -157,16 +168,26 @@ query ListPatients
 }
 
 query ListAccessiblePatients @auth(level: USER) {
-  users(
+  professionals(
     where: {
       _and: [
         { authUid: { eq_expr: "auth.uid" } }
-        { portalRole: { eq: PROFESSIONAL } }
+        { active: { eq: true } }
       ]
     }
-  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+  )
+  @redact
+  @check(message: "Acesso restrito ao portal profissional.") {
     id
+    user {
+      status
+        @check(
+          expr: "this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
   }
+
   patientAccesses(
     where: {
       _and: [
@@ -186,13 +207,14 @@ query ListAccessiblePatients @auth(level: USER) {
   ) {
     patient {
       id
+      email
+      authUid
       motherName
       patientType
       user {
         id
         name
         birthDate
-        email
         cpf
         sex
         status
@@ -209,17 +231,44 @@ query ListAccessiblePatients @auth(level: USER) {
   }
 }
 
+query GetCurrentPatientForProfessionalRegistration @auth(level: USER) {
+  patients(where: { authUid: { eq_expr: "auth.uid" } }) {
+    id
+    email
+    authUid
+    user {
+      id
+      name
+      birthDate
+      status
+      cpf
+      sex
+      phone
+    }
+  }
+}
+
 query GetAuthorizedPatientByCpf($cpf: String!) @auth(level: USER) {
-  users(
+  professionals(
     where: {
       _and: [
         { authUid: { eq_expr: "auth.uid" } }
-        { portalRole: { eq: PROFESSIONAL } }
+        { active: { eq: true } }
       ]
     }
-  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+  )
+  @redact
+  @check(message: "Acesso restrito ao portal profissional.") {
     id
+    user {
+      status
+        @check(
+          expr: "this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
   }
+
   patientAccesses(
     where: {
       _and: [
@@ -239,13 +288,14 @@ query GetAuthorizedPatientByCpf($cpf: String!) @auth(level: USER) {
   ) {
     patient {
       id
+      email
+      authUid
       motherName
       patientType
       user {
         id
         name
         birthDate
-        email
         cpf
         sex
         status
@@ -276,12 +326,13 @@ query GetPatient($id: UUID!) @auth(level: USER) {
   }
   patient(id: $id) {
     id
+    email
+    authUid
     motherName
     user {
       id
       name
       birthDate
-      email
       cpf
       sex
       status
@@ -301,12 +352,13 @@ query GetPatient($id: UUID!) @auth(level: USER) {
 query GetAdminPatient($id: UUID!) @auth(expr: "auth.token.admin == true") {
   patient(id: $id) {
     id
+    email
+    authUid
     motherName
     user {
       id
       name
       birthDate
-      email
       cpf
       sex
       status
@@ -326,12 +378,13 @@ query GetAdminPatient($id: UUID!) @auth(expr: "auth.token.admin == true") {
 query GetPatientByUser($userId: UUID!) @auth(expr: "auth.token.admin == true") {
   patients(where: { userId: { eq: $userId } }) {
     id
+    email
+    authUid
     motherName
     user {
       id
       name
       birthDate
-      email
       cpf
       sex
       status
@@ -357,21 +410,29 @@ query ListUbs
 @refresh(onMutationExecuted: { operation: "CreateUbs" })
 @refresh(onMutationExecuted: { operation: "UpdateUbs" })
 @refresh(onMutationExecuted: { operation: "ArchiveUbs" }) {
-  users(
+  professionals(
     where: {
       _and: [
         { authUid: { eq_expr: "auth.uid" } }
-        {
-          _or: [
-            { portalRole: { eq: PROFESSIONAL } }
-            { portalRole: { eq: ADMIN } }
-          ]
-        }
+        { active: { eq: true } }
       ]
     }
-  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+  )
+  @redact
+  @check(
+    expr: "auth.token.admin == true || this.size() == 1"
+    message: "Acesso restrito ao portal profissional."
+  ) {
     id
+    user {
+      status
+        @check(
+          expr: "auth.token.admin == true || this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
   }
+
   uBSs(where: { active: { eq: true } }) {
     id
     name
@@ -384,11 +445,19 @@ query ListUbs
 }
 
 query GetUbs($id: UUID!) @auth(level: USER) {
-  users(where: { authUid: { eq_expr: "auth.uid" } })
-    @redact
-    @check(message: "Conta autenticada não vinculada ao SQL.") {
+  users(
+    where: {
+      _or: [
+        { patient_on_user: { authUid: { eq_expr: "auth.uid" } } }
+        { professional_on_user: { authUid: { eq_expr: "auth.uid" } } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Conta autenticada não vinculada ao Vitta.") {
     id
   }
+
   uBS(id: $id) {
     id
     name
@@ -401,11 +470,19 @@ query GetUbs($id: UUID!) @auth(level: USER) {
 }
 
 query SearchUbsByName($name: String!) @auth(level: USER) {
-  users(where: { authUid: { eq_expr: "auth.uid" } })
-    @redact
-    @check(message: "Conta autenticada não vinculada ao SQL.") {
+  users(
+    where: {
+      _or: [
+        { patient_on_user: { authUid: { eq_expr: "auth.uid" } } }
+        { professional_on_user: { authUid: { eq_expr: "auth.uid" } } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Conta autenticada não vinculada ao Vitta.") {
     id
   }
+
   uBSs(where: { name: { contains: $name } }) {
     id
     name
@@ -428,11 +505,12 @@ query ListProfessionals
 @refresh(onMutationExecuted: { operation: "ArchiveProfessional" }) {
   professionals(where: { active: { eq: true } }) {
     id
+    email
+    authUid
     user {
       id
       name
       birthDate
-      email
       cpf
       sex
       status
@@ -451,11 +529,12 @@ query ListProfessionals
 query GetProfessional($id: UUID!) @auth(expr: "auth.token.admin == true") {
   professional(id: $id) {
     id
+    email
+    authUid
     user {
       id
       name
       birthDate
-      email
       cpf
       sex
       status
@@ -478,10 +557,11 @@ query GetProfessionalByUser($userId: UUID!)
 @auth(expr: "auth.token.admin == true") {
   professionals(where: { userId: { eq: $userId } }) {
     id
+    email
+    authUid
     user {
       id
       name
-      email
       cpf
     }
     professionalType
@@ -502,11 +582,19 @@ query ListVaccines
 @refresh(onMutationExecuted: { operation: "CreateVaccine" })
 @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
 @refresh(onMutationExecuted: { operation: "ArchiveVaccine" }) {
-  users(where: { authUid: { eq_expr: "auth.uid" } })
-    @redact
-    @check(message: "Conta autenticada não vinculada ao SQL.") {
+  users(
+    where: {
+      _or: [
+        { patient_on_user: { authUid: { eq_expr: "auth.uid" } } }
+        { professional_on_user: { authUid: { eq_expr: "auth.uid" } } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Conta autenticada não vinculada ao Vitta.") {
     id
   }
+
   vaccines(where: { active: { eq: true } }) {
     id
     name
@@ -521,11 +609,19 @@ query ListVaccines
 }
 
 query GetVaccine($id: UUID!) @auth(level: USER) {
-  users(where: { authUid: { eq_expr: "auth.uid" } })
-    @redact
-    @check(message: "Conta autenticada não vinculada ao SQL.") {
+  users(
+    where: {
+      _or: [
+        { patient_on_user: { authUid: { eq_expr: "auth.uid" } } }
+        { professional_on_user: { authUid: { eq_expr: "auth.uid" } } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Conta autenticada não vinculada ao Vitta.") {
     id
   }
+
   vaccine(id: $id) {
     id
     name
@@ -535,11 +631,19 @@ query GetVaccine($id: UUID!) @auth(level: USER) {
 }
 
 query SearchVaccinesByName($name: String!) @auth(level: USER) {
-  users(where: { authUid: { eq_expr: "auth.uid" } })
-    @redact
-    @check(message: "Conta autenticada não vinculada ao SQL.") {
+  users(
+    where: {
+      _or: [
+        { patient_on_user: { authUid: { eq_expr: "auth.uid" } } }
+        { professional_on_user: { authUid: { eq_expr: "auth.uid" } } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Conta autenticada não vinculada ao Vitta.") {
     id
   }
+
   vaccines(where: { name: { contains: $name } }) {
     id
     name
@@ -560,21 +664,29 @@ query ListBatches
 @refresh(onMutationExecuted: { operation: "CreateVaccine" })
 @refresh(onMutationExecuted: { operation: "UpdateVaccine" })
 @refresh(onMutationExecuted: { operation: "ArchiveVaccine" }) {
-  users(
+  professionals(
     where: {
       _and: [
         { authUid: { eq_expr: "auth.uid" } }
-        {
-          _or: [
-            { portalRole: { eq: PROFESSIONAL } }
-            { portalRole: { eq: ADMIN } }
-          ]
-        }
+        { active: { eq: true } }
       ]
     }
-  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+  )
+  @redact
+  @check(
+    expr: "auth.token.admin == true || this.size() == 1"
+    message: "Acesso restrito ao portal profissional."
+  ) {
     id
+    user {
+      status
+        @check(
+          expr: "auth.token.admin == true || this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
   }
+
   batches {
     id
     vaccine {
@@ -592,21 +704,29 @@ query ListBatches
 }
 
 query GetBatch($id: UUID!) @auth(level: USER) {
-  users(
+  professionals(
     where: {
       _and: [
         { authUid: { eq_expr: "auth.uid" } }
-        {
-          _or: [
-            { portalRole: { eq: PROFESSIONAL } }
-            { portalRole: { eq: ADMIN } }
-          ]
-        }
+        { active: { eq: true } }
       ]
     }
-  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+  )
+  @redact
+  @check(
+    expr: "auth.token.admin == true || this.size() == 1"
+    message: "Acesso restrito ao portal profissional."
+  ) {
     id
+    user {
+      status
+        @check(
+          expr: "auth.token.admin == true || this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
   }
+
   batch(id: $id) {
     id
     vaccine {
@@ -625,21 +745,29 @@ query GetBatch($id: UUID!) @auth(level: USER) {
 }
 
 query ListBatchesByVaccine($vaccineId: UUID!) @auth(level: USER) {
-  users(
+  professionals(
     where: {
       _and: [
         { authUid: { eq_expr: "auth.uid" } }
-        {
-          _or: [
-            { portalRole: { eq: PROFESSIONAL } }
-            { portalRole: { eq: ADMIN } }
-          ]
-        }
+        { active: { eq: true } }
       ]
     }
-  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+  )
+  @redact
+  @check(
+    expr: "auth.token.admin == true || this.size() == 1"
+    message: "Acesso restrito ao portal profissional."
+  ) {
     id
+    user {
+      status
+        @check(
+          expr: "auth.token.admin == true || this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
   }
+
   batches(where: { vaccineId: { eq: $vaccineId } }) {
     id
     vaccine {
@@ -692,16 +820,26 @@ query ListAppointments
 }
 
 query ListAccessibleAppointments @auth(level: USER) {
-  users(
+  professionals(
     where: {
       _and: [
         { authUid: { eq_expr: "auth.uid" } }
-        { portalRole: { eq: PROFESSIONAL } }
+        { active: { eq: true } }
       ]
     }
-  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+  )
+  @redact
+  @check(message: "Acesso restrito ao portal profissional.") {
     id
+    user {
+      status
+        @check(
+          expr: "this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
   }
+
   patientAccesses(
     where: {
       _and: [
@@ -936,18 +1074,28 @@ query ListApplications
 }
 
 query ListCurrentProfessionalApplications @auth(level: USER) {
-  users(
+  professionals(
     where: {
       _and: [
         { authUid: { eq_expr: "auth.uid" } }
-        { portalRole: { eq: PROFESSIONAL } }
+        { active: { eq: true } }
       ]
     }
-  ) @redact @check(message: "Acesso restrito ao portal profissional.") {
+  )
+  @redact
+  @check(message: "Acesso restrito ao portal profissional.") {
     id
+    user {
+      status
+        @check(
+          expr: "this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
   }
+
   applications(
-    where: { professional: { user: { authUid: { eq_expr: "auth.uid" } } } }
+    where: { professional: { authUid: { eq_expr: "auth.uid" } } }
     orderBy: { applicationDate: DESC }
   ) {
     id

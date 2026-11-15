@@ -4,31 +4,25 @@
 mutation CreateUser(
   $name: String!
   $birthDate: Date!
-  $email: String!
   $status: UserStatus!
   $cpf: String!
   $sex: String
-  $authUid: String
-  $portalRole: PortalRole
 ) @auth(expr: "auth.token.admin == true") {
   user_insert(
     data: {
       name: $name
       birthDate: $birthDate
-      email: $email
       status: $status
       cpf: $cpf
       sex: $sex
-      authUid: $authUid
-      portalRole: $portalRole
     }
   )
 }
+
 mutation UpdateUser(
   $id: UUID!
   $name: String
   $birthDate: Date
-  $email: String
   $status: UserStatus
   $cpf: String
   $sex: String
@@ -38,13 +32,13 @@ mutation UpdateUser(
     data: {
       name: $name
       birthDate: $birthDate
-      email: $email
       status: $status
       cpf: $cpf
       sex: $sex
     }
   )
 }
+
 mutation DeleteUnlinkedUser($id: UUID!)
 @auth(expr: "auth.token.admin == true")
 @transaction {
@@ -75,18 +69,24 @@ mutation CreatePatient(
   $patientType: PatientType!
   $responsibleId: UUID
   $motherName: String
+  $email: String
+  $authUid: String
 ) @auth(expr: "auth.token.admin == true") {
   patient_insert(
     data: {
       userId: $userId
+      email: $email
+      authUid: $authUid
       patientType: $patientType
       responsibleId: $responsibleId
       motherName: $motherName
     }
   )
 }
+
 mutation UpdatePatient(
   $id: UUID!
+  $email: String
   $patientType: PatientType
   $responsibleId: UUID
   $motherName: String
@@ -94,12 +94,28 @@ mutation UpdatePatient(
   patient_update(
     id: $id
     data: {
+      email: $email
       patientType: $patientType
       responsibleId: $responsibleId
       motherName: $motherName
     }
   )
 }
+
+mutation LinkPatientAuthIdentity(
+  $id: UUID!
+  $email: String!
+  $authUid: String!
+) @auth(expr: "auth.token.admin == true") @transaction {
+  patient_update(
+    id: $id
+    data: {
+      email: $email
+      authUid: $authUid
+    }
+  ) @check(message: "Paciente não encontrado.")
+}
+
 mutation ArchivePatient($id: UUID!)
 @auth(expr: "auth.token.admin == true")
 @transaction {
@@ -174,6 +190,8 @@ mutation ArchiveUbs($id: UUID!)
 # ============================================================
 mutation CreateProfessional(
   $userId: UUID!
+  $email: String!
+  $authUid: String!
   $professionalType: ProfessionalType!
   $professionalRegistration: String
   $ubsId: UUID
@@ -181,12 +199,15 @@ mutation CreateProfessional(
   professional_insert(
     data: {
       userId: $userId
+      email: $email
+      authUid: $authUid
       professionalType: $professionalType
       professionalRegistration: $professionalRegistration
       ubsId: $ubsId
     }
   )
 }
+
 mutation UpdateProfessional(
   $id: UUID!
   $professionalType: ProfessionalType
@@ -323,16 +344,20 @@ mutation CreateAppointment(
   $notes: String
 ) @auth(level: USER) @transaction {
   query @redact {
-    users(where: { authUid: { eq_expr: "auth.uid" } })
-      @check(
-        expr: "this.size() == 1"
-        message: "Conta autenticada não vinculada ao SQL."
-      ) {
-      portalRole
-        @check(
-          expr: "auth.token.admin == true || this == 'PROFESSIONAL'"
-          message: "Ação restrita a profissional autenticado."
-        )
+    professionals(
+      where: {
+        _and: [
+          { authUid: { eq_expr: "auth.uid" } }
+          { active: { eq: true } }
+        ]
+      }
+    )
+    @redact
+    @check(
+      expr: "auth.token.admin == true || this.size() == 1"
+      message: "Ação restrita a profissional autenticado."
+    ) {
+      id
     }
 
     patientAccesses(
@@ -376,6 +401,7 @@ mutation CreateAppointment(
     }
   )
 }
+
 mutation UpdateAppointment(
   $id: UUID!
   $patientId: UUID
@@ -425,18 +451,18 @@ mutation CreateApplication(
           expr: "this == true"
           message: "Profissional inativo ou arquivado."
         )
+      authUid
+        @check(
+          expr: "this == auth.uid"
+          message: "O profissional deve corresponder ao usuário autenticado."
+        )
       professionalRegistration
       user {
         name
-        authUid
+        status
           @check(
-            expr: "this == auth.uid"
-            message: "O profissional deve corresponder ao usuário autenticado."
-          )
-        portalRole
-          @check(
-            expr: "this == 'ADMIN' || this == 'PROFESSIONAL'"
-            message: "Papel administrativo ou profissional obrigatório."
+            expr: "this == 'ACTIVE'"
+            message: "Usuário inativo."
           )
       }
     }

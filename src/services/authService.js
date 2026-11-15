@@ -30,9 +30,10 @@ export async function resolveProfessional(firebaseUser) {
   const tokenResult = await firebaseUser.getIdTokenResult(true);
   const profileResult = await getCurrentPortalUser();
 
-  const sqlUser = profileResult?.data?.users?.[0];
+  const sqlProfessional = profileResult?.data?.professionals?.[0];
+  const sqlUser = sqlProfessional?.user;
 
-  if (!sqlUser) {
+  if (!sqlProfessional?.id || !sqlUser?.id) {
     return {
       status: "unauthorized",
       reason: "O perfil profissional desta conta não foi encontrado.",
@@ -41,30 +42,30 @@ export async function resolveProfessional(firebaseUser) {
     };
   }
 
-  const sqlProfessional = sqlUser.professional_on_user || null;
   const isAdmin = tokenResult?.claims?.admin === true;
   const isActive = sqlUser.status === "ACTIVE";
-  const hasProfessionalRole = sqlUser.portalRole === "PROFESSIONAL";
-  const hasActiveProfessional = sqlProfessional?.active === true;
-  const authorized =
-    isActive &&
-    ((isAdmin && ["PROFESSIONAL", "ADMIN"].includes(sqlUser.portalRole)) ||
-      (hasProfessionalRole && hasActiveProfessional));
+  const hasActiveProfessional = sqlProfessional.active === true;
 
   const profile = {
     ...sqlUser,
     personId: sqlUser.id,
     authUid: firebaseUser.uid,
+    email: sqlProfessional.email,
     accountStatus: isActive ? "active" : "inactive",
     fullName: sqlUser.name,
     roles: [
-      ...(hasProfessionalRole ? ["health_professional"] : []),
+      "health_professional",
       ...(isAdmin ? ["admin"] : []),
     ],
     professional: sqlProfessional,
   };
 
-  if (!authorized || !isAuthorizedProfessional(profile)) {
+  const authorized =
+    isActive &&
+    hasActiveProfessional &&
+    isAuthorizedProfessional(profile);
+
+  if (!authorized) {
     return {
       status: "unauthorized",
       reason: !isActive
@@ -75,7 +76,12 @@ export async function resolveProfessional(firebaseUser) {
     };
   }
 
-  return { status: "authorized", firebaseUser, profile, reason: null };
+  return {
+    status: "authorized",
+    firebaseUser,
+    profile,
+    reason: null,
+  };
 }
 
 export async function createEmployeeAuthAccount(email) {

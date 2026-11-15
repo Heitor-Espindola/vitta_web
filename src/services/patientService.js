@@ -6,10 +6,10 @@ import {
   deleteUnlinkedUser,
   getAdminPatient,
   getAdminPatientByCpf,
+  getAdminUserByCpf,
   getAuthorizedPatientByCpf,
   getPatient,
   getPatientByUser,
-  getUserByEmail,
   listAccessiblePatientsRef,
   listPatientsRef,
   updatePatient,
@@ -36,6 +36,7 @@ function cleanCpf(value) {
 
 function mapPatient(patient) {
   const user = patient?.user || {};
+  const responsible = patient?.responsible || {};
 
   return {
     id: patient?.id || "",
@@ -44,17 +45,18 @@ function mapPatient(patient) {
     name: user.name || "Paciente",
     fullName: user.name || "Paciente",
     birthDate: user.birthDate || null,
-    email: user.email || "",
+    email: patient?.email || "",
+    authUid: patient?.authUid || "",
     cpf: user.cpf || "",
     maskedCpf: maskCpf(user.cpf || ""),
     sex: user.sex || "",
     status: user.status || "ACTIVE",
     patientType: patient?.patientType || "ADULT",
 
-    responsibleId: patient?.responsible?.id || "",
-    responsibleName: patient?.responsible?.user?.name || "",
-    responsibleCpf: patient?.responsible?.user?.cpf || "",
-    responsibleEmail: patient?.responsible?.user?.email || "",
+    responsibleId: responsible.id || "",
+    responsibleName: responsible.user?.name || "",
+    responsibleCpf: responsible.user?.cpf || "",
+    responsibleEmail: responsible.email || "",
   };
 }
 
@@ -158,49 +160,61 @@ export async function addPatient({
     throw new Error("Informe um CPF válido.");
   }
 
-  await createUser({
-    name: cleanName,
-    birthDate,
-    email: cleanEmail,
-    status,
+  const existingResult = await getAdminUserByCpf({
     cpf: cleanCpfValue,
-    sex: cleanText(sex) || null,
   });
 
+  let user = existingResult?.data?.users?.[0];
+  let createdUserId = null;
+
+  if (user?.patient_on_user?.id) {
+    throw new Error("Já existe um cadastro de paciente para este CPF.");
+  }
+
+  const existingProfessional = user?.professional_on_user || null;
+
+  const sharedEmail =
+    existingProfessional?.email?.trim().toLowerCase() === cleanEmail;
+
+  const sharedAuthUid = sharedEmail
+    ? existingProfessional.authUid
+    : null;
+
   try {
-    const userResult = await getUserByEmail({
-      email: cleanEmail,
-    });
+    if (!user) {
+      const createResult = await createUser({
+        name: cleanName,
+        birthDate,
+        status,
+        cpf: cleanCpfValue,
+        sex: cleanText(sex) || null,
+      });
 
-    const createdUser = userResult?.data?.users?.[0];
+      createdUserId = createResult?.data?.user_insert?.id || null;
 
-    if (!createdUser?.id) {
-      throw new Error(
-        "O usuário foi criado, mas seu ID não pôde ser localizado.",
-      );
+      if (!createdUserId) {
+        throw new Error("O usuário foi criado, mas seu ID não foi retornado.");
+      }
+      
+      user = { id: createdUserId };
     }
 
     await createPatient({
-      userId: createdUser.id,
+      userId: user.id,
+      email: cleanEmail,
+      authUid: sharedAuthUid,
       patientType,
       responsibleId: responsibleId || null,
     });
   } catch (error) {
-    const userResult = await getUserByEmail({
-      email: cleanEmail,
-    }).catch(() => null);
-
-    const createdUser = userResult?.data?.users?.[0];
-
-    if (createdUser?.id) {
-      await deleteUnlinkedUser({
-        id: createdUser.id,
-      }).catch(() => {});
+    if (createdUserId) {
+      await deleteUnlinkedUser({ id: createdUserId }).catch(() => {});
     }
 
     throw error;
   }
 }
+
 
 export async function editPatient(
   patient,
@@ -226,7 +240,6 @@ export async function editPatient(
     id: patient.userId,
     name: cleanName,
     birthDate,
-    email: cleanEmail,
     status,
     cpf: cleanCpfValue,
     sex: cleanText(sex) || null,
@@ -234,6 +247,7 @@ export async function editPatient(
 
   await updatePatient({
     id: patient.id,
+    email: cleanEmail,
     patientType,
     responsibleId: responsibleId || null,
   });

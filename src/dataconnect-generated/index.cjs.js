@@ -14,13 +14,6 @@ const PatientType = {
 }
 exports.PatientType = PatientType;
 
-const PortalRole = {
-  PATIENT: "PATIENT",
-  PROFESSIONAL: "PROFESSIONAL",
-  ADMIN: "ADMIN",
-}
-exports.PortalRole = PortalRole;
-
 const ProfessionalType = {
   NURSE: "NURSE",
   DOCTOR: "DOCTOR",
@@ -118,6 +111,20 @@ exports.updatePatientRef = updatePatientRef;
 exports.updatePatient = function updatePatient(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
   return executeMutation(updatePatientRef(dcInstance, inputVars));
+}
+;
+
+const linkPatientAuthIdentityRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'LinkPatientAuthIdentity', inputVars);
+}
+linkPatientAuthIdentityRef.operationName = 'LinkPatientAuthIdentity';
+exports.linkPatientAuthIdentityRef = linkPatientAuthIdentityRef;
+
+exports.linkPatientAuthIdentity = function linkPatientAuthIdentity(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(linkPatientAuthIdentityRef(dcInstance, inputVars));
 }
 ;
 
@@ -446,6 +453,21 @@ exports.getCurrentPortalUser = function getCurrentPortalUser(dcOrOptions, option
 }
 ;
 
+const getAdminUserByCpfRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetAdminUserByCpf', inputVars);
+}
+getAdminUserByCpfRef.operationName = 'GetAdminUserByCpf';
+exports.getAdminUserByCpfRef = getAdminUserByCpfRef;
+
+exports.getAdminUserByCpf = function getAdminUserByCpf(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getAdminUserByCpfRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
 const getAdminPatientByCpfRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -458,21 +480,6 @@ exports.getAdminPatientByCpf = function getAdminPatientByCpf(dcOrVars, varsOrOpt
   
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getAdminPatientByCpfRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
-}
-;
-
-const getUserByEmailRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'GetUserByEmail', inputVars);
-}
-getUserByEmailRef.operationName = 'GetUserByEmail';
-exports.getUserByEmailRef = getUserByEmailRef;
-
-exports.getUserByEmail = function getUserByEmail(dcOrVars, varsOrOptions, options) {
-  
-  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
-  return executeQuery(getUserByEmailRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 ;
 
@@ -503,6 +510,21 @@ exports.listAccessiblePatients = function listAccessiblePatients(dcOrOptions, op
   
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listAccessiblePatientsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const getCurrentPatientForProfessionalRegistrationRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetCurrentPatientForProfessionalRegistration');
+}
+getCurrentPatientForProfessionalRegistrationRef.operationName = 'GetCurrentPatientForProfessionalRegistration';
+exports.getCurrentPatientForProfessionalRegistrationRef = getCurrentPatientForProfessionalRegistrationRef;
+
+exports.getCurrentPatientForProfessionalRegistration = function getCurrentPatientForProfessionalRegistration(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(getCurrentPatientForProfessionalRegistrationRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 ;
 

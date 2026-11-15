@@ -1,34 +1,71 @@
+
 import { subscribe } from "firebase/data-connect";
 import {
   archiveProfessional,
   createProfessional,
   createUser,
   deleteUnlinkedUser,
-  getUserByEmail,
+  getAdminUserByCpf,
+  linkPatientAuthIdentity,
   listProfessionalsRef,
   updateProfessional,
   updateUser,
+  getCurrentPatientForProfessionalRegistration,
 } from "@dataconnect/generated";
-import { createEmployeeAuthAccount, requestPasswordReset, } from "./authService";
+import {
+  createEmployeeAuthAccount,
+  requestPasswordReset,
+} from "./authService";
+
 
 function clean(value) {
   return String(value ?? "").trim();
 }
 
+function cleanCpf(value) {
+  return clean(value).replace(/\D/g, "");
+}
+
+async function findCurrentPatientUserByCpf(cpf) {
+  const result = await getCurrentPatientForProfessionalRegistration();
+  const patient = result?.data?.patients?.[0];
+  const user = patient?.user;
+
+  if (!patient?.id || !user?.id) {
+    throw new Error(
+      "Sua conta ainda não possui um perfil de paciente para vincular. Solicite o cadastro ao administrador.",
+    );
+  }
+
+  if (cleanCpf(user.cpf) !== cpf) {
+    throw new Error(
+      "O CPF informado não corresponde à pessoa vinculada à sua conta.",
+    );
+  }
+
+  return {
+    ...user,
+    patient_on_user: patient,
+  };
+}
+
 export function mapProfessional(professional) {
   const user = professional?.user || {};
   const ubs = professional?.ubs || null;
+
   return {
     id: professional?.id || "",
     userId: user.id || "",
     name: user.name || "",
     birthDate: user.birthDate || "",
-    email: user.email || "",
+    email: professional?.email || "",
+    authUid: professional?.authUid || "",
     cpf: user.cpf || "",
     sex: user.sex || "",
     status: user.status || "ACTIVE",
     professionalType: professional?.professionalType || "OTHER",
-    professionalRegistration: professional?.professionalRegistration || "",
+    professionalRegistration:
+      professional?.professionalRegistration || "",
     ubsId: ubs?.id || "",
     ubsName: ubs?.name || "",
   };
@@ -41,19 +78,16 @@ export function watchProfessionals(onData, onError) {
       const items = (result?.data?.professionals || [])
         .map(mapProfessional)
         .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+
       onData(items);
     },
     onError,
   );
 }
 
-async function findUserByEmail(email) {
-  const result = await getUserByEmail({ email });
-  const user = result?.data?.users?.[0];
-  if (!user?.id) {
-    throw new Error("O usuário foi criado, mas não pôde ser localizado no SQL Connect.");
-  }
-  return user;
+async function findUserByCpf(cpf) {
+  const result = await getAdminUserByCpf({ cpf });
+  return result?.data?.users?.[0] || null;
 }
 
 export async function addProfessional(
@@ -71,76 +105,123 @@ export async function addProfessional(
   {
     createAuthenticationAccount = true,
     authUid = null,
-    portalRole = "PROFESSIONAL",
   } = {},
 ) {
   const cleanName = clean(name);
   const cleanEmail = clean(email).toLowerCase();
-  const cleanCpf = clean(cpf).replace(/\D/g, "");
+  const cleanCpfValue = cleanCpf(cpf);
 
-  if (!cleanName || !birthDate || !cleanEmail || !cleanCpf) {
+  if (!cleanName || !birthDate || !cleanEmail || !cleanCpfValue) {
     throw new Error("Preencha nome, nascimento, e-mail e CPF.");
   }
 
-  const authAccount = createAuthenticationAccount
-    ? await createEmployeeAuthAccount(cleanEmail)
-    : null;
+  let existingUser = createAuthenticationAccount
+    ? await findUserByCpf(cleanCpfValue)
+    : await findCurrentPatientUserByCpf(cleanCpfValue);
 
-  const targetAuthUid = authAccount?.uid || authUid;
-
-  if (!targetAuthUid) {
-    if (authAccount) {
-      await authAccount.close();
-    }
-
-    throw new Error("Não foi possível identificar a conta de Authentication.");
+  if (existingUser?.professional_on_user?.id) {
+    throw new Error(
+      "Já existe um cadastro profissional para este CPF.",
+    );
   }
 
-  let sqlUserInserted = false;
-  let sqlUserId = null;
+  const existingPatient = existingUser?.patient_on_user || null;
+
+  // Mesmo e-mail no paciente e profissional significa a mesma conta Firebase, com o mesmo UID e senha.
+  const sharedEmail =
+    existingPatient?.email?.trim().toLowerCase() === cleanEmail;
+
+  let authAccount = null;
+  let targetAuthUid;
+  let createdUserId = null;
+  let linkedPatientIdentity = false;
 
   try {
-    await createUser({
-      name: cleanName,
-      birthDate,
-      email: cleanEmail,
-      status,
-      cpf: cleanCpf,
-      sex: clean(sex) || null,
-      authUid: targetAuthUid,
-      portalRole,
-    });
+    if (!createAuthenticationAccount) {
+      targetAuthUid = authUid;
+        
+      if (!targetAuthUid) {
+        throw new Error(
+          "Não foi possível identificar a conta de Authentication.",
+        );
+      }
+    
+      if (
+        existingPatient?.authUid &&
+        existingPatient.authUid !== targetAuthUid
+      ) {
+        throw new Error(
+          "A conta autenticada não corresponde à conta de paciente existente.",
+        );
+      }
+    
+      if (
+        existingPatient?.email &&
+        existingPatient.email.trim().toLowerCase() !== cleanEmail
+      ) {
+        throw new Error(
+          "Para compartilhar a autenticação, o e-mail do profissional precisa ser o mesmo do paciente.",
+        );
+      }
+    } else if (sharedEmail && existingPatient?.authUid) {
+      targetAuthUid = existingPatient.authUid;
+    } else {
+      authAccount = await createEmployeeAuthAccount(cleanEmail);
+      targetAuthUid = authAccount.uid;
+    }
 
-    sqlUserInserted = true;
+    if (!existingUser) {
+      const createResult = await createUser({
+        name: cleanName,
+        birthDate,
+        status,
+        cpf: cleanCpfValue,
+        sex: clean(sex) || null,
+      });
+    
+      createdUserId = createResult?.data?.user_insert?.id || null;
+    
+      if (!createdUserId) {
+        throw new Error("O usuário foi criado, mas seu ID não foi retornado.");
+      }
+    
+      existingUser = { id: createdUserId };
+    }
 
-    const user = await findUserByEmail(cleanEmail);
-    sqlUserId = user.id;
+    // Se o paciente já tinha o mesmo e-mail, mas ainda não tinha
+    // UID, a nova identidade será compartilhada pelos dois perfis.
+    if (
+      existingPatient?.id &&
+      sharedEmail &&
+      !existingPatient.authUid
+    ) {
+      await linkPatientAuthIdentity({
+        id: existingPatient.id,
+        email: cleanEmail,
+        authUid: targetAuthUid,
+      });
+
+      linkedPatientIdentity = true;
+    }
 
     await createProfessional({
-      userId: user.id,
+      userId: existingUser.id,
+      email: cleanEmail,
+      authUid: targetAuthUid,
       professionalType,
       professionalRegistration:
         clean(professionalRegistration) || null,
       ubsId: ubsId || null,
     });
   } catch (error) {
-    if (sqlUserInserted) {
-      let createdUserId = sqlUserId;
-
-      if (!createdUserId) {
-        const result = await getUserByEmail({ email: cleanEmail })
-          .catch(() => null);
-
-        createdUserId = result?.data?.users?.[0]?.id || null;
-      }
-
-      if (createdUserId) {
-        await deleteUnlinkedUser({ id: createdUserId }).catch(() => { });
-      }
+    // Só remove o User quando ele foi criado por esta operação e ainda não possui vínculos com perfis.
+    if (createdUserId) {
+      await deleteUnlinkedUser({ id: createdUserId }).catch(() => {});
     }
 
-    if (authAccount) {
-      await authAccount.rollback().catch(() => { });
+    // Se a identidade recém-criada já foi vinculada ao paciente, não podemos apagá-la: ela passou a ser a autenticação dele.
+    if (authAccount && !linkedPatientIdentity) {
+      await authAccount.rollback().catch(() => {});
     }
 
     throw error;
@@ -152,6 +233,7 @@ export async function addProfessional(
 
   let passwordResetSent = false;
 
+  // Não enviamos redefinição de senha para uma conta já existente.
   if (authAccount) {
     try {
       await requestPasswordReset(cleanEmail);
@@ -161,7 +243,10 @@ export async function addProfessional(
     }
   }
 
-  return { passwordResetSent };
+  return {
+    passwordResetSent,
+    reusedAuthenticationAccount: !authAccount,
+  };
 }
 
 export async function editProfessional(professional, data) {
@@ -170,26 +255,27 @@ export async function editProfessional(professional, data) {
   }
 
   const cleanName = clean(data.name);
-  const cleanEmail = clean(data.email).toLowerCase();
-  const cleanCpf = clean(data.cpf).replace(/\D/g, "");
-  if (!cleanName || !data.birthDate || !cleanEmail || !cleanCpf) {
-    throw new Error("Preencha nome, nascimento, e-mail e CPF.");
+  const cleanCpfValue = cleanCpf(data.cpf);
+
+  if (!cleanName || !data.birthDate || !cleanCpfValue) {
+    throw new Error("Preencha nome, nascimento e CPF.");
   }
 
+  // O e-mail pertence ao perfil profissional e não deve ser alterado por uma edição comum dos dados pessoais.
   await updateUser({
     id: professional.userId,
     name: cleanName,
     birthDate: data.birthDate,
-    email: cleanEmail,
     status: data.status,
-    cpf: cleanCpf,
+    cpf: cleanCpfValue,
     sex: clean(data.sex) || null,
   });
 
   await updateProfessional({
     id: professional.id,
     professionalType: data.professionalType,
-    professionalRegistration: clean(data.professionalRegistration) || null,
+    professionalRegistration:
+      clean(data.professionalRegistration) || null,
     ubsId: data.ubsId || null,
   });
 }

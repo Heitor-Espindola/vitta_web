@@ -46,9 +46,7 @@ describe('Data Connect authorization contract', () => {
     expect(operation).toContain('patientAccesses')
     expect(operation).toContain('granteeAuthUid: { eq_expr: "auth.uid" }')
     expect(operation).toContain('directRelationships: familyRelationships')
-    expect(operation).toContain(
-      'fromPatient: { user: { authUid: { eq_expr: "auth.uid" } } }',
-    )
+    expect(operation).toContain('fromPatient: { authUid: { eq_expr: "auth.uid" } }',)
     expect(operation).toContain('relationshipType')
     expect(operation).not.toContain('relationships_on_toPatient')
   })
@@ -64,14 +62,39 @@ describe('Data Connect authorization contract', () => {
       /mutation CompleteMobileRegistration[\s\S]*?(?=\n# Apenas telefone)/,
     )?.[0]
 
-    expect(portalOperation).toContain('portalRole')
-    expect(portalOperation).toContain('professional_on_user')
+    expect(portalOperation).toContain('professionals')
+    expect(portalOperation).toContain('authUid: { eq_expr: "auth.uid" }')
+    expect(portalOperation).toContain('user {')
+    
+    expect(mobilePersonOperation).toContain('patients')
     expect(mobilePersonOperation).toContain('authUid: { eq_expr: "auth.uid" }')
-    expect(mobilePersonOperation).toContain('patient_on_user')
-    expect(mobilePersonOperation).not.toContain('portalRole: { eq: PATIENT }')
+    expect(mobilePersonOperation).toContain('user {')
+    expect(mobilePersonOperation).not.toContain('patient_on_user')
+
+    expect(registrationOperation).toContain('patients')
+    expect(registrationOperation).toContain('authUid: { eq_expr: "auth.uid" }')
     expect(registrationOperation).toContain('accessKind: SELF')
-    expect(schema).toMatch(/type Professional @table \{[\s\S]*?user: User! @unique/)
+
+    expect(schema).toMatch(
+      /type Professional @table \{[\s\S]*?user: User! @unique/,
+    )
+    expect(schema).toMatch(
+      /type Patient @table \{[\s\S]*?user: User! @unique/,
+    )
+  })
+
+  test("a pessoa pode ter perfil de paciente e profissional vinculados ao mesmo User", () => {
     expect(schema).toMatch(/type Patient @table \{[\s\S]*?user: User! @unique/)
+    expect(schema).toMatch(/type Professional @table \{[\s\S]*?user: User! @unique/)
+    expect(schema).toMatch(/type Patient @table \{[\s\S]*?authUid: String @unique/)
+    expect(schema).toMatch(/type Professional @table \{[\s\S]*?authUid: String! @unique/)
+    expect(schema).toMatch(/type User @table \{[\s\S]*?cpf: String! @unique/)
+  })
+  
+  test("cadastro profissional localiza User pelo CPF e não utiliza email como identidade civil", () => {
+    expect(webQueries).toContain("query GetAdminUserByCpf")
+    expect(webQueries).toContain('@auth(expr: "auth.token.admin == true")')
+    expect(webMutations).not.toMatch(/\$email: String![\s\S]*?user_insert/)
   })
 
   test('mobile profile updates cannot change identity or authorization fields', () => {
@@ -104,9 +127,11 @@ describe('Data Connect authorization contract', () => {
       /query GetCurrentPortalUser[\s\S]*?(?=\n# Compatibilidade)/,
     )?.[0]
 
+    expect(operation).toContain('professionals')
     expect(operation).toContain('authUid: { eq_expr: "auth.uid" }')
-    expect(operation).toContain('portalRole')
-    expect(operation).toContain('professional_on_user')
+    expect(operation).toContain('user {')
+    expect(operation).not.toContain('portalRole')
+    expect(operation).not.toContain('professional_on_user')
     expect(authService).toContain('getCurrentPortalUser')
     expect(authService).not.toMatch(/firebase\/firestore|auth_links|doc\(db/)
   })
@@ -154,8 +179,12 @@ describe('Data Connect authorization contract', () => {
     )?.[0]
 
     expect(operation).toContain('this == auth.uid')
-    expect(operation).toContain("this == 'ADMIN'")
-    expect(operation).toContain("this == 'PROFESSIONAL'")
+    expect(operation).toContain('professional(id: $professionalId)')
+    expect(operation).toContain('authUid')
+    expect(operation).toContain('this == auth.uid')
+    expect(operation).toContain('active')
+    expect(operation).toContain("this == 'ACTIVE'")
+    expect(operation).not.toContain('portalRole')
     expect(operation).toContain('granteeAuthUid: { eq_expr: "auth.uid" }')
     expect(operation).toContain('auth.token.admin == true')
     expect(operation).toContain("p.consentStatus == 'GRANTED'")

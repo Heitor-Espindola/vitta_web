@@ -396,7 +396,7 @@ export default function Funcionarios() {
                         </label>
                         <label className="field field--span-2">
                             <span>E-mail *</span>
-                            <input type="email" value={professionalForm.email} onChange={(event) => updateProfessional("email", event.target.value)} disabled={saving || (!isAdmin && !editingProfessional)} />
+                            <input type="email" value={professionalForm.email} onChange={(event) => updateProfessional("email", event.target.value)} disabled={saving || Boolean(editingProfessional) || registeringSelf} />
                         </label>
                         <label className="field">
                             <span>Sexo</span>

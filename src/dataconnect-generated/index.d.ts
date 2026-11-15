@@ -21,12 +21,6 @@ export enum PatientType {
   CHILD = "CHILD",
 };
 
-export enum PortalRole {
-  PATIENT = "PATIENT",
-  PROFESSIONAL = "PROFESSIONAL",
-  ADMIN = "ADMIN",
-};
-
 export enum ProfessionalType {
   NURSE = "NURSE",
   DOCTOR = "DOCTOR",
@@ -144,6 +138,8 @@ export interface CreatePatientVariables {
   patientType: PatientType;
   responsibleId?: UUIDString | null;
   motherName?: string | null;
+  email?: string | null;
+  authUid?: string | null;
 }
 
 export interface CreateProfessionalData {
@@ -152,6 +148,8 @@ export interface CreateProfessionalData {
 
 export interface CreateProfessionalVariables {
   userId: UUIDString;
+  email: string;
+  authUid: string;
   professionalType: ProfessionalType;
   professionalRegistration?: string | null;
   ubsId?: UUIDString | null;
@@ -177,12 +175,9 @@ export interface CreateUserData {
 export interface CreateUserVariables {
   name: string;
   birthDate: DateString;
-  email: string;
   status: UserStatus;
   cpf: string;
   sex?: string | null;
-  authUid?: string | null;
-  portalRole?: PortalRole | null;
 }
 
 export interface CreateVaccineData {
@@ -233,13 +228,14 @@ export interface FamilyRelationship_Key {
 export interface GetAdminPatientByCpfData {
   patients: ({
     id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
     motherName?: string | null;
     patientType: PatientType;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -262,12 +258,13 @@ export interface GetAdminPatientByCpfVariables {
 export interface GetAdminPatientData {
   patient?: {
     id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
     motherName?: string | null;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -286,6 +283,34 @@ export interface GetAdminPatientData {
 
 export interface GetAdminPatientVariables {
   id: UUIDString;
+}
+
+export interface GetAdminUserByCpfData {
+  users: ({
+    id: UUIDString;
+    name: string;
+    birthDate: DateString;
+    status: UserStatus;
+    cpf: string;
+    sex?: string | null;
+    phone?: string | null;
+    patient_on_user?: {
+      id: UUIDString;
+      email?: string | null;
+      authUid?: string | null;
+      active: boolean;
+    } & Patient_Key;
+    professional_on_user?: {
+      id: UUIDString;
+      email: string;
+      authUid: string;
+      active: boolean;
+    } & Professional_Key;
+  } & User_Key)[];
+}
+
+export interface GetAdminUserByCpfVariables {
+  cpf: string;
 }
 
 export interface GetApplicationData {
@@ -406,13 +431,14 @@ export interface GetAuthorizedPatientByCpfData {
   patientAccesses: ({
     patient: {
       id: UUIDString;
+      email?: string | null;
+      authUid?: string | null;
       motherName?: string | null;
       patientType: PatientType;
       user: {
         id: UUIDString;
         name: string;
         birthDate: DateString;
-        email?: string | null;
         cpf: string;
         sex?: string | null;
         status: UserStatus;
@@ -455,41 +481,58 @@ export interface GetBatchVariables {
   id: UUIDString;
 }
 
-export interface GetCurrentPortalUserData {
-  users: ({
+export interface GetCurrentPatientForProfessionalRegistrationData {
+  patients: ({
     id: UUIDString;
-    name: string;
-    birthDate: DateString;
     email?: string | null;
     authUid?: string | null;
-    status: UserStatus;
-    cpf: string;
-    sex?: string | null;
-    phone?: string | null;
-    photoUrl?: string | null;
-    portalRole?: PortalRole | null;
-    professional_on_user?: {
+    user: {
       id: UUIDString;
-      active: boolean;
-      professionalType: ProfessionalType;
-      professionalRegistration?: string | null;
-      ubs?: {
-        id: UUIDString;
-        name: string;
-      } & UBS_Key;
-    } & Professional_Key;
-  } & User_Key)[];
+      name: string;
+      birthDate: DateString;
+      status: UserStatus;
+      cpf: string;
+      sex?: string | null;
+      phone?: string | null;
+    } & User_Key;
+  } & Patient_Key)[];
+}
+
+export interface GetCurrentPortalUserData {
+  professionals: ({
+    id: UUIDString;
+    email: string;
+    authUid: string;
+    active: boolean;
+    professionalType: ProfessionalType;
+    professionalRegistration?: string | null;
+    user: {
+      id: UUIDString;
+      name: string;
+      birthDate: DateString;
+      status: UserStatus;
+      cpf: string;
+      sex?: string | null;
+      phone?: string | null;
+      photoUrl?: string | null;
+    } & User_Key;
+    ubs?: {
+      id: UUIDString;
+      name: string;
+    } & UBS_Key;
+  } & Professional_Key)[];
 }
 
 export interface GetPatientByUserData {
   patients: ({
     id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
     motherName?: string | null;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -513,12 +556,13 @@ export interface GetPatientByUserVariables {
 export interface GetPatientData {
   patient?: {
     id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
     motherName?: string | null;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -542,10 +586,11 @@ export interface GetPatientVariables {
 export interface GetProfessionalByUserData {
   professionals: ({
     id: UUIDString;
+    email: string;
+    authUid: string;
     user: {
       id: UUIDString;
       name: string;
-      email?: string | null;
       cpf: string;
     } & User_Key;
     professionalType: ProfessionalType;
@@ -564,11 +609,12 @@ export interface GetProfessionalByUserVariables {
 export interface GetProfessionalData {
   professional?: {
     id: UUIDString;
+    email: string;
+    authUid: string;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -607,28 +653,11 @@ export interface GetUbsVariables {
   id: UUIDString;
 }
 
-export interface GetUserByEmailData {
-  users: ({
-    id: UUIDString;
-    name: string;
-    birthDate: DateString;
-    email?: string | null;
-    status: UserStatus;
-    cpf: string;
-    sex?: string | null;
-  } & User_Key)[];
-}
-
-export interface GetUserByEmailVariables {
-  email: string;
-}
-
 export interface GetUserData {
   user?: {
     id: UUIDString;
     name: string;
     birthDate: DateString;
-    email?: string | null;
     status: UserStatus;
     cpf: string;
     sex?: string | null;
@@ -651,6 +680,16 @@ export interface GetVaccineData {
 
 export interface GetVaccineVariables {
   id: UUIDString;
+}
+
+export interface LinkPatientAuthIdentityData {
+  patient_update?: Patient_Key | null;
+}
+
+export interface LinkPatientAuthIdentityVariables {
+  id: UUIDString;
+  email: string;
+  authUid: string;
 }
 
 export interface ListAccessibleAppointmentsData {
@@ -689,13 +728,14 @@ export interface ListAccessiblePatientsData {
   patientAccesses: ({
     patient: {
       id: UUIDString;
+      email?: string | null;
+      authUid?: string | null;
       motherName?: string | null;
       patientType: PatientType;
       user: {
         id: UUIDString;
         name: string;
         birthDate: DateString;
-        email?: string | null;
         cpf: string;
         sex?: string | null;
         status: UserStatus;
@@ -1140,12 +1180,13 @@ export interface ListCurrentProfessionalApplicationsData {
 export interface ListPatientsData {
   patients: ({
     id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
     motherName?: string | null;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -1165,11 +1206,12 @@ export interface ListPatientsData {
 export interface ListProfessionalsData {
   professionals: ({
     id: UUIDString;
+    email: string;
+    authUid: string;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -1202,7 +1244,6 @@ export interface ListUsersData {
     id: UUIDString;
     name: string;
     birthDate: DateString;
-    email?: string | null;
     status: UserStatus;
     cpf: string;
     sex?: string | null;
@@ -1321,6 +1362,7 @@ export interface UpdatePatientData {
 
 export interface UpdatePatientVariables {
   id: UUIDString;
+  email?: string | null;
   patientType?: PatientType | null;
   responsibleId?: UUIDString | null;
   motherName?: string | null;
@@ -1359,7 +1401,6 @@ export interface UpdateUserVariables {
   id: UUIDString;
   name?: string | null;
   birthDate?: DateString | null;
-  email?: string | null;
   status?: UserStatus | null;
   cpf?: string | null;
   sex?: string | null;
@@ -1465,6 +1506,18 @@ export const updatePatientRef: UpdatePatientRef;
 
 export function updatePatient(vars: UpdatePatientVariables): MutationPromise<UpdatePatientData, UpdatePatientVariables>;
 export function updatePatient(dc: DataConnect, vars: UpdatePatientVariables): MutationPromise<UpdatePatientData, UpdatePatientVariables>;
+
+interface LinkPatientAuthIdentityRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: LinkPatientAuthIdentityVariables): MutationRef<LinkPatientAuthIdentityData, LinkPatientAuthIdentityVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: LinkPatientAuthIdentityVariables): MutationRef<LinkPatientAuthIdentityData, LinkPatientAuthIdentityVariables>;
+  operationName: string;
+}
+export const linkPatientAuthIdentityRef: LinkPatientAuthIdentityRef;
+
+export function linkPatientAuthIdentity(vars: LinkPatientAuthIdentityVariables): MutationPromise<LinkPatientAuthIdentityData, LinkPatientAuthIdentityVariables>;
+export function linkPatientAuthIdentity(dc: DataConnect, vars: LinkPatientAuthIdentityVariables): MutationPromise<LinkPatientAuthIdentityData, LinkPatientAuthIdentityVariables>;
 
 interface ArchivePatientRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -1742,6 +1795,18 @@ export const getCurrentPortalUserRef: GetCurrentPortalUserRef;
 export function getCurrentPortalUser(options?: ExecuteQueryOptions): QueryPromise<GetCurrentPortalUserData, undefined>;
 export function getCurrentPortalUser(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<GetCurrentPortalUserData, undefined>;
 
+interface GetAdminUserByCpfRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetAdminUserByCpfVariables): QueryRef<GetAdminUserByCpfData, GetAdminUserByCpfVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetAdminUserByCpfVariables): QueryRef<GetAdminUserByCpfData, GetAdminUserByCpfVariables>;
+  operationName: string;
+}
+export const getAdminUserByCpfRef: GetAdminUserByCpfRef;
+
+export function getAdminUserByCpf(vars: GetAdminUserByCpfVariables, options?: ExecuteQueryOptions): QueryPromise<GetAdminUserByCpfData, GetAdminUserByCpfVariables>;
+export function getAdminUserByCpf(dc: DataConnect, vars: GetAdminUserByCpfVariables, options?: ExecuteQueryOptions): QueryPromise<GetAdminUserByCpfData, GetAdminUserByCpfVariables>;
+
 interface GetAdminPatientByCpfRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: GetAdminPatientByCpfVariables): QueryRef<GetAdminPatientByCpfData, GetAdminPatientByCpfVariables>;
@@ -1753,18 +1818,6 @@ export const getAdminPatientByCpfRef: GetAdminPatientByCpfRef;
 
 export function getAdminPatientByCpf(vars: GetAdminPatientByCpfVariables, options?: ExecuteQueryOptions): QueryPromise<GetAdminPatientByCpfData, GetAdminPatientByCpfVariables>;
 export function getAdminPatientByCpf(dc: DataConnect, vars: GetAdminPatientByCpfVariables, options?: ExecuteQueryOptions): QueryPromise<GetAdminPatientByCpfData, GetAdminPatientByCpfVariables>;
-
-interface GetUserByEmailRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: GetUserByEmailVariables): QueryRef<GetUserByEmailData, GetUserByEmailVariables>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: GetUserByEmailVariables): QueryRef<GetUserByEmailData, GetUserByEmailVariables>;
-  operationName: string;
-}
-export const getUserByEmailRef: GetUserByEmailRef;
-
-export function getUserByEmail(vars: GetUserByEmailVariables, options?: ExecuteQueryOptions): QueryPromise<GetUserByEmailData, GetUserByEmailVariables>;
-export function getUserByEmail(dc: DataConnect, vars: GetUserByEmailVariables, options?: ExecuteQueryOptions): QueryPromise<GetUserByEmailData, GetUserByEmailVariables>;
 
 interface ListPatientsRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -1789,6 +1842,18 @@ export const listAccessiblePatientsRef: ListAccessiblePatientsRef;
 
 export function listAccessiblePatients(options?: ExecuteQueryOptions): QueryPromise<ListAccessiblePatientsData, undefined>;
 export function listAccessiblePatients(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListAccessiblePatientsData, undefined>;
+
+interface GetCurrentPatientForProfessionalRegistrationRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<GetCurrentPatientForProfessionalRegistrationData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<GetCurrentPatientForProfessionalRegistrationData, undefined>;
+  operationName: string;
+}
+export const getCurrentPatientForProfessionalRegistrationRef: GetCurrentPatientForProfessionalRegistrationRef;
+
+export function getCurrentPatientForProfessionalRegistration(options?: ExecuteQueryOptions): QueryPromise<GetCurrentPatientForProfessionalRegistrationData, undefined>;
+export function getCurrentPatientForProfessionalRegistration(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<GetCurrentPatientForProfessionalRegistrationData, undefined>;
 
 interface GetAuthorizedPatientByCpfRef {
   /* Allow users to create refs without passing in DataConnect */

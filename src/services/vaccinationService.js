@@ -126,16 +126,20 @@ export async function resolveCurrentProfessional(firebaseUser) {
   }
 
   const result = await getCurrentPortalUser();
-  const user = result?.data?.users?.[0];
+  const professional = result?.data?.professionals?.[0];
 
-  if (!user?.id || user.authUid !== firebaseUser.uid) {
-    throw new Error("O usuário autenticado não possui cadastro no Vitta SQL.");
+  if (!professional?.id || professional.authUid !== firebaseUser.uid) {
+    throw new Error(
+      "O usuário autenticado não possui cadastro profissional no Vitta SQL.",
+    );
   }
 
-  const professional = user.professional_on_user;
+  if (professional.active !== true) {
+    throw new Error("O profissional está inativo ou arquivado.");
+  }
 
-  if (!professional?.id || professional.active !== true) {
-    throw new Error("A conta autenticada não possui cadastro profissional ativo.");
+  if (professional.user?.status !== "ACTIVE") {
+    throw new Error("A pessoa vinculada a esta conta está inativa.");
   }
 
   if (!professional.ubs?.id) {
