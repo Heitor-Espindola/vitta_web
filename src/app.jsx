@@ -12,6 +12,7 @@ import PacienteDetalhe from "./pages/PacienteDetalhe";
 import Pacientes from "./pages/Pacientes";
 import Relatorios from "./pages/Relatorios";
 import Vacinas from "./pages/Vacinas";
+import AdminRoute from "./components/AdminRoute";
 
 export default function App() {
   return (
@@ -26,7 +27,7 @@ export default function App() {
           <Route path="agendamentos" element={<Agendamentos />} />
           <Route path="vacinas" element={<Vacinas />} />
           <Route path="relatorios" element={<Relatorios />} />
-          <Route path="funcionarios" element={<Funcionarios />} />
+          <Route element={<AdminRoute />}> <Route path="funcionarios" element={<Funcionarios />} /> </Route>
           <Route path="config" element={<Config />} />
           <Route path="*" element={<NotFound />} />
         </Route>

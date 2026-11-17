@@ -9,6 +9,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import { useEffect, useMemo, useState } from "react";
 import {
   PageHeader,
@@ -84,6 +85,8 @@ function getErrorMessage(error) {
 }
 
 export default function Vacinas() {
+  const { isAdmin } = useAuth();
+
   const [view, setView] = useState("vaccines");
 
   const [vaccines, setVaccines] = useState([]);
@@ -103,6 +106,8 @@ export default function Vacinas() {
 
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState("");
+
+  
 
   useEffect(() => {
     const unsubscribe = watchVaccines(
@@ -403,11 +408,9 @@ export default function Vacinas() {
     }
   };
 
-  const isLoading =
-    view === "vaccines" ? loadingVaccines : loadingBatches;
+  const isLoading = view === "vaccines" ? loadingVaccines : loadingBatches;
 
-  const currentItems =
-    view === "vaccines" ? filteredVaccines : filteredBatches;
+  const currentItems = view === "vaccines" ? filteredVaccines : filteredBatches;
 
   return (
     <div className="page-stack">
@@ -539,27 +542,31 @@ export default function Vacinas() {
                     SQL Connect
                   </span>
 
-                  <button
-                    className="icon-button icon-button--small"
-                    type="button"
-                    title={`Editar ${vaccine.name}`}
-                    aria-label={`Editar ${vaccine.name}`}
-                    onClick={() => openEditVaccine(vaccine)}
-                    disabled={deletingId === vaccine.id}
-                  >
-                    <Pencil size={15} />
-                  </button>
+                  {isAdmin && (
+                    <>
+                      <button
+                        className="icon-button icon-button--small"
+                        type="button"
+                        title={`Editar ${vaccine.name}`}
+                        aria-label={`Editar ${vaccine.name}`}
+                        onClick={() => openEditVaccine(vaccine)}
+                        disabled={deletingId === vaccine.id}
+                      >
+                        <Pencil size={15} />
+                      </button>
 
-                  <button
-                    className="icon-button icon-button--small"
-                    type="button"
-                    title={`Arquivar ${vaccine.name}`}
-                    aria-label={`Arquivar ${vaccine.name}`}
-                    onClick={() => handleDeleteVaccine(vaccine)}
-                    disabled={deletingId === vaccine.id}
-                  >
-                    <Trash2 size={15} />
-                  </button>
+                      <button
+                        className="icon-button icon-button--small"
+                        type="button"
+                        title={`Arquivar ${vaccine.name}`}
+                        aria-label={`Arquivar ${vaccine.name}`}
+                        onClick={() => handleDeleteVaccine(vaccine)}
+                        disabled={deletingId === vaccine.id}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </>
+                  )}
                 </footer>
               </article>
             ))}
@@ -618,27 +625,31 @@ export default function Vacinas() {
 
                     <td>
                       <div className="button-row">
-                        <button
-                          className="icon-button icon-button--small"
-                          type="button"
-                          title={`Editar lote ${batch.batchCode}`}
-                          aria-label={`Editar lote ${batch.batchCode}`}
-                          onClick={() => openEditBatch(batch)}
-                          disabled={deletingId === batch.id}
-                        >
-                          <Pencil size={15} />
-                        </button>
+                        {isAdmin && (  
+                          <>
+                            <button
+                              className="icon-button icon-button--small"
+                              type="button"
+                              title={`Editar lote ${batch.batchCode}`}
+                              aria-label={`Editar lote ${batch.batchCode}`}
+                              onClick={() => openEditBatch(batch)}
+                              disabled={deletingId === batch.id}
+                            >
+                              <Pencil size={15} />
+                            </button>
 
-                        <button
-                          className="icon-button icon-button--small"
-                          type="button"
-                          title={`Excluir lote ${batch.batchCode}`}
-                          aria-label={`Excluir lote ${batch.batchCode}`}
-                          onClick={() => handleDeleteBatch(batch)}
-                          disabled={deletingId === batch.id}
-                        >
-                          <Trash2 size={15} />
-                        </button>
+                            <button
+                              className="icon-button icon-button--small"
+                              type="button"
+                              title={`Excluir lote ${batch.batchCode}`}
+                              aria-label={`Excluir lote ${batch.batchCode}`}
+                              onClick={() => handleDeleteBatch(batch)}
+                              disabled={deletingId === batch.id}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1007,29 +1018,31 @@ export default function Vacinas() {
         <button type="button" />
       </div>
 
-      <div
-        style={{
-          position: "fixed",
-          right: "2.25rem",
-          top: "90px",
-          zIndex: 20,
-        }}
-      >
-        <button
-          className="button button--primary"
-          type="button"
-          onClick={
-            view === "vaccines"
-              ? openCreateVaccine
-              : openCreateBatch
-          }
+      {isAdmin && (
+        <div
+          style={{
+            position: "fixed",
+            right: "2.25rem",
+            top: "90px",
+            zIndex: 20,
+          }}
         >
-          <Plus size={17} />
-          {view === "vaccines"
-            ? "Adicionar vacina"
-            : "Adicionar lote"}
-        </button>
-      </div>
+          <button
+            className="button button--primary"
+            type="button"
+            onClick={
+              view === "vaccines"
+                ? openCreateVaccine
+                : openCreateBatch
+            }
+          >
+            <Plus size={17} />
+            {view === "vaccines"
+              ? "Adicionar vacina"
+              : "Adicionar lote"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

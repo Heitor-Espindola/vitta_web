@@ -134,14 +134,35 @@ query GetAdminPatientByCpf($cpf: String!)
 # PATIENTS
 # ============================================================
 
+# Listagem global disponível somente a profissionais ativos autenticados.
 query ListPatients
-@auth(expr: "auth.token.admin == true")
+@auth(level: USER)
 @refresh(onMutationExecuted: { operation: "CreateUser" })
 @refresh(onMutationExecuted: { operation: "UpdateUser" })
 @refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
 @refresh(onMutationExecuted: { operation: "CreatePatient" })
 @refresh(onMutationExecuted: { operation: "UpdatePatient" })
 @refresh(onMutationExecuted: { operation: "ArchivePatient" }) {
+  professionals(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        { active: { eq: true } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Acesso restrito ao portal profissional.") {
+    id
+    user {
+      status
+        @check(
+          expr: "this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
+  }
+
   patients(where: { active: { eq: true } }) {
     id
     email
@@ -167,6 +188,8 @@ query ListPatients
   }
 }
 
+# Mantida para compatibilidade com versões anteriores do SDK.
+# A listagem atual do portal utiliza ListPatients, sem exigir PatientAccess.
 query ListAccessiblePatients @auth(level: USER) {
   professionals(
     where: {
@@ -248,6 +271,8 @@ query GetCurrentPatientForProfessionalRegistration @auth(level: USER) {
   }
 }
 
+# Busca qualquer paciente ativo, desde que a sessão pertença a um
+# profissional ativo. PatientAccess individual fica para uma feature futura.
 query GetAuthorizedPatientByCpf($cpf: String!) @auth(level: USER) {
   professionals(
     where: {
@@ -269,61 +294,59 @@ query GetAuthorizedPatientByCpf($cpf: String!) @auth(level: USER) {
     }
   }
 
-  patientAccesses(
+  patients(
     where: {
       _and: [
-        { granteeAuthUid: { eq_expr: "auth.uid" } }
-        { accessKind: { eq: PROFESSIONAL } }
-        { consentStatus: { eq: GRANTED } }
-        { viewProfile: { eq: true } }
-        { patient: { active: { eq: true }, user: { cpf: { eq: $cpf } } } }
-        {
-          _or: [
-            { validUntil: { isNull: true } }
-            { validUntil: { gt_expr: "request.time" } }
-          ]
-        }
+        { active: { eq: true } }
+        { user: { cpf: { eq: $cpf } } }
       ]
     }
   ) {
-    patient {
+    id
+    email
+    authUid
+    motherName
+    patientType
+    user {
       id
-      email
-      authUid
-      motherName
-      patientType
+      name
+      birthDate
+      cpf
+      sex
+      status
+    }
+    responsible {
+      id
       user {
         id
         name
-        birthDate
         cpf
-        sex
-        status
-      }
-      responsible {
-        id
-        user {
-          id
-          name
-          cpf
-        }
       }
     }
   }
 }
 
 query GetPatient($id: UUID!) @auth(level: USER) {
-  patientAccess(key: { granteeAuthUid_expr: "auth.uid", patientId: $id })
-    @redact {
-    consentStatus
-      @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
-    viewProfile @check(expr: "this == true", message: "Perfil não autorizado.")
-    validUntil
-      @check(
-        expr: "this == null || this > request.time"
-        message: "Acesso expirado."
-      )
+  professionals(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        { active: { eq: true } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Acesso restrito ao portal profissional.") {
+    id
+    user {
+      status
+        @check(
+          expr: "this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
   }
+
   patient(id: $id) {
     id
     email
@@ -787,11 +810,32 @@ query ListBatchesByVaccine($vaccineId: UUID!) @auth(level: USER) {
 # APPOINTMENTS
 # ============================================================
 
+# Listagem global para profissionais ativos autenticados.
 query ListAppointments
-@auth(expr: "auth.token.admin == true")
+@auth(level: USER)
 @refresh(onMutationExecuted: { operation: "CreateAppointment" })
 @refresh(onMutationExecuted: { operation: "UpdateAppointment" })
 @refresh(onMutationExecuted: { operation: "DeleteAppointment" }) {
+  professionals(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        { active: { eq: true } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Acesso restrito ao portal profissional.") {
+    id
+    user {
+      status
+        @check(
+          expr: "this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
+  }
+
   appointments {
     id
     patient {
@@ -819,6 +863,7 @@ query ListAppointments
   }
 }
 
+# Mantida para compatibilidade com versões anteriores do SDK.
 query ListAccessibleAppointments @auth(level: USER) {
   professionals(
     where: {
@@ -887,7 +932,27 @@ query ListAccessibleAppointments @auth(level: USER) {
   }
 }
 
-query GetAppointment($id: UUID!) @auth(expr: "auth.token.admin == true") {
+query GetAppointment($id: UUID!) @auth(level: USER) {
+  professionals(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        { active: { eq: true } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Acesso restrito ao portal profissional.") {
+    id
+    user {
+      status
+        @check(
+          expr: "this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
+  }
+
   appointment(id: $id) {
     id
     patient {
@@ -922,19 +987,26 @@ query GetAppointment($id: UUID!) @auth(expr: "auth.token.admin == true") {
 }
 
 query ListAppointmentsByPatient($patientId: UUID!) @auth(level: USER) {
-  patientAccess(
-    key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
-  ) @redact {
-    consentStatus
-      @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
-    viewVaccination
-      @check(expr: "this == true", message: "Agenda não autorizada.")
-    validUntil
-      @check(
-        expr: "this == null || this > request.time"
-        message: "Acesso expirado."
-      )
+  professionals(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        { active: { eq: true } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Acesso restrito ao portal profissional.") {
+    id
+    user {
+      status
+        @check(
+          expr: "this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
   }
+
   appointments(where: { patientId: { eq: $patientId } }) {
     id
     patient {
@@ -990,8 +1062,9 @@ query ListAppointmentsByStatus($status: AppointmentStatus!)
 # APPLICATIONS / VACCINATION HISTORY
 # ============================================================
 
+# Listagem global para profissionais ativos autenticados.
 query ListApplications
-@auth(expr: "auth.token.admin == true")
+@auth(level: USER)
 @refresh(onMutationExecuted: { operation: "CreateUser" })
 @refresh(onMutationExecuted: { operation: "UpdateUser" })
 @refresh(onMutationExecuted: { operation: "DeleteUnlinkedUser" })
@@ -1010,6 +1083,26 @@ query ListApplications
 @refresh(onMutationExecuted: { operation: "DeleteBatch" })
 @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
 @refresh(onMutationExecuted: { operation: "UpdateUbs" }) {
+  professionals(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        { active: { eq: true } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Acesso restrito ao portal profissional.") {
+    id
+    user {
+      status
+        @check(
+          expr: "this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
+  }
+
   applications {
     id
     patientIdSnapshot
@@ -1073,6 +1166,7 @@ query ListApplications
   }
 }
 
+# Mantida para compatibilidade com versões anteriores do SDK.
 query ListCurrentProfessionalApplications @auth(level: USER) {
   professionals(
     where: {
@@ -1160,7 +1254,27 @@ query ListCurrentProfessionalApplications @auth(level: USER) {
   }
 }
 
-query GetApplication($id: UUID!) @auth(expr: "auth.token.admin == true") {
+query GetApplication($id: UUID!) @auth(level: USER) {
+  professionals(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        { active: { eq: true } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Acesso restrito ao portal profissional.") {
+    id
+    user {
+      status
+        @check(
+          expr: "this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
+  }
+
   application(id: $id) {
     id
     patientIdSnapshot
@@ -1248,19 +1362,26 @@ query ListApplicationsByPatient($patientId: UUID!)
 @refresh(onMutationExecuted: { operation: "UpdateBatch" })
 @refresh(onMutationExecuted: { operation: "UpdateProfessional" })
 @refresh(onMutationExecuted: { operation: "UpdateUbs" }) {
-  patientAccess(
-    key: { granteeAuthUid_expr: "auth.uid", patientId: $patientId }
-  ) @redact {
-    consentStatus
-      @check(expr: "this == 'GRANTED'", message: "Acesso não concedido.")
-    viewVaccination
-      @check(expr: "this == true", message: "Carteira não autorizada.")
-    validUntil
-      @check(
-        expr: "this == null || this > request.time"
-        message: "Acesso expirado."
-      )
+  professionals(
+    where: {
+      _and: [
+        { authUid: { eq_expr: "auth.uid" } }
+        { active: { eq: true } }
+      ]
+    }
+  )
+  @redact
+  @check(message: "Acesso restrito ao portal profissional.") {
+    id
+    user {
+      status
+        @check(
+          expr: "this == 'ACTIVE'"
+          message: "Pessoa inativa."
+        )
+    }
   }
+
   applications(where: { patientId: { eq: $patientId } }) {
     id
     patientIdSnapshot

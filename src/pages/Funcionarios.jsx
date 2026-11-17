@@ -8,6 +8,7 @@ import { addUBS, editUBS, removeUBS, watchUBS } from "../services/ubsService";
 import { formatCpf, isValidCpf } from "../utils/cpf";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
 import { SEX_OPTIONS } from "../utils/sex";
+import { toLocalDateInput } from "../utils/dates";
 
 const emptyProfessional = {
     name: "",
@@ -388,7 +389,7 @@ export default function Funcionarios() {
                     <div className="form-grid">
                         <label className="field field--span-2"><span>Nome completo *</span><input value={professionalForm.name} onChange={(event) => updateProfessional("name", event.target.value)} disabled={saving} /></label>
                         <label className="field">
-                            <span>Data de nascimento *</span><input type="date" value={professionalForm.birthDate} onChange={(event) => updateProfessional("birthDate", event.target.value)} disabled={saving} />
+                            <span>Data de nascimento *</span><input type="date" max={toLocalDateInput()} value={professionalForm.birthDate} onChange={(event) => updateProfessional("birthDate", event.target.value)} disabled={saving} />
                         </label>
                         <label className="field">
                             <span>CPF *</span>

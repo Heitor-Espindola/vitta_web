@@ -113,14 +113,23 @@ describe('Data Connect authorization contract', () => {
     )
   })
 
-  test('web global patient and application listings are admin-only', () => {
-    expect(webQueries).toMatch(
-      /query ListPatients[\s\S]*?@auth\(expr: "auth\.token\.admin == true"\)/,
-    )
-    expect(webQueries).toMatch(
-      /query ListApplications[\s\S]*?@auth\(expr: "auth\.token\.admin == true"\)/,
-    )
-  })
+  test("web global listings are available to active professionals", () => {
+    for (const operationName of [
+      "ListPatients",
+      "ListAppointments",
+      "ListApplications",
+    ]) {
+      const start = webQueries.indexOf(`query ${operationName}`);
+      const next = webQueries.indexOf("\nquery ", start + 1);
+      const operation = webQueries.slice(start, next === -1 ? undefined : next);
+
+      expect(operation).toContain("@auth(level: USER)");
+      expect(operation).toContain('authUid: { eq_expr: "auth.uid" }');
+      expect(operation).toContain("active: { eq: true }");
+      expect(operation).toContain("this == 'ACTIVE'");
+      expect(operation).not.toContain("patientAccess");
+    }
+  });
 
   test('web session profile is resolved from SQL by auth.uid, not Firestore', () => {
     const operation = webQueries.match(
@@ -145,33 +154,34 @@ describe('Data Connect authorization contract', () => {
     expect(operation).toContain('@retired')
   })
 
-  test('professional CPF lookup only returns a patient with a direct active grant', () => {
+  test("professional CPF lookup can find any active patient", () => {
     const operation = webQueries.match(
       /query GetAuthorizedPatientByCpf[\s\S]*?(?=\nquery GetPatient)/,
-    )?.[0]
+    )?.[0];
 
-    expect(operation).toContain('granteeAuthUid: { eq_expr: "auth.uid" }')
-    expect(operation).toContain('accessKind: { eq: PROFESSIONAL }')
-    expect(operation).toContain('consentStatus: { eq: GRANTED }')
-    expect(operation).toContain('viewProfile: { eq: true }')
-    expect(operation).toContain('user: { cpf: { eq: $cpf } }')
-  })
+    expect(operation).toContain("professionals");
+    expect(operation).toContain('authUid: { eq_expr: "auth.uid" }');
+    expect(operation).toContain("active: { eq: true }");
+    expect(operation).toContain("user: { cpf: { eq: $cpf } }");
+    expect(operation).not.toContain("patientAccess");
+  }); 
 
-  test('web patient-scoped reads require a direct auth.uid grant', () => {
+  test("web patient-scoped reads work without individual PatientAccess grants", () => {
     for (const operationName of [
-      'GetPatient',
-      'ListAppointmentsByPatient',
-      'ListApplicationsByPatient',
+      "GetPatient",
+      "ListAppointmentsByPatient",
+      "ListApplicationsByPatient",
     ]) {
-      const start = webQueries.indexOf(`query ${operationName}`)
-      const next = webQueries.indexOf('\nquery ', start + 1)
-      const operation = webQueries.slice(start, next === -1 ? undefined : next)
-
-      expect(operation).toContain('granteeAuthUid_expr: "auth.uid"')
-      expect(operation).toContain('@redact')
-      expect(operation).toContain('@check')
+      const start = webQueries.indexOf(`query ${operationName}`);
+      const next = webQueries.indexOf("\nquery ", start + 1);
+      const operation = webQueries.slice(start, next === -1 ? undefined : next);
+    
+      expect(operation).toContain("@auth(level: USER)");
+      expect(operation).toContain('authUid: { eq_expr: "auth.uid" }');
+      expect(operation).toContain("active: { eq: true }");
+      expect(operation).not.toContain("patientAccess");
     }
-  })
+  });
 
   test('only the matching admin or an authorized professional can create an application', () => {
     const operation = webMutations.match(

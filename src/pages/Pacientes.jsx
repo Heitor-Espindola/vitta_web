@@ -21,7 +21,7 @@ import {
   watchPatients,
 } from "../services/patientService";
 import { cpfMatchesSearch, formatCpf, isValidCpf } from "../utils/cpf";
-import { formatDate } from "../utils/dates";
+import { formatDate, toLocalDateInput } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
 import { SEX_OPTIONS } from "../utils/sex";
 
@@ -585,6 +585,7 @@ export default function Pacientes() {
               <input
                 type="date"
                 value={form.birthDate}
+                max={toLocalDateInput()}
                 onChange={(event) =>
                   update(
                     "birthDate",

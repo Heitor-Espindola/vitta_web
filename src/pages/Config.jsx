@@ -25,7 +25,11 @@ export default function Config() {
     maxFontSize,
   } = useAppearance();
 
-  const name = profile?.fullName || profile?.name || "Profissional Vitta";
+  const name =
+    firebaseUser?.displayName ||
+    profile?.fullName ||
+    profile?.name ||
+    "Profissional Vitta";
 
   return (
     <div className="page-stack">
@@ -43,7 +47,7 @@ export default function Config() {
 
           <div>
             <h2>{name}</h2>
-            <p>{profile?.email || firebaseUser?.email}</p>
+            <p>{firebaseUser?.email || profile?.email}</p>
             <StatusBadge status="active">Conta ativa</StatusBadge>
           </div>
         </article>
@@ -63,7 +67,7 @@ export default function Config() {
               <dt>
                 <Mail /> E-mail
               </dt>
-              <dd>{profile?.email || firebaseUser?.email}</dd>
+              <dd>{firebaseUser?.email || profile?.email}</dd>
             </div>
 
             <div>
@@ -84,29 +88,32 @@ export default function Config() {
           </dl>
         </article>
 
-        <article className="content-card session-card">
-          <div>
-            <span className="feature-icon">
-              <UserCog />
-            </span>
 
-            <h2>Equipe e unidades</h2>
+        {isAdmin ? (
+          <article className="content-card session-card">
+            <div>
+              <span className="feature-icon">
+                <UserCog />
+              </span>
 
-            <p>
-              Cadastre seu perfil SQL, gerencie profissionais autorizados e
-              mantenha as UBS usadas nos atendimentos.
-            </p>
-          </div>
+              <h2>Equipe e unidades</h2>
 
-          <Link
-            className="button button--secondary"
-            to="/funcionarios"
-          >
-            <UserCog size={18} />
-            Abrir cadastros
-            <ArrowRight size={17} />
-          </Link>
-        </article>
+              <p>
+                Cadastre seu perfil SQL, gerencie profissionais autorizados e
+                mantenha as UBS usadas nos atendimentos.
+              </p>
+            </div>
+
+            <Link
+              className="button button--secondary"
+              to="/funcionarios"
+            >
+              <UserCog size={18} />
+              Abrir cadastros
+              <ArrowRight size={17} />
+            </Link>
+          </article>
+        ) : null}
 
         <article className="content-card session-card">
           <div>

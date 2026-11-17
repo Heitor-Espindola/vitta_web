@@ -63,7 +63,7 @@ export default function Sidebar({ collapsed, mobileOpen, onCollapse, onClose }) 
         ) : null}
 
         <nav className="sidebar__nav" aria-label="Navegação principal">
-          {navItems.map(({ label, icon: Icon, path }) => (
+          {navItems.filter(({ path }) => isAdmin || path !== "/funcionarios").map(({ label, icon: Icon, path }) => (
             <NavLink
               key={path}
               to={path}

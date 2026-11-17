@@ -1,5 +1,5 @@
-
-import { subscribe } from "firebase/data-connect";
+import { QueryFetchPolicy, subscribe } from "firebase/data-connect";
+//import { assertBirthDate } from "../utils/dates";
 import {
   archiveProfessional,
   createProfessional,
@@ -86,7 +86,11 @@ export function watchProfessionals(onData, onError) {
 }
 
 async function findUserByCpf(cpf) {
-  const result = await getAdminUserByCpf({ cpf });
+  const result = await getAdminUserByCpf(
+    { cpf },
+    { fetchPolicy: QueryFetchPolicy.SERVER_ONLY },
+  );
+
   return result?.data?.users?.[0] || null;
 }
 

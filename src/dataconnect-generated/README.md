@@ -1078,31 +1078,29 @@ Recall that executing the `GetAuthorizedPatientByCpf` query returns a `QueryProm
 The `data` property is an object of type `GetAuthorizedPatientByCpfData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
 ```typescript
 export interface GetAuthorizedPatientByCpfData {
-  patientAccesses: ({
-    patient: {
+  patients: ({
+    id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
+    motherName?: string | null;
+    patientType: PatientType;
+    user: {
       id: UUIDString;
-      email?: string | null;
-      authUid?: string | null;
-      motherName?: string | null;
-      patientType: PatientType;
+      name: string;
+      birthDate: DateString;
+      cpf: string;
+      sex?: string | null;
+      status: UserStatus;
+    } & User_Key;
+    responsible?: {
+      id: UUIDString;
       user: {
         id: UUIDString;
         name: string;
-        birthDate: DateString;
         cpf: string;
-        sex?: string | null;
-        status: UserStatus;
       } & User_Key;
-      responsible?: {
-        id: UUIDString;
-        user: {
-          id: UUIDString;
-          name: string;
-          cpf: string;
-        } & User_Key;
-      } & Patient_Key;
     } & Patient_Key;
-  })[];
+  } & Patient_Key)[];
 }
 ```
 ### Using `GetAuthorizedPatientByCpf`'s action shortcut function
@@ -1126,12 +1124,12 @@ const { data } = await getAuthorizedPatientByCpf({ cpf: ..., });
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await getAuthorizedPatientByCpf(dataConnect, getAuthorizedPatientByCpfVars);
 
-console.log(data.patientAccesses);
+console.log(data.patients);
 
 // Or, you can use the `Promise` API.
 getAuthorizedPatientByCpf(getAuthorizedPatientByCpfVars).then((response) => {
   const data = response.data;
-  console.log(data.patientAccesses);
+  console.log(data.patients);
 });
 ```
 
@@ -1159,12 +1157,12 @@ const ref = getAuthorizedPatientByCpfRef(dataConnect, getAuthorizedPatientByCpfV
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await executeQuery(ref);
 
-console.log(data.patientAccesses);
+console.log(data.patients);
 
 // Or, you can use the `Promise` API.
 executeQuery(ref).then((response) => {
   const data = response.data;
-  console.log(data.patientAccesses);
+  console.log(data.patients);
 });
 ```
 

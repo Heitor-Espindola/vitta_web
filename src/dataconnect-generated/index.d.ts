@@ -428,31 +428,29 @@ export interface GetAppointmentVariables {
 }
 
 export interface GetAuthorizedPatientByCpfData {
-  patientAccesses: ({
-    patient: {
+  patients: ({
+    id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
+    motherName?: string | null;
+    patientType: PatientType;
+    user: {
       id: UUIDString;
-      email?: string | null;
-      authUid?: string | null;
-      motherName?: string | null;
-      patientType: PatientType;
+      name: string;
+      birthDate: DateString;
+      cpf: string;
+      sex?: string | null;
+      status: UserStatus;
+    } & User_Key;
+    responsible?: {
+      id: UUIDString;
       user: {
         id: UUIDString;
         name: string;
-        birthDate: DateString;
         cpf: string;
-        sex?: string | null;
-        status: UserStatus;
       } & User_Key;
-      responsible?: {
-        id: UUIDString;
-        user: {
-          id: UUIDString;
-          name: string;
-          cpf: string;
-        } & User_Key;
-      } & Patient_Key;
     } & Patient_Key;
-  })[];
+  } & Patient_Key)[];
 }
 
 export interface GetAuthorizedPatientByCpfVariables {

@@ -1,5 +1,5 @@
 import { QueryFetchPolicy, subscribe } from "firebase/data-connect";
-import { asDate } from "../utils/dates";
+import { asDate, toLocalDateInput } from "../utils/dates";
 import {
   createApplication,
   getApplication,
@@ -7,7 +7,6 @@ import {
   listAdminApplicationsByPatientRef,
   listApplicationsRef,
   listApplicationsByPatientRef,
-  listCurrentProfessionalApplicationsRef,
   updateApplication,
   voidApplication,
   voidLegacyApplication,
@@ -89,9 +88,9 @@ function sortApplications(items) {
   });
 }
 
-export function watchApplications(onData, onError, { isAdmin = false } = {}) {
+export function watchApplications(onData, onError) {
   return subscribe(
-    isAdmin ? listApplicationsRef() : listCurrentProfessionalApplicationsRef(),
+    listApplicationsRef(),
     (result) => {
       const applications = result?.data?.applications || [];
 
@@ -152,6 +151,10 @@ export async function resolveCurrentProfessional(firebaseUser) {
 function timestampFromDateInput(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     throw new Error("Informe uma data de aplicação válida.");
+  }
+
+  if (value > toLocalDateInput()) {
+    throw new Error("A data da aplicação não pode estar no futuro.");
   }
 
   return new Date(`${value}T12:00:00-03:00`).toISOString();

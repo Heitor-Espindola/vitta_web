@@ -130,6 +130,8 @@ export async function createEmployeeAuthAccount(email) {
   }
 }
 
+export const createPatientAuthAccount = createEmployeeAuthAccount;
+
 export async function loginWithEmail(email, password) {
   await firebaseReady;
   return signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password);

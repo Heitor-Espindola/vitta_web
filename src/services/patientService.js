@@ -1,4 +1,9 @@
-import { subscribe } from "firebase/data-connect";
+import { QueryFetchPolicy, subscribe } from "firebase/data-connect";
+import { assertBirthDate } from "../utils/dates";
+import {
+  createPatientAuthAccount,
+  requestPasswordReset,
+} from "./authService";
 import {
   archivePatient,
   createPatient,
@@ -10,7 +15,6 @@ import {
   getAuthorizedPatientByCpf,
   getPatient,
   getPatientByUser,
-  listAccessiblePatientsRef,
   listPatientsRef,
   updatePatient,
   updateUser,
@@ -60,15 +64,11 @@ function mapPatient(patient) {
   };
 }
 
-export function watchPatients(onData, onError, { isAdmin = false } = {}) {
+export function watchPatients(onData, onError) {
   return subscribe(
-    isAdmin ? listPatientsRef() : listAccessiblePatientsRef(),
+    listPatientsRef(),
     (result) => {
-      const patients = isAdmin
-        ? result?.data?.patients || []
-        : (result?.data?.patientAccesses || [])
-            .map((access) => access?.patient)
-            .filter(Boolean);
+      const patients = result?.data?.patients || [];
 
       const mapped = patients
         .map(mapPatient)
@@ -120,9 +120,7 @@ export async function authorizePatientLookup({ cpf, isAdmin = false }) {
   const result = isAdmin
     ? await getAdminPatientByCpf({ cpf: digits })
     : await getAuthorizedPatientByCpf({ cpf: digits });
-  const patient = isAdmin
-    ? result?.data?.patients?.[0]
-    : result?.data?.patientAccesses?.[0]?.patient;
+  const patient = result?.data?.patients?.[0];
 
   if (!patient) {
     throw new PatientLookupError(
@@ -138,6 +136,20 @@ export async function getAuthorizedPatient(personId, options) {
   return getPatientById(personId, options);
 }
 
+async function findUserByCpf(cpf) {
+  const result = await getAdminUserByCpf(
+    { cpf },
+    { fetchPolicy: QueryFetchPolicy.SERVER_ONLY },
+  );
+
+  return result?.data?.users?.[0] || null;
+}
+
+function isCpfUniqueConflict(error) {
+  const raw = [error?.message, error?.code].filter(Boolean).join(" ");
+  return /user_cpf_uidx|ALREADY_EXISTS/i.test(raw);
+}
+
 export async function addPatient({
   name,
   birthDate,
@@ -151,68 +163,132 @@ export async function addPatient({
   const cleanName = cleanText(name);
   const cleanEmail = cleanText(email).toLowerCase();
   const cleanCpfValue = cleanCpf(cpf);
+  const isDependent = Boolean(responsibleId);
 
-  if (!cleanName || !birthDate || !cleanEmail || !cleanCpfValue) {
-    throw new Error("Preencha nome, nascimento, e-mail e CPF.");
+  if (
+    !cleanName ||
+    !birthDate ||
+    (!cleanEmail && !isDependent) ||
+    !cleanCpfValue
+  ) {
+    throw new Error(
+      isDependent
+        ? "Preencha nome, nascimento e CPF."
+        : "Preencha nome, nascimento, e-mail e CPF.",
+    );
   }
+
+  assertBirthDate(birthDate);
 
   if (!isValidCpf(cleanCpfValue)) {
     throw new Error("Informe um CPF válido.");
   }
 
-  const existingResult = await getAdminUserByCpf({
-    cpf: cleanCpfValue,
-  });
-
-  let user = existingResult?.data?.users?.[0];
+  let user = await findUserByCpf(cleanCpfValue);
   let createdUserId = null;
+  let authAccount = null;
+  let targetAuthUid = null;
 
   if (user?.patient_on_user?.id) {
     throw new Error("Já existe um cadastro de paciente para este CPF.");
   }
 
-  const existingProfessional = user?.professional_on_user || null;
-
-  const sharedEmail =
+  let existingProfessional = user?.professional_on_user || null;
+  let sharedEmail =
     existingProfessional?.email?.trim().toLowerCase() === cleanEmail;
-
-  const sharedAuthUid = sharedEmail
-    ? existingProfessional.authUid
-    : null;
 
   try {
     if (!user) {
-      const createResult = await createUser({
-        name: cleanName,
-        birthDate,
-        status,
-        cpf: cleanCpfValue,
-        sex: cleanText(sex) || null,
-      });
+      try {
+        const createResult = await createUser({
+          name: cleanName,
+          birthDate,
+          status,
+          cpf: cleanCpfValue,
+          sex: cleanText(sex) || null,
+        });
 
-      createdUserId = createResult?.data?.user_insert?.id || null;
+        createdUserId = createResult?.data?.user_insert?.id || null;
 
-      if (!createdUserId) {
-        throw new Error("O usuário foi criado, mas seu ID não foi retornado.");
+        if (!createdUserId) {
+          throw new Error("O usuário foi criado, mas seu ID não foi retornado.");
+        }
+
+        user = { id: createdUserId };
+      } catch (createError) {
+        if (!isCpfUniqueConflict(createError)) throw createError;
+
+        // Outro cadastro pode ter inserido o CPF durante a consulta inicial.
+        user = await findUserByCpf(cleanCpfValue);
+
+        if (!user) throw createError;
+
+        if (user.patient_on_user?.id) {
+          throw new Error("Já existe um cadastro de paciente para este CPF.", {
+            cause: createError,
+        });
+        }
+
+        existingProfessional = user.professional_on_user || null;
+        sharedEmail =
+          existingProfessional?.email?.trim().toLowerCase() === cleanEmail;
       }
-      
-      user = { id: createdUserId };
     }
 
+    // Uma pessoa com perfil profissional pode compartilhar a mesma conta
+    // quando os dois perfis utilizam o mesmo e-mail.
+    if (!isDependent) {
+      if (sharedEmail && existingProfessional?.authUid) {
+        targetAuthUid = existingProfessional.authUid;
+      } else {
+        authAccount = await createPatientAuthAccount(cleanEmail);
+        targetAuthUid = authAccount.uid;
+      }
+    }
+
+    // Dependentes vinculados a um responsável não recebem conta própria.
     await createPatient({
       userId: user.id,
-      email: cleanEmail,
-      authUid: sharedAuthUid,
+      email: cleanEmail || null,
+      authUid: targetAuthUid,
       patientType,
       responsibleId: responsibleId || null,
     });
   } catch (error) {
+    if (authAccount) {
+      await authAccount.rollback().catch(() => {});
+    }
+
     if (createdUserId) {
       await deleteUnlinkedUser({ id: createdUserId }).catch(() => {});
     }
 
     throw error;
+  } finally {
+    if (authAccount) {
+      await authAccount.close();
+    }
   }
+
+  let passwordResetSent = false;
+
+  if (authAccount) {
+    try {
+      await requestPasswordReset(cleanEmail);
+      passwordResetSent = true;
+    } catch {
+      passwordResetSent = false;
+    }
+  }
+
+  return {
+    passwordResetSent,
+    hasAuthenticationAccount: Boolean(targetAuthUid),
+    reusedAuthenticationAccount: Boolean(
+      !isDependent && !authAccount && targetAuthUid,
+    ),
+    dependentWithoutOwnAccount: isDependent,
+  };
 }
 
 
@@ -228,9 +304,18 @@ export async function editPatient(
     throw new Error("O paciente selecionado é inválido.");
   }
 
-  if (!cleanName || !birthDate || !cleanEmail || !cleanCpfValue) {
-    throw new Error("Preencha nome, nascimento, e-mail e CPF.");
+  const isDependent = Boolean(responsibleId);
+
+  if (
+    !cleanName ||
+    !birthDate ||
+    (!cleanEmail && !isDependent) ||
+    !cleanCpfValue
+  ) {
+    throw new Error("Preencha os dados obrigatórios do paciente.");
   }
+
+  assertBirthDate(birthDate);
 
   if (!isValidCpf(cleanCpfValue)) {
     throw new Error("Informe um CPF válido.");
@@ -247,7 +332,7 @@ export async function editPatient(
 
   await updatePatient({
     id: patient.id,
-    email: cleanEmail,
+    email: cleanEmail || null,
     patientType,
     responsibleId: responsibleId || null,
   });
