@@ -1,4 +1,9 @@
-import { subscribe } from "firebase/data-connect";
+import { QueryFetchPolicy, subscribe } from "firebase/data-connect";
+import { assertBirthDate } from "../utils/dates";
+import {
+  createPatientAuthAccount,
+  requestPasswordReset,
+} from "./authService";
 import {
   archivePatient,
   createPatient,
@@ -6,11 +11,10 @@ import {
   deleteUnlinkedUser,
   getAdminPatient,
   getAdminPatientByCpf,
+  getAdminUserByCpf,
   getAuthorizedPatientByCpf,
   getPatient,
   getPatientByUser,
-  getUserByEmail,
-  listAccessiblePatientsRef,
   listPatientsRef,
   updatePatient,
   updateUser,
@@ -36,6 +40,7 @@ function cleanCpf(value) {
 
 function mapPatient(patient) {
   const user = patient?.user || {};
+  const responsible = patient?.responsible || {};
 
   return {
     id: patient?.id || "",
@@ -44,29 +49,26 @@ function mapPatient(patient) {
     name: user.name || "Paciente",
     fullName: user.name || "Paciente",
     birthDate: user.birthDate || null,
-    email: user.email || "",
+    email: patient?.email || "",
+    authUid: patient?.authUid || "",
     cpf: user.cpf || "",
     maskedCpf: maskCpf(user.cpf || ""),
     sex: user.sex || "",
     status: user.status || "ACTIVE",
     patientType: patient?.patientType || "ADULT",
 
-    responsibleId: patient?.responsible?.id || "",
-    responsibleName: patient?.responsible?.user?.name || "",
-    responsibleCpf: patient?.responsible?.user?.cpf || "",
-    responsibleEmail: patient?.responsible?.user?.email || "",
+    responsibleId: responsible.id || "",
+    responsibleName: responsible.user?.name || "",
+    responsibleCpf: responsible.user?.cpf || "",
+    responsibleEmail: responsible.email || "",
   };
 }
 
-export function watchPatients(onData, onError, { isAdmin = false } = {}) {
+export function watchPatients(onData, onError) {
   return subscribe(
-    isAdmin ? listPatientsRef() : listAccessiblePatientsRef(),
+    listPatientsRef(),
     (result) => {
-      const patients = isAdmin
-        ? result?.data?.patients || []
-        : (result?.data?.patientAccesses || [])
-            .map((access) => access?.patient)
-            .filter(Boolean);
+      const patients = result?.data?.patients || [];
 
       const mapped = patients
         .map(mapPatient)
@@ -118,9 +120,7 @@ export async function authorizePatientLookup({ cpf, isAdmin = false }) {
   const result = isAdmin
     ? await getAdminPatientByCpf({ cpf: digits })
     : await getAuthorizedPatientByCpf({ cpf: digits });
-  const patient = isAdmin
-    ? result?.data?.patients?.[0]
-    : result?.data?.patientAccesses?.[0]?.patient;
+  const patient = result?.data?.patients?.[0];
 
   if (!patient) {
     throw new PatientLookupError(
@@ -136,6 +136,20 @@ export async function getAuthorizedPatient(personId, options) {
   return getPatientById(personId, options);
 }
 
+async function findUserByCpf(cpf) {
+  const result = await getAdminUserByCpf(
+    { cpf },
+    { fetchPolicy: QueryFetchPolicy.SERVER_ONLY },
+  );
+
+  return result?.data?.users?.[0] || null;
+}
+
+function isCpfUniqueConflict(error) {
+  const raw = [error?.message, error?.code].filter(Boolean).join(" ");
+  return /user_cpf_uidx|ALREADY_EXISTS/i.test(raw);
+}
+
 export async function addPatient({
   name,
   birthDate,
@@ -149,58 +163,134 @@ export async function addPatient({
   const cleanName = cleanText(name);
   const cleanEmail = cleanText(email).toLowerCase();
   const cleanCpfValue = cleanCpf(cpf);
+  const isDependent = Boolean(responsibleId);
 
-  if (!cleanName || !birthDate || !cleanEmail || !cleanCpfValue) {
-    throw new Error("Preencha nome, nascimento, e-mail e CPF.");
+  if (
+    !cleanName ||
+    !birthDate ||
+    (!cleanEmail && !isDependent) ||
+    !cleanCpfValue
+  ) {
+    throw new Error(
+      isDependent
+        ? "Preencha nome, nascimento e CPF."
+        : "Preencha nome, nascimento, e-mail e CPF.",
+    );
   }
+
+  assertBirthDate(birthDate);
 
   if (!isValidCpf(cleanCpfValue)) {
     throw new Error("Informe um CPF válido.");
   }
 
-  await createUser({
-    name: cleanName,
-    birthDate,
-    email: cleanEmail,
-    status,
-    cpf: cleanCpfValue,
-    sex: cleanText(sex) || null,
-  });
+  let user = await findUserByCpf(cleanCpfValue);
+  let createdUserId = null;
+  let authAccount = null;
+  let targetAuthUid = null;
+
+  if (user?.patient_on_user?.id) {
+    throw new Error("Já existe um cadastro de paciente para este CPF.");
+  }
+
+  let existingProfessional = user?.professional_on_user || null;
+  let sharedEmail =
+    existingProfessional?.email?.trim().toLowerCase() === cleanEmail;
 
   try {
-    const userResult = await getUserByEmail({
-      email: cleanEmail,
-    });
+    if (!user) {
+      try {
+        const createResult = await createUser({
+          name: cleanName,
+          birthDate,
+          status,
+          cpf: cleanCpfValue,
+          sex: cleanText(sex) || null,
+        });
 
-    const createdUser = userResult?.data?.users?.[0];
+        createdUserId = createResult?.data?.user_insert?.id || null;
 
-    if (!createdUser?.id) {
-      throw new Error(
-        "O usuário foi criado, mas seu ID não pôde ser localizado.",
-      );
+        if (!createdUserId) {
+          throw new Error("O usuário foi criado, mas seu ID não foi retornado.");
+        }
+
+        user = { id: createdUserId };
+      } catch (createError) {
+        if (!isCpfUniqueConflict(createError)) throw createError;
+
+        // Outro cadastro pode ter inserido o CPF durante a consulta inicial.
+        user = await findUserByCpf(cleanCpfValue);
+
+        if (!user) throw createError;
+
+        if (user.patient_on_user?.id) {
+          throw new Error("Já existe um cadastro de paciente para este CPF.", {
+            cause: createError,
+        });
+        }
+
+        existingProfessional = user.professional_on_user || null;
+        sharedEmail =
+          existingProfessional?.email?.trim().toLowerCase() === cleanEmail;
+      }
     }
 
+    // Uma pessoa com perfil profissional pode compartilhar a mesma conta
+    // quando os dois perfis utilizam o mesmo e-mail.
+    if (!isDependent) {
+      if (sharedEmail && existingProfessional?.authUid) {
+        targetAuthUid = existingProfessional.authUid;
+      } else {
+        authAccount = await createPatientAuthAccount(cleanEmail);
+        targetAuthUid = authAccount.uid;
+      }
+    }
+
+    // Dependentes vinculados a um responsável não recebem conta própria.
     await createPatient({
-      userId: createdUser.id,
+      userId: user.id,
+      email: cleanEmail || null,
+      authUid: targetAuthUid,
       patientType,
       responsibleId: responsibleId || null,
     });
   } catch (error) {
-    const userResult = await getUserByEmail({
-      email: cleanEmail,
-    }).catch(() => null);
+    if (authAccount) {
+      await authAccount.rollback().catch(() => {});
+    }
 
-    const createdUser = userResult?.data?.users?.[0];
-
-    if (createdUser?.id) {
-      await deleteUnlinkedUser({
-        id: createdUser.id,
-      }).catch(() => {});
+    if (createdUserId) {
+      await deleteUnlinkedUser({ id: createdUserId }).catch(() => {});
     }
 
     throw error;
+  } finally {
+    if (authAccount) {
+      await authAccount.close();
+    }
   }
+
+  let passwordResetSent = false;
+
+  if (authAccount) {
+    try {
+      await requestPasswordReset(cleanEmail);
+      passwordResetSent = true;
+    } catch {
+      passwordResetSent = false;
+    }
+  }
+
+  return {
+    passwordResetSent,
+    hasAuthenticationAccount: Boolean(targetAuthUid),
+    reusedAuthenticationAccount: Boolean(
+      !isDependent && !authAccount && targetAuthUid,
+    ),
+    dependentWithoutOwnAccount: isDependent,
+  };
 }
+
 
 export async function editPatient(
   patient,
@@ -214,9 +304,18 @@ export async function editPatient(
     throw new Error("O paciente selecionado é inválido.");
   }
 
-  if (!cleanName || !birthDate || !cleanEmail || !cleanCpfValue) {
-    throw new Error("Preencha nome, nascimento, e-mail e CPF.");
+  const isDependent = Boolean(responsibleId);
+
+  if (
+    !cleanName ||
+    !birthDate ||
+    (!cleanEmail && !isDependent) ||
+    !cleanCpfValue
+  ) {
+    throw new Error("Preencha os dados obrigatórios do paciente.");
   }
+
+  assertBirthDate(birthDate);
 
   if (!isValidCpf(cleanCpfValue)) {
     throw new Error("Informe um CPF válido.");
@@ -226,7 +325,6 @@ export async function editPatient(
     id: patient.userId,
     name: cleanName,
     birthDate,
-    email: cleanEmail,
     status,
     cpf: cleanCpfValue,
     sex: cleanText(sex) || null,
@@ -234,6 +332,7 @@ export async function editPatient(
 
   await updatePatient({
     id: patient.id,
+    email: cleanEmail || null,
     patientType,
     responsibleId: responsibleId || null,
   });

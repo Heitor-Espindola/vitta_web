@@ -1,5 +1,5 @@
 import { QueryFetchPolicy, subscribe } from "firebase/data-connect";
-import { asDate } from "../utils/dates";
+import { asDate, toLocalDateInput } from "../utils/dates";
 import {
   createApplication,
   getApplication,
@@ -7,11 +7,11 @@ import {
   listAdminApplicationsByPatientRef,
   listApplicationsRef,
   listApplicationsByPatientRef,
-  listCurrentProfessionalApplicationsRef,
   updateApplication,
   voidApplication,
   voidLegacyApplication,
 } from "@dataconnect/generated";
+import { maskCpf } from "../utils/cpf";
 
 function textOrNull(value) {
   const text = String(value ?? "").trim();
@@ -33,6 +33,7 @@ export function mapApplication(application) {
     patientName:
       user.name || application?.patientNameSnapshot || "Paciente não informado",
     patientCpf: user.cpf || "",
+    maskedPatientCpf: maskCpf(user.cpf || ""),
     vaccineId: vaccine.id || "",
     vaccineName:
       vaccine.name || application?.vaccineNameSnapshot || "Vacina não informada",
@@ -64,6 +65,8 @@ export function mapApplication(application) {
         ? `${application.doseNumber}ª dose`
         : "Dose não informada"),
     nextDoseAt: application?.nextDoseAt || null,
+    editedAt: application?.editedAt || null,
+    editedByAuthUid: application?.editedByAuthUid || "",
     voidedAt: application?.voidedAt || null,
     voidedByAuthUid: application?.voidedByAuthUid || "",
     voidReason: application?.voidReason || "",
@@ -85,9 +88,9 @@ function sortApplications(items) {
   });
 }
 
-export function watchApplications(onData, onError, { isAdmin = false } = {}) {
+export function watchApplications(onData, onError) {
   return subscribe(
-    isAdmin ? listApplicationsRef() : listCurrentProfessionalApplicationsRef(),
+    listApplicationsRef(),
     (result) => {
       const applications = result?.data?.applications || [];
 
@@ -122,16 +125,20 @@ export async function resolveCurrentProfessional(firebaseUser) {
   }
 
   const result = await getCurrentPortalUser();
-  const user = result?.data?.users?.[0];
+  const professional = result?.data?.professionals?.[0];
 
-  if (!user?.id || user.authUid !== firebaseUser.uid) {
-    throw new Error("O usuário autenticado não possui cadastro no Vitta SQL.");
+  if (!professional?.id || professional.authUid !== firebaseUser.uid) {
+    throw new Error(
+      "O usuário autenticado não possui cadastro profissional no Vitta SQL.",
+    );
   }
 
-  const professional = user.professional_on_user;
+  if (professional.active !== true) {
+    throw new Error("O profissional está inativo ou arquivado.");
+  }
 
-  if (!professional?.id || professional.active !== true) {
-    throw new Error("A conta autenticada não possui cadastro profissional ativo.");
+  if (professional.user?.status !== "ACTIVE") {
+    throw new Error("A pessoa vinculada a esta conta está inativa.");
   }
 
   if (!professional.ubs?.id) {
@@ -144,6 +151,10 @@ export async function resolveCurrentProfessional(firebaseUser) {
 function timestampFromDateInput(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     throw new Error("Informe uma data de aplicação válida.");
+  }
+
+  if (value > toLocalDateInput()) {
+    throw new Error("A data da aplicação não pode estar no futuro.");
   }
 
   return new Date(`${value}T12:00:00-03:00`).toISOString();
@@ -205,17 +216,26 @@ export async function registerVaccination({
 
 export async function editApplication(
   id,
-  { doseNumber, doseLabel, nextDoseAt, notes },
+  {
+    applicationDate,
+    doseNumber,
+    doseLabel,
+    notes,
+  },
 ) {
   if (!id) {
     throw new Error("A aplicação selecionada é inválida.");
   }
 
+  if (!applicationDate) {
+    throw new Error("Informe a data da aplicação.");
+  }
+
   return updateApplication({
     id,
+    applicationDate: timestampFromDateInput(applicationDate),
     doseNumber: doseNumber ? Number(doseNumber) : null,
     doseLabel: textOrNull(doseLabel),
-    nextDoseAt: nextDoseAt || null,
     notes: textOrNull(notes),
   });
 }

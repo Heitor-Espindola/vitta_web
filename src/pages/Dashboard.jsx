@@ -17,6 +17,7 @@ import {
 import { watchVaccines } from "../services/vaccineService";
 import { asDate, formatDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
+import { maskCpf } from "../utils/cpf";
 
 function greeting() {
   const hour = new Date().getHours();
@@ -127,7 +128,10 @@ export default function Dashboard() {
                 <tbody>
                   {records.filter(isEffectiveApplication).slice(0, 6).map((record) => (
                     <tr key={record.id}>
-                      <td><strong>{record.patientName}</strong><small>{record.patientCpf || "CPF não informado"}</small></td>
+                      <td>
+                        <strong>{record.patientName}</strong>
+                        <small>{record.maskedPatientCpf || maskCpf(record.patientCpf)}</small>
+                      </td>
                       <td>{record.vaccineName}</td>
                       <td>{record.doseLabel}</td>
                       <td>{formatDate(record.applicationDate)}</td>
@@ -151,14 +155,14 @@ export default function Dashboard() {
             <div><strong>Buscar por CPF</strong><small>Localização exata</small></div>
             <ArrowRight />
           </Link>
-          <Link to="/carteiras" className="quick-action">
-            <span><UsersRound /></span>
-            <div><strong>Abrir carteira</strong><small>Histórico do paciente</small></div>
-            <ArrowRight />
-          </Link>
           <Link to="/vacinas" className="quick-action">
             <span><Syringe /></span>
             <div><strong>Consultar catálogo</strong><small>Vacinas cadastradas</small></div>
+            <ArrowRight />
+          </Link>
+          <Link to="/aplicacoes" className="quick-action">
+            <span><ClipboardPlus /></span>
+            <div><strong>Registrar aplicação</strong><small>Aplicar vacina</small></div>
             <ArrowRight />
           </Link>
         </aside>

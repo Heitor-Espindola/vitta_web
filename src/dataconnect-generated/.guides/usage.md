@@ -14,7 +14,7 @@ If a user is not using a supported framework, they can use the generated SDK dir
 Here's an example of how to use it with the first 5 operations:
 
 ```js
-import { createUser, updateUser, deleteUnlinkedUser, createPatient, updatePatient, archivePatient, createUbs, updateUbs, archiveUbs, createProfessional } from '@dataconnect/generated';
+import { createUser, updateUser, deleteUnlinkedUser, createPatient, updatePatient, linkPatientAuthIdentity, archivePatient, createUbs, updateUbs, archiveUbs } from '@dataconnect/generated';
 
 
 // Operation CreateUser:  For variables, look at type CreateUserVars in ../index.d.ts
@@ -32,6 +32,9 @@ const { data } = await CreatePatient(dataConnect, createPatientVars);
 // Operation UpdatePatient:  For variables, look at type UpdatePatientVars in ../index.d.ts
 const { data } = await UpdatePatient(dataConnect, updatePatientVars);
 
+// Operation LinkPatientAuthIdentity:  For variables, look at type LinkPatientAuthIdentityVars in ../index.d.ts
+const { data } = await LinkPatientAuthIdentity(dataConnect, linkPatientAuthIdentityVars);
+
 // Operation ArchivePatient:  For variables, look at type ArchivePatientVars in ../index.d.ts
 const { data } = await ArchivePatient(dataConnect, archivePatientVars);
 
@@ -43,9 +46,6 @@ const { data } = await UpdateUbs(dataConnect, updateUbsVars);
 
 // Operation ArchiveUbs:  For variables, look at type ArchiveUbsVars in ../index.d.ts
 const { data } = await ArchiveUbs(dataConnect, archiveUbsVars);
-
-// Operation CreateProfessional:  For variables, look at type CreateProfessionalVars in ../index.d.ts
-const { data } = await CreateProfessional(dataConnect, createProfessionalVars);
 
 
 ```

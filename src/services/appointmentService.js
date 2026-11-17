@@ -2,11 +2,11 @@ import { subscribe } from "firebase/data-connect";
 import {
   createAppointment,
   deleteAppointment,
-  listAccessibleAppointmentsRef,
   listAppointmentsRef,
   updateAppointment,
 } from "@dataconnect/generated";
 import { asDate } from "../utils/dates";
+import { maskCpf } from "../utils/cpf";
 
 function timestampFromInput(value) {
   const date = new Date(value);
@@ -30,25 +30,23 @@ export function mapAppointment(item) {
     scheduledAt: item?.scheduledAt || null,
     status: item?.status || "SCHEDULED",
     notes: item?.notes || "",
+
+    maskedPatientCpf: maskCpf(item?.patient?.user?.cpf || ""),
   };
 }
 
-export function watchAppointments(onData, onError, { isAdmin = false } = {}) {
+export function watchAppointments(onData, onError) {
   return subscribe(
-    isAdmin ? listAppointmentsRef() : listAccessibleAppointmentsRef(),
+    listAppointmentsRef(),
     (result) => {
-      const source = isAdmin
-        ? result?.data?.appointments || []
-        : (result?.data?.patientAccesses || []).flatMap(
-            (access) => access?.patient?.appointments || [],
-          );
-      const items = source
+      const items = (result?.data?.appointments || [])
         .map(mapAppointment)
         .sort(
           (a, b) =>
             (asDate(a.scheduledAt)?.getTime() || 0) -
             (asDate(b.scheduledAt)?.getTime() || 0),
         );
+
       onData(items);
     },
     onError,

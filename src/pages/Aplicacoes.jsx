@@ -15,6 +15,7 @@ import { useAuth } from "../context/AuthContext";
 import { removeApplication, watchApplications } from "../services/vaccinationService";
 import { formatDate } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
+import { cpfMatchesSearch } from "../utils/cpf";
 
 export default function Aplicacoes() {
   const { showToast } = useToast();
@@ -46,18 +47,24 @@ export default function Aplicacoes() {
   const filtered = useMemo(() => {
     const term = search.trim().toLocaleLowerCase("pt-BR");
     if (!term) return records;
-    return records.filter((record) =>
-      [
+    return records.filter((record) => {
+      const matchesText = [
         record.patientName,
-        record.patientCpf,
+        record.maskedPatientCpf,
         record.vaccineName,
         record.batchCode,
         record.ubsName,
         record.professionalName,
       ]
         .filter(Boolean)
-        .some((value) => String(value).toLocaleLowerCase("pt-BR").includes(term)),
-    );
+        .some((value) =>
+          String(value)
+            .toLocaleLowerCase("pt-BR")
+            .includes(term)
+        );
+
+      return matchesText || cpfMatchesSearch(record.patientCpf, term);
+    });
   }, [records, search]);
 
   function openCreate() {
@@ -171,7 +178,7 @@ export default function Aplicacoes() {
                   <tr key={record.id}>
                     <td>
                       <strong>{record.patientName}</strong>
-                      <small>{record.patientCpf || "CPF não informado"}</small>
+                      <small>{record.maskedPatientCpf || "CPF não informado"}</small>
                     </td>
                     <td>
                       <strong>{record.vaccineName}</strong>
@@ -181,7 +188,7 @@ export default function Aplicacoes() {
                     <td>{formatDate(record.applicationDate)}</td>
                     <td>{record.ubsName || "Não informada"}</td>
                     <td>{record.batchCode || "—"}</td>
-                    <td><StatusBadge status={record.voidedAt ? "danger" : "active"}>{record.voidedAt ? "Anulada" : "Registrada"}</StatusBadge></td>
+                    <td><StatusBadge status={record.voidedAt ? "danger" : isAdmin && record.editedAt ? "warning" : "active"}> {record.voidedAt ? "Anulada" : isAdmin && record.editedAt ? "Editada" : "Registrada"} </StatusBadge></td>
                     <td>
                       <div className="table-actions">
                         <button className="icon-button" type="button" onClick={() => setSelectedRecord(record)} title="Detalhes">
@@ -215,7 +222,7 @@ export default function Aplicacoes() {
         title="Detalhes da aplicação"
         description="Registro oficial armazenado no SQL Connect."
       >
-        <VaccinationDetail record={selectedRecord} />
+        <VaccinationDetail record={selectedRecord} isAdmin={isAdmin} />
       </Modal>
 
       <Modal

@@ -1319,6 +1319,10 @@ code {
 .toast--error > svg { color: var(--red-600); }
 .toast--info > svg { color: var(--blue-600); }
 .toast strong { font-size: calc(0.74rem * var(--font-scale)); }
+.toast--success > svg { color: var(--green-600); }
+.toast--error > svg { color: var(--red-600); }
+.toast--info > svg { color: var(--blue-600); }
+.toast strong { font-size: calc(0.74rem * var(--font-scale)); }
 .toast p { margin: 0.2rem 0 0; color: var(--slate-600); font-size: calc(0.68rem * var(--font-scale)); line-height: 1.4; }
 @keyframes toast-in { from { opacity: 0; transform: translateX(10px); } }
 
@@ -1382,6 +1386,7 @@ code {
 .login-card__security { display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-top: 1.3rem; color: var(--slate-500); font-size: calc(0.64rem * var(--font-scale)); }
 .login-card__security svg { color: var(--green-600); }
 .login-card__access-note { margin: 0.8rem 0 0; color: var(--slate-500); font-size: calc(0.68rem * var(--font-scale)); line-height: 1.5; text-align: center; }
+.login-card__access-note strong { color: var(--slate-700); }
 .login-card__access-note strong { color: var(--slate-700); }
 
 .sidebar-backdrop { display: none; }

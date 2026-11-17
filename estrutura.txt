@@ -1,0 +1,153 @@
+Listagem de caminhos de pasta
+O número de série do volume é E4E0-4907
+C:.
+|   .env.example
+|   .firebaserc
+|   .gitignore
+|   eslint.config.js
+|   estrutura.txt
+|   firebase.json
+|   index.html
+|   package-lock.json
+|   package.json
+|   README.md
+|   vite.config.js
+|           
++---dist
+|   |   index.html
+|   |   
+|   \---assets
+|           index-ByfKDDur.css
+|           index-DUoPCBKS.js
+|           isologo-C_8OAxpp.png
+|           isotipo-COSdh2kN.png
+|           
++---docs
+|   \---migration
+|           data_connect_security_hardening.md
+|           proposed_mobile_domain_migration.sql
+|           
++---Firebase_SQL_Connect
+|   |   .firebaserc
+|   |   .gitignore
+|   |   firebase-debug.log
+|   |   firebase.json
+|   |   skills-lock.json
+|   | 
+|   \---dataconnect
+|       |   dataconnect.yaml
+|       |   
+|       +---example
+|       |       connector.yaml
+|       |       mutations.gql
+|       |       queries.gql
+|       |       
+|       +---mobile-connector
+|       |       connector.yaml
+|       |       mutations.gql
+|       |       queries.gql
+|       |       
+|       \---schema
+|               schema.gql
+|         
++---src
+|   |   app.jsx
+|   |   featuresFuturas.md
+|   |   index.css
+|   |   main.jsx
+|   |   
+|   +---assets
+|   |       isologo.png
+|   |       isotipo.png
+|   |       
+|   +---components
+|   |       ApplicationForm.jsx
+|   |       AppointmentForm.jsx
+|   |       PatientLookup.jsx
+|   |       ProfessionalRoute.jsx
+|   |       Sidebar.jsx
+|   |       Topbar.jsx
+|   |       ui.jsx
+|   |       VaccinationDetail.jsx
+|   |       VaccinationForm.jsx
+|   |       
+|   +---config
+|   |       firebase.js
+|   |       
+|   +---context
+|   |       AuthContext.jsx
+|   |       ToastContext.jsx
+|   |       
+|   +---dataconnect-generated
+|   |   |   index.cjs.js
+|   |   |   index.d.ts
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---.guides
+|   |   |       config.json
+|   |   |       setup.md
+|   |   |       usage.md
+|   |   |       
+|   |   +---esm
+|   |   |       index.esm.js
+|   |   |       package.json
+|   |   |       
+|   |   \---react
+|   |       \---esm
+|   +---layout
+|   |       AppLayout.jsx
+|   |       
+|   +---pages
+|   |       Agendamentos.jsx
+|   |       Aplicacoes.jsx
+|   |       Carteiras.jsx
+|   |       Config.jsx
+|   |       Dashboard.jsx
+|   |       Funcionarios.jsx
+|   |       Login.jsx
+|   |       NotFound.jsx
+|   |       PacienteDetalhe.jsx
+|   |       Pacientes.jsx
+|   |       Relatorios.jsx
+|   |       Vacinas.jsx
+|   |       
+|   +---security
+|   |       dataconnectAuthorization.test.js
+|   |       
+|   +---services
+|   |       api.js
+|   |       appointmentService.js
+|   |       authService.js
+|   |       batchService.js
+|   |       employeeService.js
+|   |       firebase.js
+|   |       patientService.js
+|   |       ubsService.js
+|   |       vaccinationService.js
+|   |       vaccineService.js
+|   |       
+|   \---utils
+|           cpf.js
+|           cpf.test.js
+|           dates.js
+|           firebaseErrors.js
+|           vaccination.js
+|           vaccination.test.js
+|           validations.js
+|           
+\---tool
+        cloudsql_application_integrity_test.cjs
+        cloudsql_apply_migration.cjs
+        cloudsql_backup.cjs
+        cloudsql_grant_migration_privileges.cjs
+        cloudsql_logical_backup.cjs
+        firebase_auth_admin_claim.cjs
+        firebase_auth_audit.cjs
+        firestore_logical_backup.cjs
+        firestore_sql_backfill.cjs
+        migration_dry_run.cjs
+        production_sql_connect_smoke.mjs
+        restore_missing_application.cjs
+        seed_visual_emulator.mjs
+        web_mobile_integration_smoke.mjs

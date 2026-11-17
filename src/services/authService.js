@@ -1,9 +1,16 @@
+import { deleteApp, initializeApp } from "firebase/app";
 import { getCurrentPortalUser } from "@dataconnect/generated";
 import {
+  createUserWithEmailAndPassword,
+  deleteUser,
+  getAuth,
+  inMemoryPersistence,
   sendPasswordResetEmail,
+  setPersistence,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
+import { firebaseConfig } from "../config/firebase";
 import { auth, firebaseReady } from "./firebase";
 
 const professionalRoles = new Set(["health_professional", "admin"]);
@@ -23,9 +30,10 @@ export async function resolveProfessional(firebaseUser) {
   const tokenResult = await firebaseUser.getIdTokenResult(true);
   const profileResult = await getCurrentPortalUser();
 
-  const sqlUser = profileResult?.data?.users?.[0];
+  const sqlProfessional = profileResult?.data?.professionals?.[0];
+  const sqlUser = sqlProfessional?.user;
 
-  if (!sqlUser) {
+  if (!sqlProfessional?.id || !sqlUser?.id) {
     return {
       status: "unauthorized",
       reason: "O perfil profissional desta conta não foi encontrado.",
@@ -34,30 +42,30 @@ export async function resolveProfessional(firebaseUser) {
     };
   }
 
-  const sqlProfessional = sqlUser.professional_on_user || null;
   const isAdmin = tokenResult?.claims?.admin === true;
   const isActive = sqlUser.status === "ACTIVE";
-  const hasProfessionalRole = sqlUser.portalRole === "PROFESSIONAL";
-  const hasActiveProfessional = sqlProfessional?.active === true;
-  const authorized =
-    isActive &&
-    ((isAdmin && ["PROFESSIONAL", "ADMIN"].includes(sqlUser.portalRole)) ||
-      (hasProfessionalRole && hasActiveProfessional));
+  const hasActiveProfessional = sqlProfessional.active === true;
 
   const profile = {
     ...sqlUser,
     personId: sqlUser.id,
     authUid: firebaseUser.uid,
+    email: sqlProfessional.email,
     accountStatus: isActive ? "active" : "inactive",
     fullName: sqlUser.name,
     roles: [
-      ...(hasProfessionalRole ? ["health_professional"] : []),
+      "health_professional",
       ...(isAdmin ? ["admin"] : []),
     ],
     professional: sqlProfessional,
   };
 
-  if (!authorized || !isAuthorizedProfessional(profile)) {
+  const authorized =
+    isActive &&
+    hasActiveProfessional &&
+    isAuthorizedProfessional(profile);
+
+  if (!authorized) {
     return {
       status: "unauthorized",
       reason: !isActive
@@ -68,8 +76,61 @@ export async function resolveProfessional(firebaseUser) {
     };
   }
 
-  return { status: "authorized", firebaseUser, profile, reason: null };
+  return {
+    status: "authorized",
+    firebaseUser,
+    profile,
+    reason: null,
+  };
 }
+
+export async function createEmployeeAuthAccount(email) {
+  await firebaseReady;
+
+  const cleanEmail = email.trim().toLowerCase();
+  const secondaryApp = initializeApp(
+    firebaseConfig,
+    `vitta-employee-${crypto.randomUUID()}`,
+  );
+  const secondaryAuth = getAuth(secondaryApp);
+
+  try {
+    // A autenticação secundária não substitui a sessão do administrador.
+    await setPersistence(secondaryAuth, inMemoryPersistence);
+
+    // Senha aleatória temporária, que não será exibida ao administrador.
+    const temporaryPassword = `${crypto.randomUUID()}Aa1!`;
+
+    const credential = await createUserWithEmailAndPassword(
+      secondaryAuth,
+      cleanEmail,
+      temporaryPassword,
+    );
+
+    const createdUser = credential.user;
+
+    return {
+      uid: createdUser.uid,
+
+      // Usado se o cadastro SQL falhar após criar a conta.
+      rollback: async () => {
+        await deleteUser(createdUser);
+      },
+
+      // Libera os recursos da instância secundária.
+      close: async () => {
+        await signOut(secondaryAuth).catch(() => {});
+        await deleteApp(secondaryApp).catch(() => {});
+      },
+    };
+  } catch (error) {
+    await signOut(secondaryAuth).catch(() => {});
+    await deleteApp(secondaryApp).catch(() => {});
+    throw error;
+  }
+}
+
+export const createPatientAuthAccount = createEmployeeAuthAccount;
 
 export async function loginWithEmail(email, password) {
   await firebaseReady;

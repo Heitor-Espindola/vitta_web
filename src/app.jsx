@@ -3,7 +3,6 @@ import ProfessionalRoute from "./components/ProfessionalRoute";
 import AppLayout from "./layout/AppLayout";
 import Agendamentos from "./pages/Agendamentos";
 import Aplicacoes from "./pages/Aplicacoes";
-import Carteiras from "./pages/Carteiras";
 import Config from "./pages/Config";
 import Dashboard from "./pages/Dashboard";
 import Funcionarios from "./pages/Funcionarios";
@@ -13,6 +12,7 @@ import PacienteDetalhe from "./pages/PacienteDetalhe";
 import Pacientes from "./pages/Pacientes";
 import Relatorios from "./pages/Relatorios";
 import Vacinas from "./pages/Vacinas";
+import AdminRoute from "./components/AdminRoute";
 
 export default function App() {
   return (
@@ -23,12 +23,11 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="pacientes" element={<Pacientes />} />
           <Route path="pacientes/:personId" element={<PacienteDetalhe />} />
-          <Route path="carteiras" element={<Carteiras />} />
           <Route path="aplicacoes" element={<Aplicacoes />} />
           <Route path="agendamentos" element={<Agendamentos />} />
           <Route path="vacinas" element={<Vacinas />} />
           <Route path="relatorios" element={<Relatorios />} />
-          <Route path="funcionarios" element={<Funcionarios />} />
+          <Route element={<AdminRoute />}> <Route path="funcionarios" element={<Funcionarios />} /> </Route>
           <Route path="config" element={<Config />} />
           <Route path="*" element={<NotFound />} />
         </Route>

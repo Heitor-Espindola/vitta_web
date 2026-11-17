@@ -12,6 +12,7 @@ import { watchVaccines } from "../services/vaccineService";
 import { toLocalDateInput } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
 
+
 const today = toLocalDateInput();
 
 function patientLabel(patient) {
@@ -65,8 +66,8 @@ export default function ApplicationForm({
     const [saving, setSaving] = useState(false);
 
     const editing = Boolean(initialApplication?.id);
-    const fixedPatient = Boolean(patient?.id || patient?.personId) || editing;
-
+    const fixedPatient = Boolean(patient?.id || patient?.personId) && !editing;
+    
     useEffect(() => {
         let patientsReady = false;
         let vaccinesReady = false;
@@ -193,6 +194,7 @@ export default function ApplicationForm({
         try {
             if (editing) {
                 await editApplication(initialApplication.id, {
+                    applicationDate: form.applicationDate,
                     doseNumber: form.doseNumber,
                     doseLabel: form.doseNumber
                         ? `${Number(form.doseNumber)}ª dose`
@@ -319,7 +321,7 @@ export default function ApplicationForm({
                         value={form.applicationDate}
                         max={today}
                         onChange={(event) => update("applicationDate", event.target.value)}
-                        disabled={editing || saving}
+                        disabled={saving}
                     />
                 </label>
 

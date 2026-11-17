@@ -52,10 +52,10 @@ enum PatientAccessKind {
 type User @table {
   name: String!
   birthDate: Date!
-  # Dependentes podem existir sem conta Firebase e, portanto, sem e-mail.
   email: String @unique
-  # UID do Firebase Auth. Nulo para dependentes sem autenticação própria.
   authUid: String @unique
+  # Dependentes podem existir sem conta Firebase e, portanto, sem e-mail.
+  # UID do Firebase Auth. Nulo para dependentes sem autenticação própria.
   status: UserStatus!
   cpf: String! @unique
   sex: String
@@ -70,6 +70,8 @@ type User @table {
 
 type Patient @table {
   user: User! @unique
+  email: String @unique
+  authUid: String @unique
   patientType: PatientType!
   responsible: Patient
   motherName: String
@@ -137,6 +139,8 @@ type UBS @table {
 
 type Professional @table {
   user: User! @unique
+  email: String! @unique
+  authUid: String! @unique
   professionalType: ProfessionalType!
   professionalRegistration: String
   ubs: UBS
@@ -219,6 +223,8 @@ type Application @table {
   voidedAt: Timestamp
   voidedByAuthUid: String
   voidReason: String
+  editedAt: Timestamp
+  editedByAuthUid: String
   createdAt: Timestamp
   updatedAt: Timestamp
 }

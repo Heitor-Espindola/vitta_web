@@ -2,29 +2,29 @@
 # Nenhuma operação expõe listagem global de pessoas, pacientes ou aplicações.
 
 query GetMobileCurrentPerson @auth(level: USER) {
-  users(where: { authUid: { eq_expr: "auth.uid" } }) @check {
+  patients(where: { authUid: { eq_expr: "auth.uid" } }) @check {
     id
-    name
-    birthDate
     email
     authUid
-    status
-    cpf
-    sex
-    phone
-    photoUrl
-    createdAt
-    updatedAt
-    lastLoginAt
-    patient_on_user {
+    active
+      @check(
+        expr: "this == true"
+        message: "Carteira inativa ou arquivada."
+      )
+    patientType
+    legacyPersonId
+    user {
       id
-      active
-        @check(
-          expr: "this == true"
-          message: "Carteira inativa ou arquivada."
-        )
-      patientType
-      legacyPersonId
+      name
+      birthDate
+      status
+      cpf
+      sex
+      phone
+      photoUrl
+      createdAt
+      updatedAt
+      lastLoginAt
     }
   }
 }
@@ -51,13 +51,13 @@ query GetAccessibleFamilyMembers @auth(level: USER) {
     validUntil
     patient {
       id
+      email
       patientType
       legacyPersonId
       user {
         id
         name
         birthDate
-        email
         status
         cpf
         sex
@@ -71,7 +71,7 @@ query GetAccessibleFamilyMembers @auth(level: USER) {
   directRelationships: familyRelationships(
     where: {
       _and: [
-        { fromPatient: { user: { authUid: { eq_expr: "auth.uid" } } } }
+        { fromPatient: { authUid: { eq_expr: "auth.uid" } } }
         { status: { eq: VERIFIED } }
         { consentStatus: { eq: GRANTED } }
         {
@@ -111,13 +111,13 @@ query GetAccessiblePatientProfile($patientId: UUID!) @auth(level: USER) {
         expr: "this == true"
         message: "Carteira inativa ou arquivada."
       )
+    email
     patientType
     legacyPersonId
     user {
       id
       name
       birthDate
-      email
       status
       cpf
       sex
@@ -199,7 +199,7 @@ query GetAccessiblePatientVaccinations($patientId: UUID!)
 }
 
 query GetMobileVaccines @auth(level: USER) {
-  users(where: { authUid: { eq_expr: "auth.uid" } }) @redact @check {
+  patients(where: { authUid: { eq_expr: "auth.uid" } }) @redact @check {
     id
   }
   vaccines(where: { active: { eq: true } }, orderBy: { name: ASC }) {

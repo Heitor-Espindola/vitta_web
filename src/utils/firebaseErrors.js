@@ -12,6 +12,17 @@ const messages = {
 
 export function friendlyFirebaseError(error, fallback) {
   const code = String(error?.code || "").replace("firestore/", "");
+
+  const raw = String(error?.message || "");
+
+  if (/user_cpf_uidx|violates SQL unique constraint.*cpf/i.test(raw)) {
+    return "Já existe uma pessoa cadastrada com este CPF. O perfil deve ser vinculado ao cadastro existente.";
+  }
+
+  if (/auth\/email-already-in-use|email-already-in-use/i.test(raw)) {
+    return "Este e-mail já está cadastrado no Firebase Authentication. Use a conta existente ou outro e-mail.";
+  }
+  
   return (
     messages[code] ||
     fallback ||

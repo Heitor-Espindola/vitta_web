@@ -6,7 +6,6 @@ import { useAuth } from "../context/AuthContext";
 const pageNames = {
   "/": "Dashboard",
   "/pacientes": "Pacientes",
-  "/carteiras": "Carteiras",
   "/aplicacoes": "Aplicações",
   "/vacinas": "Vacinas",
   "/agendamentos": "Agendamentos",

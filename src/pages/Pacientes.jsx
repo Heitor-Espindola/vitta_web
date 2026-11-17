@@ -20,9 +20,10 @@ import {
   removePatient,
   watchPatients,
 } from "../services/patientService";
-import { formatCpf, isValidCpf } from "../utils/cpf";
-import { formatDate } from "../utils/dates";
+import { cpfMatchesSearch, formatCpf, isValidCpf } from "../utils/cpf";
+import { formatDate, toLocalDateInput } from "../utils/dates";
 import { friendlyFirebaseError } from "../utils/firebaseErrors";
+import { SEX_OPTIONS } from "../utils/sex";
 
 const emptyForm = {
   name: "",
@@ -90,8 +91,8 @@ export default function Pacientes() {
       return patients;
     }
 
-    return patients.filter((patient) =>
-      [
+    return patients.filter((patient) => {
+      const matchesText = [
         patient.name,
         patient.maskedCpf,
         patient.email,
@@ -101,9 +102,11 @@ export default function Pacientes() {
         .some((value) =>
           String(value)
             .toLocaleLowerCase("pt-BR")
-            .includes(term),
-        ),
-    );
+            .includes(term)
+        );
+
+      return matchesText || cpfMatchesSearch(patient.cpf, term);
+    });
   }, [patients, search]);
 
   const selectedMother = useMemo(
@@ -582,6 +585,7 @@ export default function Pacientes() {
               <input
                 type="date"
                 value={form.birthDate}
+                max={toLocalDateInput()}
                 onChange={(event) =>
                   update(
                     "birthDate",
@@ -637,19 +641,14 @@ export default function Pacientes() {
                 }
                 disabled={saving}
               >
-                <option value="">Não informado</option>
-                <option value="Feminino">Feminino</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Intersexo">Intersexo</option>
-                <option value="Outro">Outro</option>
-                {form.sex && ![
-                  "Feminino",
-                  "Masculino",
-                  "Intersexo",
-                  "Outro",
-                ].includes(form.sex) ? (
-                  <option value={form.sex}>{form.sex}</option>
-                ) : null}
+                {SEX_OPTIONS.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                  >
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </label>
 

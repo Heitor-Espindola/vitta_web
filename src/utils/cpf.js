@@ -43,3 +43,19 @@ export async function cpfRegistryHash(value) {
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
 }
+
+export function cpfMatchesSearch(cpf, search) {
+  const term = String(search ?? "").trim();
+
+  // Só trata como busca de CPF quando há números e pontuação.
+  if (!term || !/^[\d.\-\s]+$/.test(term)) {
+    return false;
+  }
+
+  const searchDigits = cpfDigits(term);
+
+  return (
+    searchDigits.length > 0 &&
+    cpfDigits(cpf).includes(searchDigits)
+  );
+}

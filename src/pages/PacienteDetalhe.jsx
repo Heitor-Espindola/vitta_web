@@ -228,7 +228,7 @@ export default function PacienteDetalhe() {
         title="Detalhes da aplicação"
         description="Registro armazenado no SQL Connect."
       >
-        <VaccinationDetail record={selectedRecord} />
+        <VaccinationDetail record={selectedRecord} isAdmin={isAdmin}/>
         {isAdmin && selectedRecord && !selectedRecord.voidedAt ? (
           <div className="form-actions">
             <button className="button button--secondary" type="button" onClick={() => { setEditingRecord(selectedRecord); setSelectedRecord(null); setFormOpen(true); }}>

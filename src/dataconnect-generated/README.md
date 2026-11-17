@@ -11,10 +11,11 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListUsers*](#listusers)
   - [*GetUser*](#getuser)
   - [*GetCurrentPortalUser*](#getcurrentportaluser)
+  - [*GetAdminUserByCpf*](#getadminuserbycpf)
   - [*GetAdminPatientByCpf*](#getadminpatientbycpf)
-  - [*GetUserByEmail*](#getuserbyemail)
   - [*ListPatients*](#listpatients)
   - [*ListAccessiblePatients*](#listaccessiblepatients)
+  - [*GetCurrentPatientForProfessionalRegistration*](#getcurrentpatientforprofessionalregistration)
   - [*GetAuthorizedPatientByCpf*](#getauthorizedpatientbycpf)
   - [*GetPatient*](#getpatient)
   - [*GetAdminPatient*](#getadminpatient)
@@ -48,6 +49,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*DeleteUnlinkedUser*](#deleteunlinkeduser)
   - [*CreatePatient*](#createpatient)
   - [*UpdatePatient*](#updatepatient)
+  - [*LinkPatientAuthIdentity*](#linkpatientauthidentity)
   - [*ArchivePatient*](#archivepatient)
   - [*CreateUbs*](#createubs)
   - [*UpdateUbs*](#updateubs)
@@ -155,7 +157,6 @@ export interface ListUsersData {
     id: UUIDString;
     name: string;
     birthDate: DateString;
-    email?: string | null;
     status: UserStatus;
     cpf: string;
     sex?: string | null;
@@ -260,7 +261,6 @@ export interface GetUserData {
     id: UUIDString;
     name: string;
     birthDate: DateString;
-    email?: string | null;
     status: UserStatus;
     cpf: string;
     sex?: string | null;
@@ -368,29 +368,28 @@ Recall that executing the `GetCurrentPortalUser` query returns a `QueryPromise` 
 The `data` property is an object of type `GetCurrentPortalUserData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
 ```typescript
 export interface GetCurrentPortalUserData {
-  users: ({
+  professionals: ({
     id: UUIDString;
-    name: string;
-    birthDate: DateString;
-    email?: string | null;
-    authUid?: string | null;
-    status: UserStatus;
-    cpf: string;
-    sex?: string | null;
-    phone?: string | null;
-    photoUrl?: string | null;
-    portalRole?: PortalRole | null;
-    professional_on_user?: {
+    email: string;
+    authUid: string;
+    active: boolean;
+    professionalType: ProfessionalType;
+    professionalRegistration?: string | null;
+    user: {
       id: UUIDString;
-      active: boolean;
-      professionalType: ProfessionalType;
-      professionalRegistration?: string | null;
-      ubs?: {
-        id: UUIDString;
-        name: string;
-      } & UBS_Key;
-    } & Professional_Key;
-  } & User_Key)[];
+      name: string;
+      birthDate: DateString;
+      status: UserStatus;
+      cpf: string;
+      sex?: string | null;
+      phone?: string | null;
+      photoUrl?: string | null;
+    } & User_Key;
+    ubs?: {
+      id: UUIDString;
+      name: string;
+    } & UBS_Key;
+  } & Professional_Key)[];
 }
 ```
 ### Using `GetCurrentPortalUser`'s action shortcut function
@@ -408,12 +407,12 @@ const { data } = await getCurrentPortalUser();
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await getCurrentPortalUser(dataConnect);
 
-console.log(data.users);
+console.log(data.professionals);
 
 // Or, you can use the `Promise` API.
 getCurrentPortalUser().then((response) => {
   const data = response.data;
-  console.log(data.users);
+  console.log(data.professionals);
 });
 ```
 
@@ -430,6 +429,135 @@ const ref = getCurrentPortalUserRef();
 // You can also pass in a `DataConnect` instance to the `QueryRef` function.
 const dataConnect = getDataConnect(connectorConfig);
 const ref = getCurrentPortalUserRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.professionals);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.professionals);
+});
+```
+
+## GetAdminUserByCpf
+You can execute the `GetAdminUserByCpf` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
+```typescript
+getAdminUserByCpf(vars: GetAdminUserByCpfVariables, options?: ExecuteQueryOptions): QueryPromise<GetAdminUserByCpfData, GetAdminUserByCpfVariables>;
+
+interface GetAdminUserByCpfRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetAdminUserByCpfVariables): QueryRef<GetAdminUserByCpfData, GetAdminUserByCpfVariables>;
+}
+export const getAdminUserByCpfRef: GetAdminUserByCpfRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+getAdminUserByCpf(dc: DataConnect, vars: GetAdminUserByCpfVariables, options?: ExecuteQueryOptions): QueryPromise<GetAdminUserByCpfData, GetAdminUserByCpfVariables>;
+
+interface GetAdminUserByCpfRef {
+  ...
+  (dc: DataConnect, vars: GetAdminUserByCpfVariables): QueryRef<GetAdminUserByCpfData, GetAdminUserByCpfVariables>;
+}
+export const getAdminUserByCpfRef: GetAdminUserByCpfRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getAdminUserByCpfRef:
+```typescript
+const name = getAdminUserByCpfRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `GetAdminUserByCpf` query requires an argument of type `GetAdminUserByCpfVariables`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface GetAdminUserByCpfVariables {
+  cpf: string;
+}
+```
+### Return Type
+Recall that executing the `GetAdminUserByCpf` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `GetAdminUserByCpfData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface GetAdminUserByCpfData {
+  users: ({
+    id: UUIDString;
+    name: string;
+    birthDate: DateString;
+    status: UserStatus;
+    cpf: string;
+    sex?: string | null;
+    phone?: string | null;
+    patient_on_user?: {
+      id: UUIDString;
+      email?: string | null;
+      authUid?: string | null;
+      active: boolean;
+    } & Patient_Key;
+    professional_on_user?: {
+      id: UUIDString;
+      email: string;
+      authUid: string;
+      active: boolean;
+    } & Professional_Key;
+  } & User_Key)[];
+}
+```
+### Using `GetAdminUserByCpf`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, getAdminUserByCpf, GetAdminUserByCpfVariables } from '@dataconnect/generated';
+
+// The `GetAdminUserByCpf` query requires an argument of type `GetAdminUserByCpfVariables`:
+const getAdminUserByCpfVars: GetAdminUserByCpfVariables = {
+  cpf: ..., 
+};
+
+// Call the `getAdminUserByCpf()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await getAdminUserByCpf(getAdminUserByCpfVars);
+// Variables can be defined inline as well.
+const { data } = await getAdminUserByCpf({ cpf: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await getAdminUserByCpf(dataConnect, getAdminUserByCpfVars);
+
+console.log(data.users);
+
+// Or, you can use the `Promise` API.
+getAdminUserByCpf(getAdminUserByCpfVars).then((response) => {
+  const data = response.data;
+  console.log(data.users);
+});
+```
+
+### Using `GetAdminUserByCpf`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, getAdminUserByCpfRef, GetAdminUserByCpfVariables } from '@dataconnect/generated';
+
+// The `GetAdminUserByCpf` query requires an argument of type `GetAdminUserByCpfVariables`:
+const getAdminUserByCpfVars: GetAdminUserByCpfVariables = {
+  cpf: ..., 
+};
+
+// Call the `getAdminUserByCpfRef()` function to get a reference to the query.
+const ref = getAdminUserByCpfRef(getAdminUserByCpfVars);
+// Variables can be defined inline as well.
+const ref = getAdminUserByCpfRef({ cpf: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = getAdminUserByCpfRef(dataConnect, getAdminUserByCpfVars);
 
 // Call `executeQuery()` on the reference to execute the query.
 // You can use the `await` keyword to wait for the promise to resolve.
@@ -489,13 +617,14 @@ The `data` property is an object of type `GetAdminPatientByCpfData`, which is de
 export interface GetAdminPatientByCpfData {
   patients: ({
     id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
     motherName?: string | null;
     patientType: PatientType;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -574,123 +703,6 @@ executeQuery(ref).then((response) => {
 });
 ```
 
-## GetUserByEmail
-You can execute the `GetUserByEmail` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
-```typescript
-getUserByEmail(vars: GetUserByEmailVariables, options?: ExecuteQueryOptions): QueryPromise<GetUserByEmailData, GetUserByEmailVariables>;
-
-interface GetUserByEmailRef {
-  ...
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: GetUserByEmailVariables): QueryRef<GetUserByEmailData, GetUserByEmailVariables>;
-}
-export const getUserByEmailRef: GetUserByEmailRef;
-```
-You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
-getUserByEmail(dc: DataConnect, vars: GetUserByEmailVariables, options?: ExecuteQueryOptions): QueryPromise<GetUserByEmailData, GetUserByEmailVariables>;
-
-interface GetUserByEmailRef {
-  ...
-  (dc: DataConnect, vars: GetUserByEmailVariables): QueryRef<GetUserByEmailData, GetUserByEmailVariables>;
-}
-export const getUserByEmailRef: GetUserByEmailRef;
-```
-
-If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getUserByEmailRef:
-```typescript
-const name = getUserByEmailRef.operationName;
-console.log(name);
-```
-
-### Variables
-The `GetUserByEmail` query requires an argument of type `GetUserByEmailVariables`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
-
-```typescript
-export interface GetUserByEmailVariables {
-  email: string;
-}
-```
-### Return Type
-Recall that executing the `GetUserByEmail` query returns a `QueryPromise` that resolves to an object with a `data` property.
-
-The `data` property is an object of type `GetUserByEmailData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
-export interface GetUserByEmailData {
-  users: ({
-    id: UUIDString;
-    name: string;
-    birthDate: DateString;
-    email?: string | null;
-    status: UserStatus;
-    cpf: string;
-    sex?: string | null;
-  } & User_Key)[];
-}
-```
-### Using `GetUserByEmail`'s action shortcut function
-
-```typescript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, getUserByEmail, GetUserByEmailVariables } from '@dataconnect/generated';
-
-// The `GetUserByEmail` query requires an argument of type `GetUserByEmailVariables`:
-const getUserByEmailVars: GetUserByEmailVariables = {
-  email: ..., 
-};
-
-// Call the `getUserByEmail()` function to execute the query.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await getUserByEmail(getUserByEmailVars);
-// Variables can be defined inline as well.
-const { data } = await getUserByEmail({ email: ..., });
-
-// You can also pass in a `DataConnect` instance to the action shortcut function.
-const dataConnect = getDataConnect(connectorConfig);
-const { data } = await getUserByEmail(dataConnect, getUserByEmailVars);
-
-console.log(data.users);
-
-// Or, you can use the `Promise` API.
-getUserByEmail(getUserByEmailVars).then((response) => {
-  const data = response.data;
-  console.log(data.users);
-});
-```
-
-### Using `GetUserByEmail`'s `QueryRef` function
-
-```typescript
-import { getDataConnect, executeQuery } from 'firebase/data-connect';
-import { connectorConfig, getUserByEmailRef, GetUserByEmailVariables } from '@dataconnect/generated';
-
-// The `GetUserByEmail` query requires an argument of type `GetUserByEmailVariables`:
-const getUserByEmailVars: GetUserByEmailVariables = {
-  email: ..., 
-};
-
-// Call the `getUserByEmailRef()` function to get a reference to the query.
-const ref = getUserByEmailRef(getUserByEmailVars);
-// Variables can be defined inline as well.
-const ref = getUserByEmailRef({ email: ..., });
-
-// You can also pass in a `DataConnect` instance to the `QueryRef` function.
-const dataConnect = getDataConnect(connectorConfig);
-const ref = getUserByEmailRef(dataConnect, getUserByEmailVars);
-
-// Call `executeQuery()` on the reference to execute the query.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await executeQuery(ref);
-
-console.log(data.users);
-
-// Or, you can use the `Promise` API.
-executeQuery(ref).then((response) => {
-  const data = response.data;
-  console.log(data.users);
-});
-```
-
 ## ListPatients
 You can execute the `ListPatients` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
 ```typescript
@@ -730,12 +742,13 @@ The `data` property is an object of type `ListPatientsData`, which is defined in
 export interface ListPatientsData {
   patients: ({
     id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
     motherName?: string | null;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -843,13 +856,14 @@ export interface ListAccessiblePatientsData {
   patientAccesses: ({
     patient: {
       id: UUIDString;
+      email?: string | null;
+      authUid?: string | null;
       motherName?: string | null;
       patientType: PatientType;
       user: {
         id: UUIDString;
         name: string;
         birthDate: DateString;
-        email?: string | null;
         cpf: string;
         sex?: string | null;
         status: UserStatus;
@@ -917,6 +931,110 @@ executeQuery(ref).then((response) => {
 });
 ```
 
+## GetCurrentPatientForProfessionalRegistration
+You can execute the `GetCurrentPatientForProfessionalRegistration` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
+```typescript
+getCurrentPatientForProfessionalRegistration(options?: ExecuteQueryOptions): QueryPromise<GetCurrentPatientForProfessionalRegistrationData, undefined>;
+
+interface GetCurrentPatientForProfessionalRegistrationRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<GetCurrentPatientForProfessionalRegistrationData, undefined>;
+}
+export const getCurrentPatientForProfessionalRegistrationRef: GetCurrentPatientForProfessionalRegistrationRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+getCurrentPatientForProfessionalRegistration(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<GetCurrentPatientForProfessionalRegistrationData, undefined>;
+
+interface GetCurrentPatientForProfessionalRegistrationRef {
+  ...
+  (dc: DataConnect): QueryRef<GetCurrentPatientForProfessionalRegistrationData, undefined>;
+}
+export const getCurrentPatientForProfessionalRegistrationRef: GetCurrentPatientForProfessionalRegistrationRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getCurrentPatientForProfessionalRegistrationRef:
+```typescript
+const name = getCurrentPatientForProfessionalRegistrationRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `GetCurrentPatientForProfessionalRegistration` query has no variables.
+### Return Type
+Recall that executing the `GetCurrentPatientForProfessionalRegistration` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `GetCurrentPatientForProfessionalRegistrationData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface GetCurrentPatientForProfessionalRegistrationData {
+  patients: ({
+    id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
+    user: {
+      id: UUIDString;
+      name: string;
+      birthDate: DateString;
+      status: UserStatus;
+      cpf: string;
+      sex?: string | null;
+      phone?: string | null;
+    } & User_Key;
+  } & Patient_Key)[];
+}
+```
+### Using `GetCurrentPatientForProfessionalRegistration`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, getCurrentPatientForProfessionalRegistration } from '@dataconnect/generated';
+
+
+// Call the `getCurrentPatientForProfessionalRegistration()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await getCurrentPatientForProfessionalRegistration();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await getCurrentPatientForProfessionalRegistration(dataConnect);
+
+console.log(data.patients);
+
+// Or, you can use the `Promise` API.
+getCurrentPatientForProfessionalRegistration().then((response) => {
+  const data = response.data;
+  console.log(data.patients);
+});
+```
+
+### Using `GetCurrentPatientForProfessionalRegistration`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, getCurrentPatientForProfessionalRegistrationRef } from '@dataconnect/generated';
+
+
+// Call the `getCurrentPatientForProfessionalRegistrationRef()` function to get a reference to the query.
+const ref = getCurrentPatientForProfessionalRegistrationRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = getCurrentPatientForProfessionalRegistrationRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.patients);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.patients);
+});
+```
+
 ## GetAuthorizedPatientByCpf
 You can execute the `GetAuthorizedPatientByCpf` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
 ```typescript
@@ -960,30 +1078,29 @@ Recall that executing the `GetAuthorizedPatientByCpf` query returns a `QueryProm
 The `data` property is an object of type `GetAuthorizedPatientByCpfData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
 ```typescript
 export interface GetAuthorizedPatientByCpfData {
-  patientAccesses: ({
-    patient: {
+  patients: ({
+    id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
+    motherName?: string | null;
+    patientType: PatientType;
+    user: {
       id: UUIDString;
-      motherName?: string | null;
-      patientType: PatientType;
+      name: string;
+      birthDate: DateString;
+      cpf: string;
+      sex?: string | null;
+      status: UserStatus;
+    } & User_Key;
+    responsible?: {
+      id: UUIDString;
       user: {
         id: UUIDString;
         name: string;
-        birthDate: DateString;
-        email?: string | null;
         cpf: string;
-        sex?: string | null;
-        status: UserStatus;
       } & User_Key;
-      responsible?: {
-        id: UUIDString;
-        user: {
-          id: UUIDString;
-          name: string;
-          cpf: string;
-        } & User_Key;
-      } & Patient_Key;
     } & Patient_Key;
-  })[];
+  } & Patient_Key)[];
 }
 ```
 ### Using `GetAuthorizedPatientByCpf`'s action shortcut function
@@ -1007,12 +1124,12 @@ const { data } = await getAuthorizedPatientByCpf({ cpf: ..., });
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await getAuthorizedPatientByCpf(dataConnect, getAuthorizedPatientByCpfVars);
 
-console.log(data.patientAccesses);
+console.log(data.patients);
 
 // Or, you can use the `Promise` API.
 getAuthorizedPatientByCpf(getAuthorizedPatientByCpfVars).then((response) => {
   const data = response.data;
-  console.log(data.patientAccesses);
+  console.log(data.patients);
 });
 ```
 
@@ -1040,12 +1157,12 @@ const ref = getAuthorizedPatientByCpfRef(dataConnect, getAuthorizedPatientByCpfV
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await executeQuery(ref);
 
-console.log(data.patientAccesses);
+console.log(data.patients);
 
 // Or, you can use the `Promise` API.
 executeQuery(ref).then((response) => {
   const data = response.data;
-  console.log(data.patientAccesses);
+  console.log(data.patients);
 });
 ```
 
@@ -1094,12 +1211,13 @@ The `data` property is an object of type `GetPatientData`, which is defined in [
 export interface GetPatientData {
   patient?: {
     id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
     motherName?: string | null;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -1224,12 +1342,13 @@ The `data` property is an object of type `GetAdminPatientData`, which is defined
 export interface GetAdminPatientData {
   patient?: {
     id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
     motherName?: string | null;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -1354,12 +1473,13 @@ The `data` property is an object of type `GetPatientByUserData`, which is define
 export interface GetPatientByUserData {
   patients: ({
     id: UUIDString;
+    email?: string | null;
+    authUid?: string | null;
     motherName?: string | null;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -1811,11 +1931,12 @@ The `data` property is an object of type `ListProfessionalsData`, which is defin
 export interface ListProfessionalsData {
   professionals: ({
     id: UUIDString;
+    email: string;
+    authUid: string;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -1927,11 +2048,12 @@ The `data` property is an object of type `GetProfessionalData`, which is defined
 export interface GetProfessionalData {
   professional?: {
     id: UUIDString;
+    email: string;
+    authUid: string;
     user: {
       id: UUIDString;
       name: string;
       birthDate: DateString;
-      email?: string | null;
       cpf: string;
       sex?: string | null;
       status: UserStatus;
@@ -2058,10 +2180,11 @@ The `data` property is an object of type `GetProfessionalByUserData`, which is d
 export interface GetProfessionalByUserData {
   professionals: ({
     id: UUIDString;
+    email: string;
+    authUid: string;
     user: {
       id: UUIDString;
       name: string;
-      email?: string | null;
       cpf: string;
     } & User_Key;
     professionalType: ProfessionalType;
@@ -2177,7 +2300,12 @@ export interface ListVaccinesData {
     id: UUIDString;
     name: string;
     description?: string | null;
+    shortName?: string | null;
+    recommendedAge?: string | null;
     requiredDoses: number;
+    intervalDays?: number | null;
+    targetGroups?: string[] | null;
+    doseSchedule?: unknown | null;
   } & Vaccine_Key)[];
 }
 ```
@@ -3493,6 +3621,8 @@ export interface ListApplicationsData {
     doseLabel?: string | null;
     nextDoseAt?: TimestampString | null;
     source?: string | null;
+    editedAt?: TimestampString | null;
+    editedByAuthUid?: string | null;
     voidedAt?: TimestampString | null;
     voidedByAuthUid?: string | null;
     voidReason?: string | null;
@@ -3642,6 +3772,8 @@ export interface ListCurrentProfessionalApplicationsData {
     doseLabel?: string | null;
     nextDoseAt?: TimestampString | null;
     source?: string | null;
+    editedAt?: TimestampString | null;
+    editedByAuthUid?: string | null;
     voidedAt?: TimestampString | null;
     voidedByAuthUid?: string | null;
     voidReason?: string | null;
@@ -4140,6 +4272,8 @@ export interface ListAdminApplicationsByPatientData {
     doseLabel?: string | null;
     nextDoseAt?: TimestampString | null;
     source?: string | null;
+    editedAt?: TimestampString | null;
+    editedByAuthUid?: string | null;
     voidedAt?: TimestampString | null;
     voidedByAuthUid?: string | null;
     voidReason?: string | null;
@@ -4442,7 +4576,6 @@ The `CreateUser` mutation requires an argument of type `CreateUserVariables`, wh
 export interface CreateUserVariables {
   name: string;
   birthDate: DateString;
-  email: string;
   status: UserStatus;
   cpf: string;
   sex?: string | null;
@@ -4467,7 +4600,6 @@ import { connectorConfig, createUser, CreateUserVariables } from '@dataconnect/g
 const createUserVars: CreateUserVariables = {
   name: ..., 
   birthDate: ..., 
-  email: ..., 
   status: ..., 
   cpf: ..., 
   sex: ..., // optional
@@ -4477,7 +4609,7 @@ const createUserVars: CreateUserVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createUser(createUserVars);
 // Variables can be defined inline as well.
-const { data } = await createUser({ name: ..., birthDate: ..., email: ..., status: ..., cpf: ..., sex: ..., });
+const { data } = await createUser({ name: ..., birthDate: ..., status: ..., cpf: ..., sex: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -4502,7 +4634,6 @@ import { connectorConfig, createUserRef, CreateUserVariables } from '@dataconnec
 const createUserVars: CreateUserVariables = {
   name: ..., 
   birthDate: ..., 
-  email: ..., 
   status: ..., 
   cpf: ..., 
   sex: ..., // optional
@@ -4511,7 +4642,7 @@ const createUserVars: CreateUserVariables = {
 // Call the `createUserRef()` function to get a reference to the mutation.
 const ref = createUserRef(createUserVars);
 // Variables can be defined inline as well.
-const ref = createUserRef({ name: ..., birthDate: ..., email: ..., status: ..., cpf: ..., sex: ..., });
+const ref = createUserRef({ name: ..., birthDate: ..., status: ..., cpf: ..., sex: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -4567,7 +4698,6 @@ export interface UpdateUserVariables {
   id: UUIDString;
   name?: string | null;
   birthDate?: DateString | null;
-  email?: string | null;
   status?: UserStatus | null;
   cpf?: string | null;
   sex?: string | null;
@@ -4593,7 +4723,6 @@ const updateUserVars: UpdateUserVariables = {
   id: ..., 
   name: ..., // optional
   birthDate: ..., // optional
-  email: ..., // optional
   status: ..., // optional
   cpf: ..., // optional
   sex: ..., // optional
@@ -4603,7 +4732,7 @@ const updateUserVars: UpdateUserVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateUser(updateUserVars);
 // Variables can be defined inline as well.
-const { data } = await updateUser({ id: ..., name: ..., birthDate: ..., email: ..., status: ..., cpf: ..., sex: ..., });
+const { data } = await updateUser({ id: ..., name: ..., birthDate: ..., status: ..., cpf: ..., sex: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -4629,7 +4758,6 @@ const updateUserVars: UpdateUserVariables = {
   id: ..., 
   name: ..., // optional
   birthDate: ..., // optional
-  email: ..., // optional
   status: ..., // optional
   cpf: ..., // optional
   sex: ..., // optional
@@ -4638,7 +4766,7 @@ const updateUserVars: UpdateUserVariables = {
 // Call the `updateUserRef()` function to get a reference to the mutation.
 const ref = updateUserRef(updateUserVars);
 // Variables can be defined inline as well.
-const ref = updateUserRef({ id: ..., name: ..., birthDate: ..., email: ..., status: ..., cpf: ..., sex: ..., });
+const ref = updateUserRef({ id: ..., name: ..., birthDate: ..., status: ..., cpf: ..., sex: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -4804,6 +4932,8 @@ export interface CreatePatientVariables {
   patientType: PatientType;
   responsibleId?: UUIDString | null;
   motherName?: string | null;
+  email?: string | null;
+  authUid?: string | null;
 }
 ```
 ### Return Type
@@ -4827,13 +4957,15 @@ const createPatientVars: CreatePatientVariables = {
   patientType: ..., 
   responsibleId: ..., // optional
   motherName: ..., // optional
+  email: ..., // optional
+  authUid: ..., // optional
 };
 
 // Call the `createPatient()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createPatient(createPatientVars);
 // Variables can be defined inline as well.
-const { data } = await createPatient({ userId: ..., patientType: ..., responsibleId: ..., motherName: ..., });
+const { data } = await createPatient({ userId: ..., patientType: ..., responsibleId: ..., motherName: ..., email: ..., authUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -4860,12 +4992,14 @@ const createPatientVars: CreatePatientVariables = {
   patientType: ..., 
   responsibleId: ..., // optional
   motherName: ..., // optional
+  email: ..., // optional
+  authUid: ..., // optional
 };
 
 // Call the `createPatientRef()` function to get a reference to the mutation.
 const ref = createPatientRef(createPatientVars);
 // Variables can be defined inline as well.
-const ref = createPatientRef({ userId: ..., patientType: ..., responsibleId: ..., motherName: ..., });
+const ref = createPatientRef({ userId: ..., patientType: ..., responsibleId: ..., motherName: ..., email: ..., authUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -4919,6 +5053,7 @@ The `UpdatePatient` mutation requires an argument of type `UpdatePatientVariable
 ```typescript
 export interface UpdatePatientVariables {
   id: UUIDString;
+  email?: string | null;
   patientType?: PatientType | null;
   responsibleId?: UUIDString | null;
   motherName?: string | null;
@@ -4942,6 +5077,7 @@ import { connectorConfig, updatePatient, UpdatePatientVariables } from '@datacon
 // The `UpdatePatient` mutation requires an argument of type `UpdatePatientVariables`:
 const updatePatientVars: UpdatePatientVariables = {
   id: ..., 
+  email: ..., // optional
   patientType: ..., // optional
   responsibleId: ..., // optional
   motherName: ..., // optional
@@ -4951,7 +5087,7 @@ const updatePatientVars: UpdatePatientVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updatePatient(updatePatientVars);
 // Variables can be defined inline as well.
-const { data } = await updatePatient({ id: ..., patientType: ..., responsibleId: ..., motherName: ..., });
+const { data } = await updatePatient({ id: ..., email: ..., patientType: ..., responsibleId: ..., motherName: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -4975,6 +5111,7 @@ import { connectorConfig, updatePatientRef, UpdatePatientVariables } from '@data
 // The `UpdatePatient` mutation requires an argument of type `UpdatePatientVariables`:
 const updatePatientVars: UpdatePatientVariables = {
   id: ..., 
+  email: ..., // optional
   patientType: ..., // optional
   responsibleId: ..., // optional
   motherName: ..., // optional
@@ -4983,11 +5120,126 @@ const updatePatientVars: UpdatePatientVariables = {
 // Call the `updatePatientRef()` function to get a reference to the mutation.
 const ref = updatePatientRef(updatePatientVars);
 // Variables can be defined inline as well.
-const ref = updatePatientRef({ id: ..., patientType: ..., responsibleId: ..., motherName: ..., });
+const ref = updatePatientRef({ id: ..., email: ..., patientType: ..., responsibleId: ..., motherName: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
 const ref = updatePatientRef(dataConnect, updatePatientVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.patient_update);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.patient_update);
+});
+```
+
+## LinkPatientAuthIdentity
+You can execute the `LinkPatientAuthIdentity` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
+```typescript
+linkPatientAuthIdentity(vars: LinkPatientAuthIdentityVariables): MutationPromise<LinkPatientAuthIdentityData, LinkPatientAuthIdentityVariables>;
+
+interface LinkPatientAuthIdentityRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: LinkPatientAuthIdentityVariables): MutationRef<LinkPatientAuthIdentityData, LinkPatientAuthIdentityVariables>;
+}
+export const linkPatientAuthIdentityRef: LinkPatientAuthIdentityRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+linkPatientAuthIdentity(dc: DataConnect, vars: LinkPatientAuthIdentityVariables): MutationPromise<LinkPatientAuthIdentityData, LinkPatientAuthIdentityVariables>;
+
+interface LinkPatientAuthIdentityRef {
+  ...
+  (dc: DataConnect, vars: LinkPatientAuthIdentityVariables): MutationRef<LinkPatientAuthIdentityData, LinkPatientAuthIdentityVariables>;
+}
+export const linkPatientAuthIdentityRef: LinkPatientAuthIdentityRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the linkPatientAuthIdentityRef:
+```typescript
+const name = linkPatientAuthIdentityRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `LinkPatientAuthIdentity` mutation requires an argument of type `LinkPatientAuthIdentityVariables`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface LinkPatientAuthIdentityVariables {
+  id: UUIDString;
+  email: string;
+  authUid: string;
+}
+```
+### Return Type
+Recall that executing the `LinkPatientAuthIdentity` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `LinkPatientAuthIdentityData`, which is defined in [dataconnect-generated/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface LinkPatientAuthIdentityData {
+  patient_update?: Patient_Key | null;
+}
+```
+### Using `LinkPatientAuthIdentity`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, linkPatientAuthIdentity, LinkPatientAuthIdentityVariables } from '@dataconnect/generated';
+
+// The `LinkPatientAuthIdentity` mutation requires an argument of type `LinkPatientAuthIdentityVariables`:
+const linkPatientAuthIdentityVars: LinkPatientAuthIdentityVariables = {
+  id: ..., 
+  email: ..., 
+  authUid: ..., 
+};
+
+// Call the `linkPatientAuthIdentity()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await linkPatientAuthIdentity(linkPatientAuthIdentityVars);
+// Variables can be defined inline as well.
+const { data } = await linkPatientAuthIdentity({ id: ..., email: ..., authUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await linkPatientAuthIdentity(dataConnect, linkPatientAuthIdentityVars);
+
+console.log(data.patient_update);
+
+// Or, you can use the `Promise` API.
+linkPatientAuthIdentity(linkPatientAuthIdentityVars).then((response) => {
+  const data = response.data;
+  console.log(data.patient_update);
+});
+```
+
+### Using `LinkPatientAuthIdentity`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, linkPatientAuthIdentityRef, LinkPatientAuthIdentityVariables } from '@dataconnect/generated';
+
+// The `LinkPatientAuthIdentity` mutation requires an argument of type `LinkPatientAuthIdentityVariables`:
+const linkPatientAuthIdentityVars: LinkPatientAuthIdentityVariables = {
+  id: ..., 
+  email: ..., 
+  authUid: ..., 
+};
+
+// Call the `linkPatientAuthIdentityRef()` function to get a reference to the mutation.
+const ref = linkPatientAuthIdentityRef(linkPatientAuthIdentityVars);
+// Variables can be defined inline as well.
+const ref = linkPatientAuthIdentityRef({ id: ..., email: ..., authUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = linkPatientAuthIdentityRef(dataConnect, linkPatientAuthIdentityVars);
 
 // Call `executeMutation()` on the reference to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
@@ -5506,6 +5758,8 @@ The `CreateProfessional` mutation requires an argument of type `CreateProfession
 ```typescript
 export interface CreateProfessionalVariables {
   userId: UUIDString;
+  email: string;
+  authUid: string;
   professionalType: ProfessionalType;
   professionalRegistration?: string | null;
   ubsId?: UUIDString | null;
@@ -5529,6 +5783,8 @@ import { connectorConfig, createProfessional, CreateProfessionalVariables } from
 // The `CreateProfessional` mutation requires an argument of type `CreateProfessionalVariables`:
 const createProfessionalVars: CreateProfessionalVariables = {
   userId: ..., 
+  email: ..., 
+  authUid: ..., 
   professionalType: ..., 
   professionalRegistration: ..., // optional
   ubsId: ..., // optional
@@ -5538,7 +5794,7 @@ const createProfessionalVars: CreateProfessionalVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createProfessional(createProfessionalVars);
 // Variables can be defined inline as well.
-const { data } = await createProfessional({ userId: ..., professionalType: ..., professionalRegistration: ..., ubsId: ..., });
+const { data } = await createProfessional({ userId: ..., email: ..., authUid: ..., professionalType: ..., professionalRegistration: ..., ubsId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -5562,6 +5818,8 @@ import { connectorConfig, createProfessionalRef, CreateProfessionalVariables } f
 // The `CreateProfessional` mutation requires an argument of type `CreateProfessionalVariables`:
 const createProfessionalVars: CreateProfessionalVariables = {
   userId: ..., 
+  email: ..., 
+  authUid: ..., 
   professionalType: ..., 
   professionalRegistration: ..., // optional
   ubsId: ..., // optional
@@ -5570,7 +5828,7 @@ const createProfessionalVars: CreateProfessionalVariables = {
 // Call the `createProfessionalRef()` function to get a reference to the mutation.
 const ref = createProfessionalRef(createProfessionalVars);
 // Variables can be defined inline as well.
-const ref = createProfessionalRef({ userId: ..., professionalType: ..., professionalRegistration: ..., ubsId: ..., });
+const ref = createProfessionalRef({ userId: ..., email: ..., authUid: ..., professionalType: ..., professionalRegistration: ..., ubsId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7063,9 +7321,9 @@ The `UpdateApplication` mutation requires an argument of type `UpdateApplication
 ```typescript
 export interface UpdateApplicationVariables {
   id: UUIDString;
+  applicationDate: TimestampString;
   doseNumber?: number | null;
   doseLabel?: string | null;
-  nextDoseAt?: TimestampString | null;
   notes?: string | null;
 }
 ```
@@ -7087,9 +7345,9 @@ import { connectorConfig, updateApplication, UpdateApplicationVariables } from '
 // The `UpdateApplication` mutation requires an argument of type `UpdateApplicationVariables`:
 const updateApplicationVars: UpdateApplicationVariables = {
   id: ..., 
+  applicationDate: ..., 
   doseNumber: ..., // optional
   doseLabel: ..., // optional
-  nextDoseAt: ..., // optional
   notes: ..., // optional
 };
 
@@ -7097,7 +7355,7 @@ const updateApplicationVars: UpdateApplicationVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateApplication(updateApplicationVars);
 // Variables can be defined inline as well.
-const { data } = await updateApplication({ id: ..., doseNumber: ..., doseLabel: ..., nextDoseAt: ..., notes: ..., });
+const { data } = await updateApplication({ id: ..., applicationDate: ..., doseNumber: ..., doseLabel: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7121,16 +7379,16 @@ import { connectorConfig, updateApplicationRef, UpdateApplicationVariables } fro
 // The `UpdateApplication` mutation requires an argument of type `UpdateApplicationVariables`:
 const updateApplicationVars: UpdateApplicationVariables = {
   id: ..., 
+  applicationDate: ..., 
   doseNumber: ..., // optional
   doseLabel: ..., // optional
-  nextDoseAt: ..., // optional
   notes: ..., // optional
 };
 
 // Call the `updateApplicationRef()` function to get a reference to the mutation.
 const ref = updateApplicationRef(updateApplicationVars);
 // Variables can be defined inline as well.
-const ref = updateApplicationRef({ id: ..., doseNumber: ..., doseLabel: ..., nextDoseAt: ..., notes: ..., });
+const ref = updateApplicationRef({ id: ..., applicationDate: ..., doseNumber: ..., doseLabel: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);

@@ -50,3 +50,13 @@ export function dateFromInput(value) {
     ? date
     : null;
 }
+
+export function assertBirthDate(value, now = new Date()) {
+  if (!dateFromInput(value)) {
+    throw new Error("Informe uma data de nascimento válida.");
+  }
+
+  if (value > toLocalDateInput(now)) {
+    throw new Error("A data de nascimento não pode ser posterior a hoje.");
+  }
+}

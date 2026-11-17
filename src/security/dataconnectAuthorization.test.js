@@ -46,9 +46,7 @@ describe('Data Connect authorization contract', () => {
     expect(operation).toContain('patientAccesses')
     expect(operation).toContain('granteeAuthUid: { eq_expr: "auth.uid" }')
     expect(operation).toContain('directRelationships: familyRelationships')
-    expect(operation).toContain(
-      'fromPatient: { user: { authUid: { eq_expr: "auth.uid" } } }',
-    )
+    expect(operation).toContain('fromPatient: { authUid: { eq_expr: "auth.uid" } }',)
     expect(operation).toContain('relationshipType')
     expect(operation).not.toContain('relationships_on_toPatient')
   })
@@ -64,14 +62,39 @@ describe('Data Connect authorization contract', () => {
       /mutation CompleteMobileRegistration[\s\S]*?(?=\n# Apenas telefone)/,
     )?.[0]
 
-    expect(portalOperation).toContain('portalRole')
-    expect(portalOperation).toContain('professional_on_user')
+    expect(portalOperation).toContain('professionals')
+    expect(portalOperation).toContain('authUid: { eq_expr: "auth.uid" }')
+    expect(portalOperation).toContain('user {')
+    
+    expect(mobilePersonOperation).toContain('patients')
     expect(mobilePersonOperation).toContain('authUid: { eq_expr: "auth.uid" }')
-    expect(mobilePersonOperation).toContain('patient_on_user')
-    expect(mobilePersonOperation).not.toContain('portalRole: { eq: PATIENT }')
+    expect(mobilePersonOperation).toContain('user {')
+    expect(mobilePersonOperation).not.toContain('patient_on_user')
+
+    expect(registrationOperation).toContain('patients')
+    expect(registrationOperation).toContain('authUid: { eq_expr: "auth.uid" }')
     expect(registrationOperation).toContain('accessKind: SELF')
-    expect(schema).toMatch(/type Professional @table \{[\s\S]*?user: User! @unique/)
+
+    expect(schema).toMatch(
+      /type Professional @table \{[\s\S]*?user: User! @unique/,
+    )
+    expect(schema).toMatch(
+      /type Patient @table \{[\s\S]*?user: User! @unique/,
+    )
+  })
+
+  test("a pessoa pode ter perfil de paciente e profissional vinculados ao mesmo User", () => {
     expect(schema).toMatch(/type Patient @table \{[\s\S]*?user: User! @unique/)
+    expect(schema).toMatch(/type Professional @table \{[\s\S]*?user: User! @unique/)
+    expect(schema).toMatch(/type Patient @table \{[\s\S]*?authUid: String @unique/)
+    expect(schema).toMatch(/type Professional @table \{[\s\S]*?authUid: String! @unique/)
+    expect(schema).toMatch(/type User @table \{[\s\S]*?cpf: String! @unique/)
+  })
+  
+  test("cadastro profissional localiza User pelo CPF e não utiliza email como identidade civil", () => {
+    expect(webQueries).toContain("query GetAdminUserByCpf")
+    expect(webQueries).toContain('@auth(expr: "auth.token.admin == true")')
+    expect(webMutations).not.toMatch(/\$email: String![\s\S]*?user_insert/)
   })
 
   test('mobile profile updates cannot change identity or authorization fields', () => {
@@ -90,23 +113,34 @@ describe('Data Connect authorization contract', () => {
     )
   })
 
-  test('web global patient and application listings are admin-only', () => {
-    expect(webQueries).toMatch(
-      /query ListPatients[\s\S]*?@auth\(expr: "auth\.token\.admin == true"\)/,
-    )
-    expect(webQueries).toMatch(
-      /query ListApplications[\s\S]*?@auth\(expr: "auth\.token\.admin == true"\)/,
-    )
-  })
+  test("web global listings are available to active professionals", () => {
+    for (const operationName of [
+      "ListPatients",
+      "ListAppointments",
+      "ListApplications",
+    ]) {
+      const start = webQueries.indexOf(`query ${operationName}`);
+      const next = webQueries.indexOf("\nquery ", start + 1);
+      const operation = webQueries.slice(start, next === -1 ? undefined : next);
+
+      expect(operation).toContain("@auth(level: USER)");
+      expect(operation).toContain('authUid: { eq_expr: "auth.uid" }');
+      expect(operation).toContain("active: { eq: true }");
+      expect(operation).toContain("this == 'ACTIVE'");
+      expect(operation).not.toContain("patientAccess");
+    }
+  });
 
   test('web session profile is resolved from SQL by auth.uid, not Firestore', () => {
     const operation = webQueries.match(
       /query GetCurrentPortalUser[\s\S]*?(?=\n# Compatibilidade)/,
     )?.[0]
 
+    expect(operation).toContain('professionals')
     expect(operation).toContain('authUid: { eq_expr: "auth.uid" }')
-    expect(operation).toContain('portalRole')
-    expect(operation).toContain('professional_on_user')
+    expect(operation).toContain('user {')
+    expect(operation).not.toContain('portalRole')
+    expect(operation).not.toContain('professional_on_user')
     expect(authService).toContain('getCurrentPortalUser')
     expect(authService).not.toMatch(/firebase\/firestore|auth_links|doc\(db/)
   })
@@ -120,33 +154,34 @@ describe('Data Connect authorization contract', () => {
     expect(operation).toContain('@retired')
   })
 
-  test('professional CPF lookup only returns a patient with a direct active grant', () => {
+  test("professional CPF lookup can find any active patient", () => {
     const operation = webQueries.match(
       /query GetAuthorizedPatientByCpf[\s\S]*?(?=\nquery GetPatient)/,
-    )?.[0]
+    )?.[0];
 
-    expect(operation).toContain('granteeAuthUid: { eq_expr: "auth.uid" }')
-    expect(operation).toContain('accessKind: { eq: PROFESSIONAL }')
-    expect(operation).toContain('consentStatus: { eq: GRANTED }')
-    expect(operation).toContain('viewProfile: { eq: true }')
-    expect(operation).toContain('user: { cpf: { eq: $cpf } }')
-  })
+    expect(operation).toContain("professionals");
+    expect(operation).toContain('authUid: { eq_expr: "auth.uid" }');
+    expect(operation).toContain("active: { eq: true }");
+    expect(operation).toContain("user: { cpf: { eq: $cpf } }");
+    expect(operation).not.toContain("patientAccess");
+  }); 
 
-  test('web patient-scoped reads require a direct auth.uid grant', () => {
+  test("web patient-scoped reads work without individual PatientAccess grants", () => {
     for (const operationName of [
-      'GetPatient',
-      'ListAppointmentsByPatient',
-      'ListApplicationsByPatient',
+      "GetPatient",
+      "ListAppointmentsByPatient",
+      "ListApplicationsByPatient",
     ]) {
-      const start = webQueries.indexOf(`query ${operationName}`)
-      const next = webQueries.indexOf('\nquery ', start + 1)
-      const operation = webQueries.slice(start, next === -1 ? undefined : next)
-
-      expect(operation).toContain('granteeAuthUid_expr: "auth.uid"')
-      expect(operation).toContain('@redact')
-      expect(operation).toContain('@check')
+      const start = webQueries.indexOf(`query ${operationName}`);
+      const next = webQueries.indexOf("\nquery ", start + 1);
+      const operation = webQueries.slice(start, next === -1 ? undefined : next);
+    
+      expect(operation).toContain("@auth(level: USER)");
+      expect(operation).toContain('authUid: { eq_expr: "auth.uid" }');
+      expect(operation).toContain("active: { eq: true }");
+      expect(operation).not.toContain("patientAccess");
     }
-  })
+  });
 
   test('only the matching admin or an authorized professional can create an application', () => {
     const operation = webMutations.match(
@@ -154,8 +189,12 @@ describe('Data Connect authorization contract', () => {
     )?.[0]
 
     expect(operation).toContain('this == auth.uid')
-    expect(operation).toContain("this == 'ADMIN'")
-    expect(operation).toContain("this == 'PROFESSIONAL'")
+    expect(operation).toContain('professional(id: $professionalId)')
+    expect(operation).toContain('authUid')
+    expect(operation).toContain('this == auth.uid')
+    expect(operation).toContain('active')
+    expect(operation).toContain("this == 'ACTIVE'")
+    expect(operation).not.toContain('portalRole')
     expect(operation).toContain('granteeAuthUid: { eq_expr: "auth.uid" }')
     expect(operation).toContain('auth.token.admin == true')
     expect(operation).toContain("p.consentStatus == 'GRANTED'")
@@ -239,19 +278,23 @@ describe('Data Connect authorization contract', () => {
     )
   })
 
-  test('application updates cannot rewrite identity or application date', () => {
-    const operation = webMutations.match(
-      /mutation UpdateApplication[\s\S]*?(?=\nmutation VoidApplication)/,
-    )?.[0]
+test('application updates can change date and editable fields but cannot rewrite identity', () => {
+  const operation = webMutations.match(
+    /mutation UpdateApplication[\s\S]*?(?=\nmutation VoidApplication)/,
+  )?.[0]
 
-    expect(operation).not.toMatch(
-      /\$(?:patientId|vaccineId|professionalId|ubsId|applicationDate):/,
-    )
-    expect(operation).toMatch(/\$doseNumber: Int/)
-    expect(operation).toMatch(/\$doseLabel: String/)
-    expect(operation).toMatch(/\$nextDoseAt: Timestamp/)
-    expect(operation).toMatch(/\$notes: String/)
-  })
+  expect(operation).toMatch(/\$applicationDate: Timestamp!/)
+  expect(operation).toMatch(/\$doseNumber: Int/)
+  expect(operation).toMatch(/\$doseLabel: String/)
+  expect(operation).toMatch(/\$notes: String/)
+
+  expect(operation).not.toMatch(
+    /\$(?:patientId|vaccineId|professionalId|ubsId|batchId):/,
+  )
+
+  expect(operation).toContain("Aplicação anulada não pode ser editada.")
+  expect(operation).toContain("applicationDate: $applicationDate")
+})
 
   test('patient lookup executes the protected query instead of returning a reference', () => {
     expect(patientService).toContain('await getPatient({ id })')
